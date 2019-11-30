@@ -1,0 +1,12 @@
+sudo apt-get install virtualenv
+virtualenv -p /usr/bin/python2.7 lrand
+source lrand/bin/activate
+
+pip install rdrand
+# Add lambda_function.py
+mv lambda_function.py lrand/lib/python2.7/site-packages/
+
+cd lrand/lib/python2.7/site-packages/
+zip -r9 lambda_function.zip *
+
+# Upload zip file to a python2.7 AWS Lambda 
