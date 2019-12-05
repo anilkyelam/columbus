@@ -1,38 +1,59 @@
-import json
 import os
 import subprocess
 import random
 import uuid
-import boto3
-import sys
+import json
+import time
+import datetime
+import rdrand
 
-def lambda_handler(event, context):
-    
+def hello_world(request):
     result = {}
-    
-    result['Boot ID'] = open('/proc/sys/kernel/random/boot_id', mode='r').read()
-    
-    up_times = open('/proc/uptime', mode='r').read().split()
-    result['UP Time 1'] = up_times[0]
-    result['UP Time 2'] = up_times[1]
-    
-    
-    file_handles = open('/proc/sys/fs/file-nr', mode='r').read().split()
-    result['File NR 1'] = file_handles[0]
-    result['File NR 2'] = file_handles[1]
-    result['File NR 3'] = file_handles[2]
-    
+    result['start_time'] = int(round(time.time() * 1000))
+
+
+
     mac = ':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff) for ele in range(0,8*6,8)][::-1])
     result["MAC Addr"] = mac
-    
+
+    result['IP'] = os.uname()[1]
     # result["osname"] = str(os.uname())
-    
-    device = os.stat("/home").st_dev
-    result["raw_device_num"] = device
+
     # Extract the device minor number 
     # from the above raw device number 
+    itimes = []
+    times = []
+    i = 1000
+    start = time.time()
+    while(i!=0):
+        start1 = time.time()
+        rdrand.rdseed_get_bits(1000)
+        i = i-1
+        end1 = time.time()
+        time.sleep(0.001)
+        itimes.append(end1-start1)
+    end = time.time()
+    print (end-start)
+    end = time.time()
+    imax_value = max(itimes)
+    iavg_value = sum(itimes)/len(itimes)
+    result['imax_value'] = imax_value
+    result['iavg_value'] = iavg_value
+
+    time.sleep(7)
+    i = 1000
+    while(i!=0):
+        start1 = time.time()
+        rdrand.rdseed_get_bits(1000)
+        i = i-1
+        end1 = time.time()
+        times.append(end1-start1)
+        time.sleep(0.001)
+    imax_value = max(times)
+    iavg_value = sum(times)/len(times)
+    result['fmax_value'] = imax_value
+    result['favg_value'] = iavg_value
+    result['rdseed'] = rdrand.HAS_SEED
     
-    return {
-        'statusCode': 200,
-        'body': json.dumps(result)
-    }
+
+    return json.dumps(result)
