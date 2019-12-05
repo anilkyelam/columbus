@@ -1,0 +1,19 @@
+Setting Up:
+
+1. Set up a layer on AWS to import rdrand and numpy
+	- On AWS, navigate to the Layers service
+	- Select "Create Layer"
+	- Choose an arbitrary name, upload the layer_numpy_rdrand.zip file from the zips directory, choose the appropriate runtime(same as the lambda function) and create the layer
+	- Repeat the above steps for psutil as well
+
+2. Create the lambda function and include the layer
+	- Choose the layer option from below the lambda name and select the layer as created above to include
+	- Write out code in the inline code editor for the lambda; an import to numpy and rdrand will succeed
+
+3. Setting up an API interface for the lambda function
+	- On AWS, navigate to the API Gateway service
+	- Select the option to Build a REST API
+	- Click on the "new API" toggle button under the "Create new API" title
+	- Choose an arbitrary name and select create API
+	- From the "Actions" dropdown, select "Create Method". ANother dropdown menu will appear below. From this, select "ANY" and click on the tick option next to it. Specify the name of the Lambda function to deploy and hit Save.
+	- From the "Actions" dropdown again, select "Deploy API". Provide an arbitrary name to the API and deploy. Note down the URL for use.
