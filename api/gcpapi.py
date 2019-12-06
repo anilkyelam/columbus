@@ -1,3 +1,5 @@
+# python3 path_to_gcpapi.py "URL" "path_to_csv"
+
 from urllib.parse import urlparse
 from threading import Thread
 import http.client, sys
@@ -41,12 +43,14 @@ def main():
         t.start()
     try:
         for i in range(no_of_calls):
-            req_q.put("https://asia-east2-zinc-wares-258309.cloudfunctions.net/rdrand_enabled_asia")
+            req_q.put(sys.argv[1])
+
         req_q.join()
     except KeyboardInterrupt:
         sys.exit(1)
     first = True
-    with open(sys.argv[1], 'w+') as csvfile:
+
+    with open(sys.argv[2], 'w+') as csvfile:
         while not data_q.empty():
             item = data_q.get()
 
