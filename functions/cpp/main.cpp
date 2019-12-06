@@ -1,8 +1,11 @@
 #include <aws/lambda-runtime/runtime.h>
 #include <cstdio>
 #include <cstdint>
+#include <cstring>
 #include <string>
 #include <unistd.h>
+#include <iostream>
+#include <sstream>
 
 using namespace aws::lambda_runtime;
 
@@ -23,6 +26,65 @@ static __inline__ unsigned long long rdtsc1(void)
             "mov %%edx, %0\n\t"
             "mov %%eax, %1\n\t": "=r" (cycles_high1), "=r" (cycles_low1)::
             "%rax", "rbx", "rcx", "rdx");
+}
+
+/* From
+https://stackoverflow.com/questions/10291882/how-to-deserialize-json-string-in-c-without-using-any-third-party-library
+Works only for one level json string.
+ */
+static std::string get_json_value(std::string json_str, std::string key)
+{
+   std::stringstream ss(json_str); //simulating an response stream
+    const unsigned int BUFFERSIZE = 256;
+
+    //temporary buffer
+    char buffer[BUFFERSIZE];
+    memset(buffer, 0, BUFFERSIZE * sizeof(char));
+
+    //returnValue.first holds the variables name
+    //returnValue.second holds the variables value
+    std::pair<std::string, std::string> returnValue;
+
+    //read until the opening bracket appears
+    while(ss.peek() != '{')         
+    {
+        //ignore the { sign and go to next position
+        ss.ignore();
+    }
+
+    //get response values until the closing bracket appears
+    while(ss.peek() != '}')
+    {
+        //read until a opening variable quote sign appears
+        ss.get(buffer, BUFFERSIZE, '\"'); 
+        //and ignore it (go to next position in stream)
+        ss.ignore();
+
+        //read variable token excluding the closing variable quote sign
+        ss.get(buffer, BUFFERSIZE, '\"');
+        //and ignore it (go to next position in stream)
+        ss.ignore();
+        //store the variable name
+        returnValue.first = buffer;
+
+        //read until opening value quote appears(skips the : sign)
+        ss.get(buffer, BUFFERSIZE, '\"');
+        //and ignore it (go to next position in stream)
+        ss.ignore();
+
+        //read value token excluding the closing value quote sign
+        ss.get(buffer, BUFFERSIZE, '\"');
+        //and ignore it (go to next position in stream)
+        ss.ignore();
+        //store the variable name
+        returnValue.second = buffer;
+
+        //do something with those extracted values
+        if (key.compare(returnValue.first) == 0)
+            return returnValue.second;
+    }
+
+    return NULL;
 }
 
 invocation_response my_handler(invocation_request const& request)
@@ -61,53 +123,62 @@ invocation_response my_handler(invocation_request const& request)
       addr = (uint32_t*)((uint8_t*)(arr+i-1) + 2);
       printf("Found an address that falls on two cache lines: %p\n", (void*) addr);
   
-      int trials = 1000;
-      double op1_cycles, op2_cycles, op3_cycles;
+      const std::string thrasher = "thrasher";
+      const std::string sampler = "sampler";
+      // std::string role = get_json_value(request.payload, "role");
+      // if (thrasher.compare(role) == 0)
+      // {
+      //    /* Continuously hit the address with atomic operations */
+      //    // while(1)
+      //    // {
+      //    //    /* atomic sum of cacheline boundary */
+      //    //    __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
+      //    //    uint32_t val = *addr;
+      //    // }
 
-      /* regular sum, no bus contention or DRAM memory access */
-      rdtsc();
-      for (i = 0; i < trials; i++ )
-      {
-         (*addr)++;
-      } 
-      rdtsc1();
-      start = ( ((uint64_t)cycles_high << 32) | cycles_low );
-      end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
-      op1_cycles = (end - start)*1.0/trials;
-      printf("Cycles per operation: %lu\n", op1_cycles);
+      //    sprintf(result, "THRASHER\n");
+      // }
+      // else if (sampler.compare(role) == 0)
+      // {
+      //    /* Continuously hit the address with atomic operations */
+      //    // while(1)
+      //    // {
+      //    //    /* Measure memory access latency every millisecond
+      //    //       * Atomic sum of cacheline boundary, this ensures memory is hit */
+      //    //    usleep(100000);
 
-      /* atomic sum of regular addres */
-      rdtsc();
-      for (i = 0; i < trials; i++ )
-      {
-         __atomic_fetch_add(arr, 1, __ATOMIC_SEQ_CST);
-      } 
-      rdtsc1();
-      start = ( ((uint64_t)cycles_high << 32) | cycles_low );
-      end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
-      op2_cycles = (end - start)/trials;
-      printf("Cycles per operation: %lu\n", op2_cycles);
+      //    //    rdtsc();
+      //    //    __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
+      //    //    rdtsc1();
+
+      //    //    start = ( ((uint64_t)cycles_high << 32) | cycles_low );
+      //    //    end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
+      //    //    total_cycles_spent = (end - start);
+      //    //    printf("Memory access latency in cycles: %lu\n", total_cycles_spent);
+      //    // }
+
+      //    sprintf(result, "SAMPLER\n");
+      // }
+      // else
+      // {
+      //    /* Print cpu clock speed and quit */
+      //    rdtsc();
+      //    sleep(1);
+      //    rdtsc1();
+      //    start = ( ((uint64_t)cycles_high << 32) | cycles_low );
+      //    end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
+      //    total_cycles_spent = (end - start);
+      //    printf("Nothing else to do. Pick a role!\n");
       
-      /* atomic sum of cacheline boundary */
-      rdtsc();
-      for (i = 0; i < trials; i++ )
-      {
-         __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
-      } 
-      rdtsc1();
-      start = ( ((uint64_t)cycles_high << 32) | cycles_low );
-      end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
-      op3_cycles = (end - start)/trials;
-      printf("Cycles per operation: %lf\n", op3_cycles);
+      //    sprintf(result, "Cache line: %ld, CPU Speed: %lu Mhz. Nothing else to do. Pick a role!\n", 
+      //       cacheline_sz, total_cycles_spent);
+      // }
 
       free(arr);
-      
-      sprintf(result, "Cache line: %ld, Op1 Cycles: %lf, Op2 Cycles: %lf, Op3 Cycles: %lf\n", 
-         cacheline_sz, op1_cycles, op2_cycles, op3_cycles);
    }
 
    printf("%s\n", result);
-   return invocation_response::success(result, "application/json");
+   return invocation_response::success("anil kumar", "text/plain");
 }
 
 int main()

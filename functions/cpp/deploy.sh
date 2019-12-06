@@ -31,7 +31,7 @@ aws lambda update-function-code --function-name membus --zip-file fileb://hello.
 popd
 
 echo "Invoking function"
-aws lambda invoke --function-name membus output.txt
+aws lambda invoke --function-name membus --payload '{ "role": "none" }' output.txt
 cat output.txt
 rm output.txt
 
