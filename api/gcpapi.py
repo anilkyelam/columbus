@@ -30,17 +30,18 @@ def worker():
             data = resp.read()
             data_q.put(data)
         else:
-            print (resp.status)
+            pass
 
         req_q.task_done()
 def main():
-    for i in range(200):
+    no_of_calls = 200
+    for i in range(no_of_calls):
         t = Thread(target=worker, args=())
         t.daemon = True
         t.start()
     try:
-        for i in range(200):
-            req_q.put("https://europe-west1-zinc-wares-258309.cloudfunctions.net/rdrand")
+        for i in range(no_of_calls):
+            req_q.put("https://asia-east2-zinc-wares-258309.cloudfunctions.net/rdrand_enabled_asia")
         req_q.join()
     except KeyboardInterrupt:
         sys.exit(1)
@@ -50,6 +51,8 @@ def main():
             item = data_q.get()
 
             item_d = json.loads(item)
+            if(item_d == {}):
+                continue
             
             if first:
                 writer = csv.DictWriter(csvfile, fieldnames=list(item_d.keys()))
