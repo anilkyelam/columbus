@@ -38,7 +38,7 @@ def worker():
         req_q.task_done()
 
 def main():
-    no_of_calls = sys.argv[1]
+    no_of_calls = int(sys.argv[1])
     for i in range(no_of_calls):
         t = Thread(target=worker, args=())
         t.daemon = True
