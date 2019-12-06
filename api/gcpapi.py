@@ -23,6 +23,7 @@ def getResponse(ourl):
     except Exception as e:
         print(e)
         return None
+
 def worker():
     while True:
         url = req_q.get()
@@ -35,6 +36,7 @@ def worker():
             pass
 
         req_q.task_done()
+
 def main():
     no_of_calls = 200
     for i in range(no_of_calls):
@@ -50,6 +52,9 @@ def main():
         sys.exit(1)
     first = True
 
+    print ("Successful runs = " + str(data_q.qsize()))
+    
+    counter = 0
     with open(sys.argv[2], 'w+') as csvfile:
         while not data_q.empty():
             item = data_q.get()
@@ -61,10 +66,12 @@ def main():
             if first:
                 writer = csv.DictWriter(csvfile, fieldnames=list(item_d.keys()))
                 writer.writeheader()
-                print (data_q.qsize())
                 first = False
 
+            counter = counter+1
             writer.writerow(item_d)
+    
+    print("Runs that passed the check = " + str(counter))
 
 if __name__ == '__main__':
     main()

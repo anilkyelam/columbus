@@ -31,7 +31,7 @@ def hello_world(request):
     mac = ':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff) for ele in range(0,8*6,8)][::-1])
     result["MAC Address"] = mac
 
-    i = 10000
+    i = 150000
     num_bits = 10000
     if(rdrand.HAS_SEED != 0):
         result['Rdseed Enabled']=1
@@ -50,6 +50,6 @@ def hello_world(request):
             i = i-1
         end = time.time()
         print (end-start)
-        
+
     result["Exec Time"] = end - start
     return json.dumps(result)

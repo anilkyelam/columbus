@@ -32,7 +32,7 @@ def hello_world(request):
         mac = ':'.join(['{:02x}'.format((uuid.getnode() >> ele) & 0xff) for ele in range(0,8*6,8)][::-1])
         result["MAC Address"] = mac
 
-        i = 10000
+        i = 150000
         num_bits = 10000
         start = time.time()
         while(i!=0):
