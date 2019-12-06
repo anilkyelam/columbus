@@ -1,4 +1,4 @@
-# TO RUN : python3 path_to_awsapi.py "URL" "path_to_csv"
+# TO RUN : python3 no_of_calls path_to_awsapi.py "URL" "path_to_csv"
 
 from urllib.parse import urlparse
 from threading import Thread
@@ -39,14 +39,14 @@ def worker():
         req_q.task_done()
 
 def main():
-    no_of_calls = 10
+    no_of_calls = sys.argv[1]
     for i in range(no_of_calls):
         t = Thread(target=worker, args=())
         t.daemon = True
         t.start()
     try:
         for i in range(no_of_calls):
-            req_q.put(sys.argv[1])
+            req_q.put(sys.argv[2])
         req_q.join()
     except KeyboardInterrupt:
         sys.exit(1)
@@ -55,7 +55,7 @@ def main():
     print ("Successful runs = " + str(data_q.qsize()))
     
     counter = 0
-    with open(sys.argv[2], 'w+') as csvfile:
+    with open(sys.argv[3], 'w+') as csvfile:
         while not data_q.empty():
             item = data_q.get()
             item_i = json.loads(item)

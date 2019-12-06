@@ -25,7 +25,7 @@ def get_size(bytes, suffix="B"):
 
 def lambda_handler(event, context):
     result = {}
-    result['start_time'] = int(round(time.time() * 1000))
+    result['Start Time'] = int(round(time.time() * 1000))
 
     # CPU frequency
     cpufreq = psutil.cpu_freq()
