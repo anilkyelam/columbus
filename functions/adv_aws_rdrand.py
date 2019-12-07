@@ -24,12 +24,18 @@ def get_size(bytes, suffix="B"):
         bytes /= factor
 
 def lambda_handler(event, context):
+    start = time.time()
     result = {}
+    result["In"] = "Both"
     result['Start Time'] = int(round(time.time() * 1000))
+    time.sleep(6)
 
+    uname = platform.uname()
+    result["Node Name"]=uname.node
+    
     # CPU frequency
     cpufreq = psutil.cpu_freq()
-    result["Frequency"]= cpufreq.current
+    result["Current Frequency"]= cpufreq.current
 
     # MAC address
     if_addrs = psutil.net_if_addrs()
@@ -43,12 +49,13 @@ def lambda_handler(event, context):
     result["Total Bytes Sent"] = get_size(net_io.bytes_sent)
     result["Total Bytes Received"] = get_size(net_io.bytes_recv)
 
-    i = 10000 
-    start = time.time()
+    i = 8000 
+    start1 = time.time()
     while(i!=0):
         rdrand.rdrand_get_bits(1000000)
         i = i-1
     end = time.time()
-    result["Exec Time"] = end-start
+    result["Total Time"] = end-start
+    result["Exec Time"] = end-start1
 
     return json.dumps(result)
