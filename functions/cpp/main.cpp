@@ -6,6 +6,20 @@
 #include <unistd.h>
 #include <iostream>
 #include <sstream>
+#include <iomanip>
+#include <fstream>
+
+#include <netdb.h>
+#include <unistd.h>
+#include <string.h>
+#include <sys/fcntl.h>
+#include <sys/errno.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <net/if.h>
+#include <stdio.h>
+#include <ifaddrs.h>
 
 using namespace aws::lambda_runtime;
 
@@ -28,71 +42,63 @@ static __inline__ unsigned long long rdtsc1(void)
             "%rax", "rbx", "rcx", "rdx");
 }
 
-/* From
-https://stackoverflow.com/questions/10291882/how-to-deserialize-json-string-in-c-without-using-any-third-party-library
-Works only for one level json string.
- */
-static std::string get_json_value(std::string json_str, std::string key)
+/* Get comma-seperated MAC addresses of all interfaces */
+void get_mac_addrs(char* mac)
 {
-   std::stringstream ss(json_str); //simulating an response stream
-    const unsigned int BUFFERSIZE = 256;
+   sprintf(mac, "");
 
-    //temporary buffer
-    char buffer[BUFFERSIZE];
-    memset(buffer, 0, BUFFERSIZE * sizeof(char));
+   struct ifreq ifr;
+   int s;
+   if ((s = socket(AF_INET, SOCK_STREAM,0)) < 0) {
+      perror("socket");
+      return;
+   }
 
-    //returnValue.first holds the variables name
-    //returnValue.second holds the variables value
-    std::pair<std::string, std::string> returnValue;
+   struct ifaddrs *addrs,*tmp;
+   getifaddrs(&addrs);
+   tmp = addrs;
+   while (tmp)
+   {
+      if (tmp->ifa_addr && tmp->ifa_addr->sa_family == AF_PACKET)
+      {
+         strcpy(ifr.ifr_name, tmp->ifa_name);
+         if (ioctl(s, SIOCGIFHWADDR, &ifr) < 0) {
+            perror("ioctl");
+            return;
+         }
+         
+         unsigned char *hwaddr = (unsigned char *)ifr.ifr_hwaddr.sa_data;
+         sprintf(mac, "%02X:%02X:%02X:%02X:%02X:%02X", hwaddr[0], hwaddr[1], hwaddr[2],
+                     hwaddr[3], hwaddr[4], hwaddr[5]);
+      }
 
-    //read until the opening bracket appears
-    while(ss.peek() != '{')         
-    {
-        //ignore the { sign and go to next position
-        ss.ignore();
-    }
+      tmp = tmp->ifa_next;
+   }
 
-    //get response values until the closing bracket appears
-    while(ss.peek() != '}')
-    {
-        //read until a opening variable quote sign appears
-        ss.get(buffer, BUFFERSIZE, '\"'); 
-        //and ignore it (go to next position in stream)
-        ss.ignore();
+   freeifaddrs(addrs);
+   close(s);
+}
 
-        //read variable token excluding the closing variable quote sign
-        ss.get(buffer, BUFFERSIZE, '\"');
-        //and ignore it (go to next position in stream)
-        ss.ignore();
-        //store the variable name
-        returnValue.first = buffer;
-
-        //read until opening value quote appears(skips the : sign)
-        ss.get(buffer, BUFFERSIZE, '\"');
-        //and ignore it (go to next position in stream)
-        ss.ignore();
-
-        //read value token excluding the closing value quote sign
-        ss.get(buffer, BUFFERSIZE, '\"');
-        //and ignore it (go to next position in stream)
-        ss.ignore();
-        //store the variable name
-        returnValue.second = buffer;
-
-        //do something with those extracted values
-        if (key.compare(returnValue.first) == 0)
-            return returnValue.second;
-    }
-
-    return NULL;
+/* Get current date/time, format is YYYY-MM-DD.HH:mm:ss */
+const std::string current_datetime() {
+   time_t     now = time(0);
+   struct tm  tstruct;
+   char       buf[80];
+   tstruct = *localtime(&now);
+   strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
+   return buf;
 }
 
 invocation_response my_handler(invocation_request const& request)
 {
-   int status = 0;
-   char result[200];
+   std::string start_time = current_datetime();
 
-   uint64_t start, end,total_cycles_spent;
+   const std::string thrasher = "thrasher";
+   const std::string sampler = "sampler";
+   const std::string none = "none";
+   char result[500];
+   std::string role;
+   uint64_t start, end, total_cycles1 = 0, max_cycles1 = 0, total_cycles2 = 0, max_cycles2 = 0, trials = 0;
    int* arr;
    int i, size = 4;   /* 4 * 4B, give it few cache lines */
    uint32_t *addr;    /* Address that falls on two cache lines. */
@@ -122,63 +128,129 @@ invocation_response my_handler(invocation_request const& request)
    {
       addr = (uint32_t*)((uint8_t*)(arr+i-1) + 2);
       printf("Found an address that falls on two cache lines: %p\n", (void*) addr);
-  
-      const std::string thrasher = "thrasher";
-      const std::string sampler = "sampler";
-      // std::string role = get_json_value(request.payload, "role");
-      // if (thrasher.compare(role) == 0)
-      // {
-      //    /* Continuously hit the address with atomic operations */
-      //    // while(1)
-      //    // {
-      //    //    /* atomic sum of cacheline boundary */
-      //    //    __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
-      //    //    uint32_t val = *addr;
-      //    // }
 
-      //    sprintf(result, "THRASHER\n");
-      // }
-      // else if (sampler.compare(role) == 0)
-      // {
-      //    /* Continuously hit the address with atomic operations */
-      //    // while(1)
-      //    // {
-      //    //    /* Measure memory access latency every millisecond
-      //    //       * Atomic sum of cacheline boundary, this ensures memory is hit */
-      //    //    usleep(100000);
+      try {
+         int x = stoi(request.payload);
+         if (x)   role = sampler;
+         else     role = thrasher;
+      }
+      catch(std::invalid_argument& e){
+         // if no conversion could be performed
+         role = none;
+      }
 
-      //    //    rdtsc();
-      //    //    __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
-      //    //    rdtsc1();
+      /* Perform actions */
+      if (thrasher.compare(role) == 0)
+      {
+         /* wait first few seconds till samplers get baseline numbers */
+         sleep(7);
 
-      //    //    start = ( ((uint64_t)cycles_high << 32) | cycles_low );
-      //    //    end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
-      //    //    total_cycles_spent = (end - start);
-      //    //    printf("Memory access latency in cycles: %lu\n", total_cycles_spent);
-      //    // }
+         /* Continuously hit the address with atomic operations */
+         time_t st_time = time(0);
+         trials = 0;
+         while(1)
+         {
+            for (i = 1; i < 1000; i++){
+               /* atomic sum of cacheline boundary */
+               __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
+            }
 
-      //    sprintf(result, "SAMPLER\n");
-      // }
-      // else
-      // {
-      //    /* Print cpu clock speed and quit */
-      //    rdtsc();
-      //    sleep(1);
-      //    rdtsc1();
-      //    start = ( ((uint64_t)cycles_high << 32) | cycles_low );
-      //    end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
-      //    total_cycles_spent = (end - start);
-      //    printf("Nothing else to do. Pick a role!\n");
+            trials ++;
+            if (time(0) - st_time >= 8)
+               break;
+         }
+      }
       
-      //    sprintf(result, "Cache line: %ld, CPU Speed: %lu Mhz. Nothing else to do. Pick a role!\n", 
-      //       cacheline_sz, total_cycles_spent);
-      // }
+      else if (sampler.compare(role) == 0)
+      {
+         /* Sample the latency of atomic operations for 5 seconds  */
+         for (i = 1; i < 600; i++)
+         {
+            /* Measure memory access latency every millisecond
+               * Atomic sum of cacheline boundary, this ensures memory is hit */
+            usleep(10000);
+
+            rdtsc();
+            __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
+            rdtsc1();
+
+            start = ( ((uint64_t)cycles_high << 32) | cycles_low );
+            end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
+            uint64_t cycles_spent = (end - start);
+            total_cycles1 += cycles_spent;
+            if (cycles_spent >= max_cycles1)  max_cycles1 = cycles_spent;
+            trials ++;
+         }
+
+         /* Wait 3 seconds for thrashers to start */
+         sleep(3);
+
+         /* Sample the latency of atomic operations for 5 more seconds  */
+         for (i = 1; i < 600; i++)
+         {
+            /* Measure memory access latency every millisecond
+               * Atomic sum of cacheline boundary, this ensures memory is hit */
+            usleep(10000);
+
+            rdtsc();
+            __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
+            rdtsc1();
+
+            start = ( ((uint64_t)cycles_high << 32) | cycles_low );
+            end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
+            uint64_t cycles_spent = (end - start);
+            total_cycles2 += cycles_spent;
+            if (cycles_spent >= max_cycles2)  max_cycles2 = cycles_spent;
+            trials ++;
+         }
+      }
 
       free(arr);
    }
 
-   printf("%s\n", result);
-   return invocation_response::success("anil kumar", "text/plain");
+   // clock_t start_time = clock();
+   // while(1)
+   // {
+   //    if ((clock() - start_time) / CLOCKS_PER_SEC >= 2) // time in seconds
+   //       break;
+   // }
+
+   /* Prepare response as JSON*/
+   char response[1000];
+   sprintf(response, "{ \"Role\" : \"%s\" ", role.c_str());
+
+   /* Add time to response */
+   sprintf(response, "%s, \"Start Time\": \"%s\"", response, start_time.c_str());
+   sprintf(response, "%s, \"End Time\": \"%s\"", response, current_datetime().c_str());
+
+   /* Add sampler results */
+   uint64_t avg_cycles1 = (trials) != 0 ? total_cycles1/trials : 0;
+   uint64_t avg_cycles2 = (trials) != 0 ? total_cycles2/trials : 0;
+   sprintf(response, "%s, \"Avg Cycles 1\": \"%lu\"", response, avg_cycles1);
+   sprintf(response, "%s, \"Max Cycles 1\": \"%lu\"", response, max_cycles1);
+   sprintf(response, "%s, \"Avg Cycles 2\": \"%lu\"", response, avg_cycles2);
+   sprintf(response, "%s, \"Max Cycles 2\": \"%lu\"", response, max_cycles2);
+   sprintf(response, "%s, \"Difference\": \"%lu\"", response, avg_cycles2 > avg_cycles1 ? (avg_cycles2 - avg_cycles1) : (avg_cycles1 - avg_cycles2));
+   sprintf(response, "%s, \"Trials\": \"%lu\"", response, trials);
+
+   /* Get request id */
+   sprintf(response, "%s, \"Request ID\": \"%s\"", response, request.request_id.c_str());
+
+   /* Get MAC addresses and add to the response */
+   char mac[50] = "";
+   get_mac_addrs(mac);
+   sprintf(response, "%s, \"MAC Address\": \"%s\"", response, mac);
+
+   /* Get boot id */
+   std::ifstream ifs("/proc/sys/kernel/random/boot_id");
+   std::string boot_id ( (std::istreambuf_iterator<char>(ifs) ), (std::istreambuf_iterator<char>()) );
+   sprintf(response, "%s, \"Boot ID\": \"%s\"", response, boot_id.c_str());
+
+   /* Close json */
+   sprintf(response, "%s }", response);
+
+   /* send response */
+   return invocation_response::success(response, "application/json");
 }
 
 int main()

@@ -1,7 +1,9 @@
 .DS_Store
 venv
 .vscode
+
+# aws cpp build mess
 aws-lambda-cpp
 aws-lambda-cpp/**
-*/build/**
+**/build/**
 a.out

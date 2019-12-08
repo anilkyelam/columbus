@@ -31,7 +31,8 @@ aws lambda update-function-code --function-name membus --zip-file fileb://hello.
 popd
 
 echo "Invoking function"
-aws lambda invoke --function-name membus --payload '{ "role": "none" }' output.txt
+aws lambda invoke --function-name membus --payload '1' output.txt 
 cat output.txt
 rm output.txt
+#curl -X POST https://8rq4dl2w8f.execute-api.us-west-1.amazonaws.com/latest -d '1'
 
