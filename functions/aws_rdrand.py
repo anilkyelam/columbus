@@ -23,9 +23,69 @@ def get_size(bytes, suffix="B"):
             return f"{bytes:.2f}{unit}{suffix}"
         bytes /= factor
 
+def lambda_handler_2300(event, context):
+    result = {}
+    result['Start Time'] = int(round(time.time() * 1000))
+
+    # CPU frequency
+    cpufreq = psutil.cpu_freq()
+    result["Frequency"]= cpufreq.current
+
+    if(not(result["Frequency"] >= 2298 and result["Frequency"] <= 2302)):
+        return json.dumps({})
+
+    else:
+        # MAC address
+        if_addrs = psutil.net_if_addrs()
+        for interface_name, interface_addresses in if_addrs.items():
+            for address in interface_addresses:
+                if str(address.family) == 'AddressFamily.AF_PACKET':
+                    result["MAC Address"] = address.address
+
+        # get IO statistics since boot
+        net_io = psutil.net_io_counters()
+        result["Total Bytes Sent"] = get_size(net_io.bytes_sent)
+        result["Total Bytes Received"] = get_size(net_io.bytes_recv)
+
+        # init_times is a list of initial rdrand latencies
+        init_times = []
+        # final_times is a list of final rdrand latencies
+        final_times = []
+
+        i = 5000 
+        start = time.time()
+        while(i!=0):
+            start1 = time.time()
+            rdrand.rdrand_get_bits(1000)
+            i = i-1
+            end1 = time.time()
+            init_times.append(end1-start1)
+            time.sleep(0.001)
+        end = time.time()
+        result['First Iteration Latency'] = end-start
+        init_avg = sum(init_times)/len(init_times)
+        result['Rdrand Latency'] = init_avg
+
+        time.sleep(5)
+
+        i = 5000
+        while(i!=0):
+            start1 = time.time()
+            rdrand.rdrand_get_bits(1000)
+            i = i-1
+            end1 = time.time()
+            final_times.append(end1-start1)
+            time.sleep(0.001)
+        final_avg = sum(final_times)/len(final_times)
+        result['Contention Rdrand Latency'] = final_avg
+        result['Total Latency'] = final_avg - init_avg
+
+    return json.dumps(result)
+
 def lambda_handler(event, context):
     result = {}
-    result['start_time'] = int(round(time.time() * 1000))
+    result['Start Time'] = int(round(time.time() * 1000))
+    result['Elapsed Time'] = int(round(float(time.time()) - float(os.times()[4])))
 
     # CPU frequency
     cpufreq = psutil.cpu_freq()
@@ -62,7 +122,7 @@ def lambda_handler(event, context):
     init_avg = sum(init_times)/len(init_times)
     result['Rdrand Latency'] = init_avg
 
-    time.sleep(7)
+    time.sleep(5)
 
     i = 5000
     while(i!=0):
@@ -74,5 +134,65 @@ def lambda_handler(event, context):
         time.sleep(0.001)
     final_avg = sum(final_times)/len(final_times)
     result['Contention Rdrand Latency'] = final_avg
+    result['Total Latency'] = final_avg - init_avg
+
+    return json.dumps(result) 
+
+def lambda_handler_2500(event, context):
+    result = {}
+    result['Start Time'] = int(round(time.time() * 1000))
+
+    # CPU frequency
+    cpufreq = psutil.cpu_freq()
+    result["Frequency"]= cpufreq.current
+
+    if(result["Frequency"] >= 2298 and result["Frequency"] <= 2302):
+        return json.dumps({})
+
+    else:
+        # MAC address
+        if_addrs = psutil.net_if_addrs()
+        for interface_name, interface_addresses in if_addrs.items():
+            for address in interface_addresses:
+                if str(address.family) == 'AddressFamily.AF_PACKET':
+                    result["MAC Address"] = address.address
+
+        # get IO statistics since boot
+        net_io = psutil.net_io_counters()
+        result["Total Bytes Sent"] = get_size(net_io.bytes_sent)
+        result["Total Bytes Received"] = get_size(net_io.bytes_recv)
+
+        # init_times is a list of initial rdrand latencies
+        init_times = []
+        # final_times is a list of final rdrand latencies
+        final_times = []
+
+        i = 5000 
+        start = time.time()
+        while(i!=0):
+            start1 = time.time()
+            rdrand.rdrand_get_bits(1000)
+            i = i-1
+            end1 = time.time()
+            init_times.append(end1-start1)
+            time.sleep(0.001)
+        end = time.time()
+        print (end-start)
+        init_avg = sum(init_times)/len(init_times)
+        result['Rdrand Latency'] = init_avg
+
+        time.sleep(5)
+
+        i = 5000
+        while(i!=0):
+            start1 = time.time()
+            rdrand.rdrand_get_bits(1000)
+            i = i-1
+            end1 = time.time()
+            final_times.append(end1-start1)
+            time.sleep(0.001)
+        final_avg = sum(final_times)/len(final_times)
+        result['Contention Rdrand Latency'] = final_avg
+        result['Total Latency'] = final_avg - init_avg
 
     return json.dumps(result)
