@@ -16,7 +16,7 @@ from enum import Enum
 
 colors = ['orange','orangered','brown','r','c','k', 'm', 'g']
 linetypes = ['g-','g--','g-+']
-markers = ['x','^','s','o','+','*', '|']
+markers = ['x','+','o','s','+', '|', '^']
 
 class PlotType(Enum):
     line = 'line'

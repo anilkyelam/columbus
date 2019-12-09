@@ -75,10 +75,16 @@ python api/awsapi2.py -u ${url} -c ${lambda_num} -o ${outdir}/with-thrashers-${r
 # Plot
 /usr/bin/python plot.py -z scatter \
     -yc "Difference" -xl "Function Number" -yl "CPU Cycles" \
-    -d ${outdir}/no-thrashers-${run_num}.csv -l "Without Adversary" \
     -d ${outdir}/with-thrashers-${run_num}.csv -l "With Adversary" \
+    -d ${outdir}/no-thrashers-${run_num}.csv -l "Without Adversary" \
     -o ${outdir}/plot-${run_num}.png
 
 /usr/bin/python plot.py -p -yc "Difference" \
     -d ${outdir}/no-thrashers-${run_num}.csv \
     -d ${outdir}/with-thrashers-${run_num}.csv >> ${outdir}/numbers
+
+# /usr/bin/python plot.py -z scatter \
+#     -yc "Difference" -xl "Function Number" -yl "CPU Cycles" \
+#     -d ${outdir}/with-thrasher-${run_num}.csv -l "With Adversary" \
+#     -d ${outdir}/no-thrasher-${run_num}.csv -l "Without Adversary" \
+#     -o ${outdir}/plot-${run_num}.png

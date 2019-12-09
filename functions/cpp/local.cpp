@@ -3,6 +3,7 @@
 #include <cstring>
 #include <cmath>
 #include <unistd.h>
+#include <time.h>
 
 /* Rdtsc blocks for time measurements */
 unsigned cycles_low, cycles_high, cycles_low1, cycles_high1;
@@ -72,11 +73,12 @@ int main()
         
         /* atomic sum of cacheline boundary */
         __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
-        uint32_t val = *addr;
     }
 
 #elif SAMPLER
     /* Continuously hit the address with atomic operations */
+    time_t st_time = time(0);
+    int count = 0;
     while(1)
     {
         /* Measure memory access latency every millisecond
@@ -89,8 +91,16 @@ int main()
 
         start = ( ((uint64_t)cycles_high << 32) | cycles_low );
         end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
-        total_cycles_spent = (end - start);
-        printf("Memory access latency in cycles: %lu\n", total_cycles_spent);
+        total_cycles_spent += (end - start);
+        count ++;
+
+        if (time(0) - st_time >= 5)
+        {
+            printf("Memory access latency in cycles: %lu\n", total_cycles_spent/count);
+            st_time = time(0);
+            total_cycles_spent = 0;
+            count = 0;
+        }
     }
 
 #else
