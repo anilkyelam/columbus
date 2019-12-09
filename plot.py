@@ -12,6 +12,7 @@ from collections import Counter, defaultdict
 import argparse
 import pandas as pd
 from enum import Enum
+import scipy.stats as scstats
 
 
 colors = ['orange','orangered','brown','r','c','k', 'm', 'g']
@@ -115,6 +116,7 @@ def main():
     matplotlib.rc('font', **font)
 
     if args.print_:   
+        samples = []
         for idx, datafile in enumerate(args.datafile):
             if not os.path.exists(datafile):
                 print("Datafile '{0}' does not exist" % datafile)
@@ -123,8 +125,14 @@ def main():
             df = pd.read_csv(datafile)
             for ycol in args.ycol:
                 label = "{0}:{1}".format(datafile, ycol)
+                samples.append(df[ycol])
                 print("{0} {1} {2}".format(label, df[ycol].mean(), df[ycol].std()))
             continue
+
+        # Also print p and t values if there are two samples.
+        if (len(samples) == 2):
+            (tval, pval) = scstats.ttest_rel(samples[0], samples[1])
+            print("T-Value: {0}, P-Value: {1}".format(tval, pval))
         sys.exit(0)
 
     fig, ax = plt.subplots(1, 1, figsize=(6,4))
