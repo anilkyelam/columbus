@@ -4,7 +4,7 @@
 for i in "$@"
 do
 case $i in
-    -c=*|--create=*)        # create functions
+    -c|--create)        # create functions
     CREATE=1
     ;;
 
@@ -14,7 +14,8 @@ esac
 done
 
 # Rebuild
-pushd build
+dir=$(dirname "$0")
+pushd $dir/build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=~/out
 make
 make aws-lambda-package-hello
@@ -31,7 +32,7 @@ aws lambda update-function-code --function-name membus --zip-file fileb://hello.
 popd
 
 echo "Invoking function"
-aws lambda invoke --function-name membus --payload '1' output.txt 
+aws lambda invoke --function-name membus output.txt 
 cat output.txt
 rm output.txt
 #curl -X POST https://8rq4dl2w8f.execute-api.us-west-1.amazonaws.com/latest -d '1'
