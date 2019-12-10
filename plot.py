@@ -135,7 +135,7 @@ def main():
             print("T-Value: {0}, P-Value: {1}".format(tval, pval))
         sys.exit(0)
 
-    fig, ax = plt.subplots(1, 1, figsize=(6,4))
+    fig, ax = plt.subplots(1, 1, figsize=(6,5))
     fig.suptitle(args.ptitle if args.ptitle else '')
     #plt.ylim(0, 1000)
 
@@ -157,7 +157,7 @@ def main():
             else:                           label = datafile
 
             xcol_vals = df[xcol] if xcol else df.index
-            ycol_vals = df[ycol]
+            ycol_vals = df[ycol]/1000
 
             if args.ptype == PlotType.line:
                 ax.plot(xcol_vals, ycol_vals, label=label, color=colors[cidx], 
