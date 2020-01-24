@@ -5,5 +5,5 @@ venv
 # aws cpp build mess
 aws-lambda-cpp
 aws-lambda-cpp/**
-**/build/**
+#**/build/**
 a.out

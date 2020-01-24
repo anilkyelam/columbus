@@ -22,7 +22,7 @@ make aws-lambda-package-hello
 
 # Create function if required
 if [[ $CREATE ]]; then
-    aws lambda create-function --function-name membus --role "arn:aws:iam::017371402075:role/lambda-cpp" \
+    aws lambda create-function --function-name membus --role "arn:aws:iam::500314097793:role/lambda-cpp" \
         --runtime provided --timeout 30 --memory-size 128 --handler hello --zip-file fileb://hello.zip
 fi
 
