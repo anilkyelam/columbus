@@ -29,8 +29,10 @@ def worker():
         (url, body) = req_q.get()
         
         resp = getResponse(url, body)
+        print (resp.status)
         if resp and resp.status == 200:
             data = resp.read()
+            print (data)
             data_q.put(data)
         else:
             #print (resp.status)
@@ -40,32 +42,29 @@ def worker():
 
 def main():
 
-    defaulturl = "https://a0bn4o2c71.execute-api.ap-east-1.amazonaws.com/latest"    # ap-east-1
-    #defaulturl = "https://v1pe8p505h.execute-api.us-west-2.amazonaws.com/latest"   # us-west-2
-    #defaulturl = "https://h6r05ug8ga.execute-api.me-south-1.amazonaws.com/latest"  # me-south-2
-    #defaulturl = "https://8rq4dl2w8f.execute-api.us-west-1.amazonaws.com/latest"   # us-west-1
-
     parser = argparse.ArgumentParser("Makes concurrent requests to lambda URLs")
-    parser.add_argument('-c', '--count', action='store', type=int, help='number of requests to make (max:{0})'.format(MAX_CONCURRENT), default=5)
+    parser.add_argument('-nv', '--num_victims', action='store', type=int, help='number of requests to make (max:{0})'.format(MAX_CONCURRENT), default=5)
+    parser.add_argument('-na', '--num_adv', action='store', type=int, help='number of requests to make (max:{0})'.format(MAX_CONCURRENT), default=0)
     parser.add_argument('-o', '--out', action='store', help='path to results file', default="results.csv")
-    parser.add_argument('-u', '--url', action='store', help='url to call', required=True) #default=defaulturl)
+    parser.add_argument('-uv', '--victim_url', action='store', help='url to call', default=False)
+    parser.add_argument('-ua', '--adv_url', action='store', help='url to call', default=False)
     parser.add_argument('-a', '--attack', action='store_true', help='whether to run thrashers', default=False)
     args = parser.parse_args()
 
     # Start enough threads
-    for i in range(2*args.count):
+    for i in range(args.num_victims + args.num_adv):
         t = Thread(target=worker, args=())
         t.daemon = True
         t.start()
 
     # Invoke first batch (samplers)
-    for i in range(args.count):
-        req_q.put((args.url, "1"))
+    for i in range(args.num_victims):
+        req_q.put((args.victim_url, "1"))
 
     # Wait a bit and invoke second batch (thrashers)
     if args.attack:
-        for i in range(args.count):
-            req_q.put((args.url, "0"))
+        for i in range(args.num_adv):
+            req_q.put((args.adv_url, "0"))
 
     # Wait for everything to finish
     try:

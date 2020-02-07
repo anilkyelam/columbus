@@ -2,22 +2,16 @@
 accountid=500314097793
 lambdafn=membus
 
-region=me-south-1
-# region=us-west-2
+#region=me-south-1
+#region=us-west-2
 # region=us-east-2
 #region=ca-central-1
-# region=sa-east-1
-# region=eu-west-2
+region=sa-east-1
+#region=eu-west-2
 # region=eu-west-3
 # region=ap-east-1
 # region=ap-south-1
 # region=eu-north-1
-#region=$1
-run_num=1
-lambda_num=3
-#lambda_num=200
-#url="https://bhoisf0ri8.execute-api.sa-east-1.amazonaws.com/latest"
-#url="https://uux88xb5mh.execute-api.eu-west-2.amazonaws.com/latest"
 
 
 # Create everything
@@ -66,41 +60,7 @@ if [ -z "$url" ]; then
     echo $url
 fi
 
-# check if url works
-curlout=$(curl -s -X POST ${url} | jq -r '.Role // ""')
-if [ -z "$curlout" ]; then 
-    echo "ERROR! API not setup properly"; 
-    exit -1;
-fi
 
-echo "URL verified succesfully, starting lambda runs"
 
-# Deploy lambdas, with and without thrashers
-outdir=results/membus/${region}
-mkdir $outdir
-python api/awsapi2.py -u ${url} -c ${lambda_num} -o ${outdir}/no-thrashers-${run_num}.csv
-python api/awsapi2.py -u ${url} -c ${lambda_num} -o ${outdir}/with-thrashers-${run_num}.csv -a
+echo "lambda created"
 
-# Plot
-/usr/bin/python plot.py -z scatter -t "Region: $region, Num Lambdas: $lambda_num" \
-    -yc "Difference" -xl "Function Number" -yl "CPU Kilo Cycles" \
-    -d ${outdir}/with-thrashers-${run_num}.csv -l "With Adversary" \
-    -d ${outdir}/no-thrashers-${run_num}.csv -l "Without Adversary" \
-    -o ${outdir}/plot-${run_num}.png &
-
-numfile=results/membus/numbers
-echo $region, $lambda_num >> $numfile
-/usr/bin/python plot.py -p -yc "Difference" \
-    -d ${outdir}/no-thrashers-${run_num}.csv \
-    -d ${outdir}/with-thrashers-${run_num}.csv >> $numfile
-
-# /usr/bin/python plot.py -z scatter \
-#     -yc "Difference" -xl "Function Number" -yl "CPU Kilo Cycles" \
-#     -d ${outdir}/with-thrasher-${run_num}.csv -l "With Adversary" \
-#     -d ${outdir}/no-thrasher-${run_num}.csv -l "Without Adversary" \
-#     -o ${outdir}/plot-${run_num}.png
-
-# /usr/bin/python plot.py -p \
-#     -yc "Difference" -xl "Function Number" -yl "CPU Cycles" \
-#     -d ${outdir}/with-thrasher-${run_num}.csv -l "With Adversary" \
-#     -d ${outdir}/no-thrasher-${run_num}.csv -l "Without Adversary" 
