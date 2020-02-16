@@ -3,10 +3,10 @@ accountid=500314097793
 lambdafn=membus
 
 #region=me-south-1
-#region=us-west-2
-# region=us-east-2
+region=us-east-1
+#region=ap-southeast-1
 #region=ca-central-1
-region=sa-east-1
+#region=sa-east-1
 #region=eu-west-2
 # region=eu-west-3
 # region=ap-east-1

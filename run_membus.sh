@@ -1,13 +1,24 @@
 region="me-south-1"
-number_of_victims=10
-number_of_adv=10
-account="same"
+number_of_victims=100
+number_of_adv=100
+account="diff"
 uv="https://cocun088vc.execute-api.me-south-1.amazonaws.com/latest"
-ua="https://cocun088vc.execute-api.me-south-1.amazonaws.com/latest"
+ua="https://0roo1pxdo2.execute-api.me-south-1.amazonaws.com/latest"
 victim_size=128
 adv_size=128
 
 run_num=$1
+
+#Account 2
+#https://8x75yd2z29.execute-api.us-east-1.amazonaws.com/latest
+#https://cocun088vc.execute-api.me-south-1.amazonaws.com/latest
+#https://9mfzg99e6h.execute-api.sa-east-1.amazonaws.com/latest
+#https://0roo1pxdo2.execute-api.me-south-1.amazonaws.com/latest - membus att
+#https://cnk7vvk1w8.execute-api.us-east-1.amazonaws.com/latest - att
+
+#Account1
+#https://6fdhepb68i.execute-api.me-south-1.amazonaws.com/latest
+#https://bq599d7eu2.execute-api.us-east-1.amazonaws.com/latest
 
 
 outdir=results/membus/${region}

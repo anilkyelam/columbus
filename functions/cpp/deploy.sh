@@ -16,9 +16,9 @@ done
 # Rebuild
 dir=$(dirname "$0")
 pushd $dir/build
-cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=~/out
-make
-make aws-lambda-package-hello
+#cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=~/out
+#make
+#make aws-lambda-package-hello
 
 # Create function if required
 if [[ $CREATE ]]; then
