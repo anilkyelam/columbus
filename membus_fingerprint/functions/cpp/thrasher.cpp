@@ -97,9 +97,7 @@ invocation_response my_handler(invocation_request const& request)
    const std::string none = "none";
    char result[500];
    std::string role;
-   uint64_t start, end, max_cycles1 = 0, max_cycles2 = 0;
-   uint64_t total_cycles1 = 0, total_cycles2 = 0, total_cycles3 = 0, total_cycles4 = 0, total_cycles5 = 0, total_cycles6 = 0;
-   uint64_t trials = 0, trial1 = 0, trial2 = 0, trial3 = 0, trial4 = 0, trial5 = 0, trial6 = 0;
+   uint64_t start, end;
    double time_taken=0.0;
    int* arr;
    int i, size = 4;   /* 4 * 4B, give it few cache lines */
@@ -151,7 +149,6 @@ invocation_response my_handler(invocation_request const& request)
          for (auto bit: vb){
             if(bit){
                time_t st_time = time(0);
-               trials = 0;
                while(1)
                {
                   for (i = 1; i < 1000; i++){
@@ -159,7 +156,6 @@ invocation_response my_handler(invocation_request const& request)
                      __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
                   }
 
-                  trials ++;
                   if (time(0) - st_time >= interval_length)
                      break;
                }
@@ -190,19 +186,7 @@ invocation_response my_handler(invocation_request const& request)
    sprintf(response, "%s, \"Start Time\": \"%s\"", response, start_time.c_str());
    sprintf(response, "%s, \"End Time\": \"%s\"", response, current_datetime().c_str());
 
-   /* Add sampler results */
-   uint64_t avg_cycles1 = (trial1) != 0 ? total_cycles1/trial1 : 0;
-   uint64_t avg_cycles2 = (trial2) != 0 ? total_cycles2/trial2 : 0;
-   uint64_t avg_cycles3 = (trial3) != 0 ? total_cycles3/trial3 : 0;
-   uint64_t avg_cycles4 = (trial4) != 0 ? total_cycles4/trial4 : 0;
-   uint64_t avg_cycles5 = (trial5) != 0 ? total_cycles5/trial5 : 0;
-   uint64_t avg_cycles6 = (trial6) != 0 ? total_cycles6/trial6 : 0;
-   sprintf(response, "%s, \"Avg Cycles 1\": \"%lu\"", response, avg_cycles1);
-   sprintf(response, "%s, \"Avg Cycles 2\": \"%lu\"", response, avg_cycles2);
-   sprintf(response, "%s, \"Avg Cycles 3\": \"%lu\"", response, avg_cycles3);
-   sprintf(response, "%s, \"Avg Cycles 4\": \"%lu\"", response, avg_cycles4);
-   sprintf(response, "%s, \"Avg Cycles 5\": \"%lu\"", response, avg_cycles5);
-   sprintf(response, "%s, \"Avg Cycles 6\": \"%lu\"", response, avg_cycles6);
+
    sprintf(response, "%s, \"Thread time\": \"%lf\"", response, time_taken);
 
    sprintf(response, "%s, \"Request ID\": \"%s\"", response, request.request_id.c_str());
