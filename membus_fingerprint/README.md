@@ -1,9 +1,9 @@
 # CSE227
-#Project - Memnus Fingerprinting
+#Project - Membus Fingerprinting
 
-####Steps to execute
+#### Steps to execute
 
-######Modify config in run_membus.sh
+###### Modify config in run_membus.sh
 * region="me-south-1"
 * number_of_victims=15
 * number_of_adv=13
@@ -14,7 +14,7 @@
 * victim_size=128
 * adv_size=3008
 
-######Command to execute-
+###### Command to execute-
 * First argument - Run ID
 * Second argument - Length of the interval
 
