@@ -1,5 +1,5 @@
 # CSE227
-#Project - Memnus Fingerprinting
+#Project - Membus Fingerprinting
 
 #### Steps to execute
 
