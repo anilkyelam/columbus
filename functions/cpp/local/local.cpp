@@ -7,7 +7,9 @@
 
 #include<string>
 
-#define MAX_SAMPLES 1000
+#define MAX_SAMPLES         1000
+#define BIT_INTERVAL        10000000     // 1ms; 1ns=1cycle
+#define SAMPLING_INTERVAL   1000        // 1mu-s; 1ns=1cycle
 
 /* Rdtsc blocks for time measurements */
 unsigned cycles_low, cycles_high, cycles_low1, cycles_high1;
@@ -26,6 +28,124 @@ static __inline__ unsigned long long rdtsc1(void)
             "mov %%edx, %0\n\t"
             "mov %%eax, %1\n\t": "=r" (cycles_high1), "=r" (cycles_low1)::
             "%rax", "rbx", "rcx", "rdx");
+}
+
+double next_poisson_time(double rate)
+{
+    return -logf(1.0f - ((double) random()) / (double) (RAND_MAX)) / rate;
+}
+
+// Might help not putting the process into wait queue
+// Also, sleep is not reliable at these time scales
+void poll_wait(uint64_t cycles)
+{
+    uint64_t start, end;
+    rdtsc();
+    start = ( ((uint64_t)cycles_high << 32) | cycles_low );
+    while(1)
+    {
+        rdtsc();
+        end = ( ((uint64_t)cycles_high << 32) | cycles_low );
+        if (end - start >= cycles)  return;
+    }
+}
+
+int read_bit(uint32_t* addr, uint64_t* samples_buf)
+{
+    int i = 0;
+    uint64_t begin, now, next, sofar;
+    uint64_t start, end;
+    uint64_t tail = 100 * SAMPLING_INTERVAL;
+    double rate = 1.0/100;
+    int result = -1;
+
+    rdtsc();
+    begin = ( ((uint64_t)cycles_high << 32) | cycles_low );
+
+    while(1)
+    {   
+        // Get a sample
+        rdtsc();
+        __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
+        rdtsc1();
+
+        start = ( ((uint64_t)cycles_high << 32) | cycles_low );
+        end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
+        samples_buf[i++] = (end - start);
+
+        // Break off with sometime to spare
+        rdtsc();
+        now = ( ((uint64_t)cycles_high << 32) | cycles_low );
+        sofar = now - begin;
+        if (sofar + tail >= BIT_INTERVAL)
+            break;
+
+        next = (uint64_t) next_poisson_time(rate);
+
+        // Don't go for next sampling if we will end up overtime
+        rdtsc();
+        now = ( ((uint64_t)cycles_high << 32) | cycles_low );
+        sofar = now - begin;
+        if (sofar + next + tail >= BIT_INTERVAL)
+            break;
+
+        // Wait until next sample
+        poll_wait(next * SAMPLING_INTERVAL);
+    }
+
+    // Make something out of collected samples
+    int j, locked = 0;
+    printf("samples (%d): ", i);
+    for (j = 0; j < i; j++)
+    {   
+        // printf("%lu ", samples_buf[j]);
+        // TODO: Replace this by a statistical diff test
+        // For now, take latency > 1000 as contention and more than half as one bit
+        if (samples_buf[j] > 1000)  locked++; 
+    }
+    result = 2 * locked >= i;
+    printf("%d\n", result);
+        
+    rdtsc();
+    now = ( ((uint64_t)cycles_high << 32) | cycles_low );
+    sofar = now - begin;
+    if (sofar >= BIT_INTERVAL)
+        return result;
+    
+    // Waitout what's left and return
+    poll_wait(now - begin);
+    return result;
+}
+
+void write_bit(uint32_t* addr, bool bit)
+{
+    int i;
+    uint64_t begin, now, sofar;
+
+    if (bit)
+    {
+        // Write 1, lock membus
+        rdtsc();
+        begin = ( ((uint64_t)cycles_high << 32) | cycles_low );
+
+        while(1)
+        {   
+            /* atomic sum of cacheline boundary */
+            for (i = 0; i < 10; i++)
+                __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
+            rdtsc1();
+
+            now = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
+            sofar = now - begin;
+            if (sofar >= BIT_INTERVAL)
+                break;
+        }
+    }
+    else
+    {
+        // Write 0, do nothing
+        poll_wait(BIT_INTERVAL);
+    }
 }
 
 int main(int argc, char** argv)
@@ -81,8 +201,17 @@ int main(int argc, char** argv)
     role = thrasher + role_id;
     while(1)
     {   
-        /* atomic sum of cacheline boundary */
-        __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
+        // /* atomic sum of cacheline boundary */
+        // __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
+        write_bit(addr, true);
+        write_bit(addr, false);
+        write_bit(addr, true);
+        write_bit(addr, true);
+        write_bit(addr, false);
+        write_bit(addr, true);
+        write_bit(addr, true);
+        write_bit(addr, true);
+        write_bit(addr, false);
     }
 
 #elif SAMPLER
@@ -90,51 +219,65 @@ int main(int argc, char** argv)
     time_t st_time = time(0);
     int count = 0;
     int rnd;
-    uint64_t sum, mean, stdev;
+    uint64_t sum, mean, stdev, min, max;
+    FILE *fp = fopen("results", "w+");
+
     role = sampler + role_id;
     while(1)
     {
-        /* Measure memory access latency every millisecond
-         * Atomic sum of cacheline boundary, this ensures memory is hit */
-        // usleep(100000);
+        // /* Measure memory access latency every millisecond
+        //  * Atomic sum of cacheline boundary, this ensures memory is hit */
+        // // usleep(100000);
 
-        // Sleep a random time before measurement
-        rnd = 50 + std::rand() % 900;       // Starting measurement somewhere between 50 and 950 micro-seconds
-        usleep(rnd);
+        // // Sleep a random time before measurement
+        // rnd = 50 + std::rand() % 900;       // Starting measurement somewhere between 50 and 950 micro-seconds
+        // usleep(rnd);
 
-        rdtsc();
-        __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
-        rdtsc1();
+        // rdtsc();
+        // __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
+        // rdtsc1();
 
-        // Sleep the remaining time
-        usleep(1000-rnd);
+        // // Sleep the remaining time
+        // usleep(1000-rnd);
 
-        start = ( ((uint64_t)cycles_high << 32) | cycles_low );
-        end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
-        total_cycles_spent += (end - start);
-        samples[count] = (end - start);
-        count++;
+        // start = ( ((uint64_t)cycles_high << 32) | cycles_low );
+        // end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
+        // total_cycles_spent += (end - start);
+        // samples[count] = (end - start);
+        // count++;
 
-        if (count >= MAX_SAMPLES)
-        {
-            sum = 0;
-            for (i = 0; i < MAX_SAMPLES; i++)
-                sum = sum + samples[i];
-            mean = sum / count;
+        // if (count >= MAX_SAMPLES)
+        // {
+        //     sum = 0;
+        //     for (i = 0; i < MAX_SAMPLES; i++) {
+        //         sum = sum + samples[i];
+        //         // if (samples[i] > 5000)  fprintf(fp, "%lu\n", samples[i]);
+        //         if (samples[i] > 5000)  printf("%lu\n", samples[i]);
+        //     }
+        //     mean = sum / count;
 
-            /*  Compute  variance  and standard deviation  */
-            sum = 0;
-            for (i = 0; i < MAX_SAMPLES; i++)
-                sum = sum + (samples[i] - mean)*(samples[i] - mean);
-            stdev = sqrt(sum / count);
+        //     /*  Compute  variance  and standard deviation  */
+        //     sum = 0;
+        //     min = 1 << 31;
+        //     max = 0;
+        //     for (i = 0; i < MAX_SAMPLES; i++)
+        //     {
+        //         sum = sum + (samples[i] - mean)*(samples[i] - mean);
+        //         if (samples[i] > max)   max = samples[i];
+        //         if (samples[i] < min)   min = samples[i];
+        //     }
+        //     stdev = sqrt(sum / count);
 
-            printf("[%s] Latency Mean: %lu, Stdev: %lu, Interval: %ld\n", role.c_str(), mean, stdev, time(0) - st_time);
-            total_cycles_spent = 0;
-            count = 0;
+        //     printf("[%s] Latency Mean: %lu, Stdev: %lu, Range: %lu, Interval: %ld\n", role.c_str(), mean, stdev, max - min, time(0) - st_time);
+        //     total_cycles_spent = 0;
+        //     count = 0;
 
-            //break;
-        }
+        //     //break;
+        // }
+        read_bit(addr, samples);
     }
+
+    fclose(fp);
 
 #else
     /* Print cpu clock speed and quit */
