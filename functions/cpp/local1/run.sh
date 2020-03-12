@@ -25,8 +25,9 @@ make
 # PIDS+=($!)
 taskset 0x4 ./sampler 1 &
 PIDS+=($!)
-# taskset 0x8 ./sampler 2 &
-# PIDS+=($!)
+sleep 10
+taskset 0x8 ./sampler 2 &
+PIDS+=($!)
 
 read -p "Press [enter] to quit\n"
 ctrl_c_handler
