@@ -18,8 +18,8 @@
 
 
 
-#define MAX_BITS_IN_ID      4               // Max lambdas = 2^10
-#define SAMPLES_PER_BIT     100
+#define MAX_BITS_IN_ID      10               // Max lambdas = 2^10
+#define SAMPLES_PER_BIT     500
 #define BIT_INTERVAL_MUS    1000000         // Time spent on communicating one bit in micro-seconds
 
 using Clock = std::chrono::high_resolution_clock;
@@ -72,6 +72,7 @@ inline int poll_wait(std::chrono::microseconds release_time)
 
 /* Samples membus lock latencies periodically to infer contention. If calibrate is set, uses those reading as baseline. */
 uint64_t base_mean_latency = 0;
+uint64_t last_mean;
 int read_bit(uint32_t* addr, std::chrono::microseconds release_time_mus, bool calibrate)
 {
     int i;
@@ -100,15 +101,18 @@ int read_bit(uint32_t* addr, std::chrono::microseconds release_time_mus, bool ca
         sum += (end - start);
         count++;
           
-        next += ten_ms; //std::chrono::microseconds((int)next_poisson_time(sampling_rate_mus));
+        next += std::chrono::microseconds((int)next_poisson_time(sampling_rate_mus));
         poll_wait(next);
     }
 
     mean = sum / (count > 0 ? count : 1);
-    if (calibrate)
+    last_mean = mean;
+    if (calibrate) {
         base_mean_latency = mean;
+        printf("Base mean latency: %lu\n", base_mean_latency);
+    }
 
-    printf("mean: %lu, base: %lu, samples: %lu\n", mean, base_mean_latency, count);
+    // printf("mean: %lu, base: %lu, samples: %lu\n", mean, base_mean_latency, count);
     return ( 100 * mean > 130 * base_mean_latency);         // For now, call it 1 if mean observed is 30% more than base.
 }
 
@@ -152,7 +156,7 @@ uint32_t* get_cache_line_straddled_address()
     /* Allocate an array that spans multiple cache lines */
     size = 10 * cacheline_sz / sizeof(int);
     arr = (int*) malloc(size * sizeof(int));
-    for (i = 0; i < size; i++ ) arr[i] = 1;
+    for (i = 0; i < size; i++ ) arr[i] = 1; 
 
     /* Find the first cacheline boundary */
     for (i = 1; i < size; i++) {
@@ -175,7 +179,7 @@ uint32_t* get_cache_line_straddled_address()
 /* Execute the info exchange protocol where all participating lambdas on a same machine
  * learn the id of one (max-id) lambda in each phase. Runs till all lambdas know each 
  * other or for a specified number of phases */
-int run_membus_protocol(int lambda_id, std::chrono::microseconds start_time_mus, int max_phases, uint32_t* cacheline_addr)
+int run_membus_protocol(int my_id, std::chrono::microseconds start_time_mus, int max_phases, uint32_t* cacheline_addr)
 {
     std::chrono::microseconds bit_duration = std::chrono::microseconds(BIT_INTERVAL_MUS);
     std::chrono::microseconds five_ms = std::chrono::microseconds(5000);
@@ -190,36 +194,51 @@ int run_membus_protocol(int lambda_id, std::chrono::microseconds start_time_mus,
 
     // Calibrate baseline latencies (when no contention)
     std::chrono::microseconds next_time_mus = start_time_mus + bit_duration;
-    if (lambda_id % 2)   next_time_mus += five_ms;
+    if (my_id % 2)   next_time_mus += five_ms;
     read_bit(cacheline_addr, next_time_mus - ten_ms, true);
     
+
+    printf("[Lambda: %3d] Phase, Position, Bit, Sent, Read, Mean Lat, Base Lat\n", my_id);
+
     // Start protocol phases
     bool advertised = false;
     for (int phase = 0; phase < max_phases; phase++) {
-        bool participating = !advertised;
+        bool advertising = !advertised;
         int id_read = 0;
 
         for (int bit_pos = MAX_BITS_IN_ID - 1; bit_pos >= 0; bit_pos--) {
-            bool bit = lambda_id & (1 << bit_pos);
+            bool my_bit = my_id & (1 << bit_pos);
             int bit_read;
 
             poll_wait(next_time_mus);
             next_time_mus += bit_duration;
-            if (lambda_id % 2)   next_time_mus += five_ms;
+            if (my_id % 2)   next_time_mus += five_ms;
 
-            if (participating && bit) {
+            if (advertising && my_bit) {
                 write_bit(cacheline_addr, next_time_mus - ten_ms);      // Write until 10ms before next interval
-                bit_read = 1;                           // When writing a bit, assume that bit read is one.
+                bit_read = 1;                                           // When writing a bit, assume that bit read is one.
             }
             else {
                 bit_read = read_bit(cacheline_addr, next_time_mus - ten_ms, false);
             }
 
+            /* Stop advertising if my bit is 0 and bit read is 1 i.e., someone else has higher id than mine */
+            if (advertising && !my_bit && bit_read)
+                advertising = false;
+
             id_read = (2 * id_read) + bit_read;     // We get bits in most to least significant order
-            printf("[Lambda-%d] Phase %d, Bit Pos %d, My bit: %d, Bit read: %d\n", lambda_id, phase, bit_pos, bit, bit_read);      /** COMMENT OUT IN REAL RUNS **/
+            printf("[Lambda: %3d] %3d %9d %4d %5d %5d %9lu %9lu \n", 
+                my_id, phase, bit_pos, my_bit, advertising && my_bit, bit_read, 
+                advertising && my_bit ? 0 : last_mean, base_mean_latency);                          /** COMMENT OUT IN REAL RUNS **/
         }
+
+        if (id_read == 0)               // End of protocol
+            break;
+
+        if (id_read == my_id)           // My part is done, I will just listen from now on.
+            advertised = true;
         
-        printf("[Lambda-%d] Phase %d, Id read: %d\n", lambda_id, phase, id_read);      /** COMMENT OUT IN REAL RUNS **/
+        printf("[Lambda-%d] Phase %d, Id read: %d\n", my_id, phase, id_read);      /** COMMENT OUT IN REAL RUNS **/
     }
 
     return 0;
@@ -228,21 +247,24 @@ int run_membus_protocol(int lambda_id, std::chrono::microseconds start_time_mus,
 int main(int argc, char** argv)
 {  
     std::string role;
-    int id;
+    int id = 0;
     long start_time_secs;
     bool parsed_id = false, parsed_time = false;
-    std::srand(std::time(nullptr));
+
+    /* Add some variation to the seed using pid as purely time-based seed may backfire as lambdas start 
+     * at the same time */
+    std::srand(std::time(nullptr) ^ (getpid()<<16));
 
     /* Parse Lambda Id */
-    if (argc >= 2) {       
+    if (argc >= 2) {
         std::istringstream iss(argv[1]);
-        if (iss >> id && id >= 0 && id < (1<<MAX_BITS_IN_ID)) {
+        if (iss >> id && id > 0 && id < (1<<MAX_BITS_IN_ID)) {
             printf("Starting lambda: %d\n", id);
             parsed_id = true;
         }
     }
     if (!parsed_id) {
-        printf("ERROR! Provide proper id in [0, %d)\n", 1<<MAX_BITS_IN_ID);
+        printf("ERROR! Provide proper id (%d) in [1, %d)\n", id, 1<<MAX_BITS_IN_ID);
         return 1;
     }
 
