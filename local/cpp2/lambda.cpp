@@ -73,7 +73,8 @@ inline int poll_wait(std::chrono::microseconds release_time)
 /* Samples membus lock latencies periodically to infer contention. If calibrate is set, uses those reading as baseline. */
 uint64_t base_mean_latency = 0;
 uint64_t last_mean;
-int read_bit(uint32_t* addr, std::chrono::microseconds release_time_mus, bool calibrate)
+uint64_t samples[SAMPLES_PER_BIT];
+int read_bit(uint32_t* addr, std::chrono::microseconds release_time_mus, bool calibrate, int id, int phase, int round)
 {
     int i;
     std::chrono::microseconds one_ms = std::chrono::microseconds(1000);
@@ -88,7 +89,7 @@ int read_bit(uint32_t* addr, std::chrono::microseconds release_time_mus, bool ca
     uint64_t start, end, sum = 0, count = 0, mean;
 
     // printf("%ld, %ld,\n", next.count(), release_time_mus.count());      /** COMMENT OUT IN REAL RUNS **/
-    while (within_time(release_time_mus))
+    for (i = 0; i < SAMPLES_PER_BIT && within_time(release_time_mus); i++)
     {   
         // Get a sample
         rdtsc();
@@ -99,6 +100,7 @@ int read_bit(uint32_t* addr, std::chrono::microseconds release_time_mus, bool ca
         end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
         //std::cout << (end - start) << std::endl;
         sum += (end - start);
+        samples[i] = (end - start);
         count++;
           
         next += std::chrono::microseconds((int)next_poisson_time(sampling_rate_mus));
@@ -110,6 +112,18 @@ int read_bit(uint32_t* addr, std::chrono::microseconds release_time_mus, bool ca
     if (calibrate) {
         base_mean_latency = mean;
         printf("Base mean latency: %lu\n", base_mean_latency);
+    }
+
+    bool write_to_file = true;                                   /** COMMENT OUT IN REAL RUNS **/       
+    if (write_to_file) {
+        char name[100];
+        sprintf(name, calibrate ? "data/results_base_%d_%d_%d" : "data/results_%d_%d_%d", id, phase, round);
+        FILE *fp = fopen(name, "w");
+            fprintf(fp, "Cycles\n");
+        for (i = 0; i < count; i++) {
+            fprintf(fp, "%lu\n", samples[i]);
+        }
+        fclose(fp);
     }
 
     // printf("mean: %lu, base: %lu, samples: %lu\n", mean, base_mean_latency, count);
@@ -195,7 +209,7 @@ int run_membus_protocol(int my_id, std::chrono::microseconds start_time_mus, int
     // Calibrate baseline latencies (when no contention)
     std::chrono::microseconds next_time_mus = start_time_mus + bit_duration;
     if (my_id % 2)   next_time_mus += five_ms;
-    read_bit(cacheline_addr, next_time_mus - ten_ms, true);
+    read_bit(cacheline_addr, next_time_mus - ten_ms, true, my_id, 0, 0);
     
 
     printf("[Lambda: %3d] Phase, Position, Bit, Sent, Read, Mean Lat, Base Lat\n", my_id);
@@ -219,7 +233,7 @@ int run_membus_protocol(int my_id, std::chrono::microseconds start_time_mus, int
                 bit_read = 1;                                           // When writing a bit, assume that bit read is one.
             }
             else {
-                bit_read = read_bit(cacheline_addr, next_time_mus - ten_ms, false);
+                bit_read = read_bit(cacheline_addr, next_time_mus - ten_ms, false, my_id, phase, bit_pos);
             }
 
             /* Stop advertising if my bit is 0 and bit read is 1 i.e., someone else has higher id than mine */
