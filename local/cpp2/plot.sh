@@ -16,14 +16,16 @@ for lambda in ${lambdas[@]}; do
     fi
 done 
 
-for lambda in ${lambdas[@]}; do
-    data=data/results_${lambda}_${phase}_${round}
-    if [ -f "$data" ]; then
-        plots="${plots} -d ${data}  -l 'L${lambda}' "
-    else
-        echo "Data results file $file not found, moving on"
-    fi
-done
+if [[ $phase ]] && [[ $round ]]; then
+    for lambda in ${lambdas[@]}; do
+        data=data/results_${lambda}_${phase}_${round}
+        if [ -f "$data" ]; then
+            plots="${plots} -d ${data}  -l 'L${lambda}' "
+        else
+            echo "Data results file $file not found, moving on"
+        fi
+    done
+fi
 
 desc="CDF of sampled latencies (Phase:${phase},Round:${round} vs Baseline)"
 outfile=results/latcdf_${phase}_${round}.eps

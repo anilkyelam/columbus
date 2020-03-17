@@ -9,20 +9,22 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <fstream>
 
 /****** Assumptions around clocks ********
- * 1. Clocks have a precision of microseconds or lower.
+ * 1. clocks have a precision of microseconds or lower.
  * 2. Context switching/core switching would not affect the monotonicity or steadiness of the clock on millisecond scales
  * 3. 
  */
 
-
-
-#define MAX_BITS_IN_ID      10               // Max lambdas = 2^10
+#define MAX_BITS_IN_ID      10              // Max lambdas = 2^10
+#define BASELINE_SAMPLES    500
+#define BASELINE_INTERVAL   1000000         // 1 second to calibrate
 #define SAMPLES_PER_BIT     500
-#define BIT_INTERVAL_MUS    1000000         // Time spent on communicating one bit in micro-seconds
+#define BIT_INTERVAL_MUS    1000000         // 1 second for communicating each bit
 
 using Clock = std::chrono::high_resolution_clock;
+using microseconds = std::chrono::microseconds;
 using std::chrono::duration;
 using std::chrono::duration_cast;
 
@@ -50,21 +52,50 @@ double next_poisson_time(double rate)
     return -logf(1.0f - ((double) random()) / (double) (RAND_MAX)) / rate;
 }
 
+/* Prepare randomized seed. Get if from /dev/urandom if possible
+ * Repurposed from https://stackoverflow.com/questions/2640717/c-generate-a-good-random-seed-for-psudo-random-number-generators*/
+unsigned int good_seed(int id)
+{
+    unsigned int random_seed, random_seed_a, random_seed_b; 
+    std::ifstream file("/dev/urandom", std::ios::in|std::ios::binary);
+    if (file.is_open())
+    {
+        char * memblock;
+        int size = sizeof(int);
+        memblock = new char [size];
+        file.read (memblock, size);
+        file.close();
+        random_seed_a = *reinterpret_cast<int*>(memblock);
+        delete[] memblock;
+        printf("Found urandom file!\n");
+    }// end if
+    else
+    {
+        random_seed_a = 0;
+    }
+    random_seed_b = std::time(0);
+    random_seed = random_seed_a xor random_seed_b;
+    random_seed = random_seed xor (getpid() << 16);
+    random_seed = random_seed xor (id  << 16);
+    return random_seed;
+} 
+
+
 /* Check if program is not past specified time yet */
-inline bool within_time(std::chrono::microseconds time_pt) {
-    std::chrono::microseconds now = duration_cast<std::chrono::microseconds>(Clock::now().time_since_epoch());
+inline bool within_time(microseconds time_pt) {
+    microseconds now = duration_cast<microseconds>(Clock::now().time_since_epoch());
     return now.count() < time_pt.count();
 }
 
 /* Stalls the program until a specified point in time */
-inline int poll_wait(std::chrono::microseconds release_time)
+inline int poll_wait(microseconds release_time)
 {
     // If already past the release time, return but in error
     if (!within_time(release_time))
         return 1;
 
     while(true) {
-        std::chrono::microseconds now = duration_cast<std::chrono::microseconds>(Clock::now().time_since_epoch());
+        microseconds now = duration_cast<microseconds>(Clock::now().time_since_epoch());
         if (now.count() >= release_time.count())
             return 0;
     }
@@ -74,13 +105,15 @@ inline int poll_wait(std::chrono::microseconds release_time)
 uint64_t base_mean_latency = 0;
 uint64_t last_mean;
 uint64_t samples[SAMPLES_PER_BIT];
-int read_bit(uint32_t* addr, std::chrono::microseconds release_time_mus, bool calibrate, int id, int phase, int round)
+int read_bit(uint32_t* addr, microseconds release_time_mus, bool calibrate, int id, int phase, int round)
 {
     int i;
-    std::chrono::microseconds one_ms = std::chrono::microseconds(1000);
-    std::chrono::microseconds ten_ms = std::chrono::microseconds(10000);
-    std::chrono::microseconds next = duration_cast<std::chrono::microseconds>(Clock::now().time_since_epoch());
-    double sampling_rate_mus = SAMPLES_PER_BIT * 1.0 / BIT_INTERVAL_MUS;
+    microseconds one_ms = microseconds(1000);
+    microseconds ten_ms = microseconds(10000);
+    microseconds next = duration_cast<microseconds>(Clock::now().time_since_epoch());
+    int num_samples = calibrate ? BASELINE_SAMPLES : SAMPLES_PER_BIT;
+    int interval_mus = calibrate ? BASELINE_INTERVAL : BIT_INTERVAL_MUS;
+    double sampling_rate_mus = num_samples * 1.0 / interval_mus;
 
     /* Checking time takes order of micro-seconds, so do it sparesely to not affect contention-causing.
      * assuming each locking op costs few microseconds, check time every few hundred microseconds
@@ -103,7 +136,7 @@ int read_bit(uint32_t* addr, std::chrono::microseconds release_time_mus, bool ca
         samples[i] = (end - start);
         count++;
           
-        next += std::chrono::microseconds((int)next_poisson_time(sampling_rate_mus));
+        next += microseconds((int)next_poisson_time(sampling_rate_mus));
         poll_wait(next);
     }
 
@@ -131,10 +164,10 @@ int read_bit(uint32_t* addr, std::chrono::microseconds release_time_mus, bool ca
 }
 
 /* Causes membus locking contention until a certain time */
-void write_bit(uint32_t* addr, std::chrono::microseconds release_time_mus)
+void write_bit(uint32_t* addr, microseconds release_time_mus)
 {
     int i;
-    std::chrono::microseconds ten_ms = std::chrono::microseconds(10000);
+    microseconds ten_ms = microseconds(10000);
 
     /* Checking time takes order of micro-seconds, so do it sparesely to not affect contention-causing.
      * assuming each locking op costs few microseconds, check time every few hundred microseconds
@@ -193,12 +226,12 @@ uint32_t* get_cache_line_straddled_address()
 /* Execute the info exchange protocol where all participating lambdas on a same machine
  * learn the id of one (max-id) lambda in each phase. Runs till all lambdas know each 
  * other or for a specified number of phases */
-int run_membus_protocol(int my_id, std::chrono::microseconds start_time_mus, int max_phases, uint32_t* cacheline_addr)
+int run_membus_protocol(int my_id, microseconds start_time_mus, int max_phases, uint32_t* cacheline_addr)
 {
-    std::chrono::microseconds bit_duration = std::chrono::microseconds(BIT_INTERVAL_MUS);
-    std::chrono::microseconds five_ms = std::chrono::microseconds(5000);
-    std::chrono::microseconds ten_ms = std::chrono::microseconds(10000);
-    std::chrono::microseconds phase_duration = bit_duration * MAX_BITS_IN_ID;
+    microseconds bit_duration = microseconds(BIT_INTERVAL_MUS);
+    microseconds five_ms = microseconds(5000);
+    microseconds ten_ms = microseconds(10000);
+    microseconds phase_duration = bit_duration * MAX_BITS_IN_ID;
 
     // Sync with other lamdas a few milliseconds early
     if (poll_wait(start_time_mus - ten_ms)){
@@ -207,15 +240,13 @@ int run_membus_protocol(int my_id, std::chrono::microseconds start_time_mus, int
     }
 
     // Calibrate baseline latencies (when no contention)
-    std::chrono::microseconds next_time_mus = start_time_mus + bit_duration;
+    microseconds next_time_mus = start_time_mus + microseconds(BASELINE_INTERVAL);
     if (my_id % 2)   next_time_mus += five_ms;
     read_bit(cacheline_addr, next_time_mus - ten_ms, true, my_id, 0, 0);
-    
-
-    printf("[Lambda: %3d] Phase, Position, Bit, Sent, Read, Mean Lat, Base Lat\n", my_id);
 
     // Start protocol phases
     bool advertised = false;
+    printf("[Lambda: %3d] Phase, Position, Bit, Sent, Read, Mean Lat, Base Lat\n", my_id);
     for (int phase = 0; phase < max_phases; phase++) {
         bool advertising = !advertised;
         int id_read = 0;
@@ -265,10 +296,6 @@ int main(int argc, char** argv)
     long start_time_secs;
     bool parsed_id = false, parsed_time = false;
 
-    /* Add some variation to the seed using pid as purely time-based seed may backfire as lambdas start 
-     * at the same time */
-    std::srand(std::time(nullptr) ^ (getpid()<<16));
-
     /* Parse Lambda Id */
     if (argc >= 2) {
         std::istringstream iss(argv[1]);
@@ -295,6 +322,15 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    /* Using a good seed that is different enough for each lambda is critical as 
+    * randomness is used in sampling intervals. If these intervals are not random, 
+    * lambdas sample the membus at the same time resulting in membus contention 
+    * even if none of the lambdas are actually thrashing 
+    * NOTE: Purely time-based seed will backfire for applications that start together */
+    unsigned int seed = std::time(nullptr) ^ (getpid()<<16 ^ (id << 16));
+    // unsigned int seed = good_seed(id);
+    std::srand(seed);
+
     /* Check clock precision on the system is at least micro-seconds (TODO: Does this give real precision?) */
     int prec;
     constexpr auto num = Clock::period::num;
@@ -307,7 +343,7 @@ int main(int argc, char** argv)
         printf("Need atleast microsecond precision on wallclock time");
         return 1;
     }
-    printf("Clock precision level: %d\n", prec);
+    printf("clock precision level: %d\n", prec);
 
     /* Get cacheline address */
     uint32_t* addr = get_cache_line_straddled_address();
@@ -315,7 +351,7 @@ int main(int argc, char** argv)
         return 1;
 
     /* Run id exchange protocol */
-    std::chrono::microseconds start_time_mus = duration_cast<std::chrono::microseconds>(std::chrono::seconds(start_time_secs));
+    microseconds start_time_mus = duration_cast<microseconds>(std::chrono::seconds(start_time_secs));
     run_membus_protocol(id, start_time_mus, 4, addr);
 
     return 0;
