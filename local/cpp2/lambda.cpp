@@ -22,14 +22,29 @@
 #define BASELINE_INTERVAL   1000000         // 1 second to calibrate
 #define SAMPLES_PER_BIT     500
 #define BIT_INTERVAL_MUS    1000000         // 1 second for communicating each bit
+#define MAX_PHASES          15
 
 using Clock = std::chrono::high_resolution_clock;
 using microseconds = std::chrono::microseconds;
 using std::chrono::duration;
 using std::chrono::duration_cast;
 
+/* Defined in ttest.cpp */
+extern double welsch_ttest_pvalue(double fmean1, double variance1, int size1, double fmean2, double variance2, int size2);
+
 /* Rdtsc blocks for time measurements */
 unsigned cycles_low, cycles_high, cycles_low1, cycles_high1;
+
+typedef struct {
+    int size;
+    int64_t mean;
+    int64_t variance;
+} sample_t;
+
+typedef struct {
+    int num_phases;
+    int ids[MAX_PHASES];
+} result_t;
 
 static __inline__ unsigned long long rdtsc(void)
 {
@@ -84,7 +99,13 @@ unsigned int good_seed(int id)
 /* Check if program is not past specified time yet */
 inline bool within_time(microseconds time_pt) {
     microseconds now = duration_cast<microseconds>(Clock::now().time_since_epoch());
-    return now.count() < time_pt.count();
+    bool within_limit = now.count() < time_pt.count();
+    // if (!within_limit) {
+    //     // Prints any bad timeoverruns
+    //     int64_t ms = (now.count() - time_pt.count()) / 1000;
+    //     if (ms > 10) printf("Exceeded time limit by more than 10ms: %lu milliseconds\n", ms);
+    // }
+    return within_limit;
 }
 
 /* Stalls the program until a specified point in time */
@@ -101,11 +122,71 @@ inline int poll_wait(microseconds release_time)
     }
 }
 
+inline int64_t get_mean(int64_t* data, int len) 
+{
+    // Skipped checks
+    int64_t sum = 0;
+    return sum / len;   
+}
+
+/* Removes outliers beyond 3 standard deviations, returns sample params */
+inline sample_t prepare_sample(int64_t* data, int len)
+{
+    if (len <= 0) {
+        return {
+            .size = 0,
+            .mean = 0,
+            .variance = 0
+        };
+    }
+
+    if (len == 1) {
+        return {
+            .size = len,
+            .mean = data[0],
+            .variance = 0
+        };
+    }
+
+    /* Not using floating point arithmetic at the expense of precision
+     * Should be fine as values are in thousands */
+    int64_t sum = 0, varsum = 0, mean, var;
+    for (int i = 0; i < len; i++)   sum += data[i];
+    mean = sum / len;
+    for (int i = 0; i < len; i++)   varsum += (data[i] - mean) * (data[i] - mean);
+    var = varsum / (len - 1);
+
+    /* X is an outlier if (X - mean) >= 3 * std, or (X - mean)^2 >= 9 * var - to avoid sqrt */
+    int i, j, count;
+    sum = 0;
+    varsum = 0;
+    for (i = 0, j = len - 1, count = 0; i <= j; count++) {
+        int64_t sq_diff = (data[i] - mean) * (data[i] - mean);
+        if (sq_diff  <= 9 * var) {
+            // Keep it 
+            sum += data[i];
+            varsum += sq_diff;
+            i++;
+        }
+        else {
+            // Replace it with last element and continue
+            data[i] = data[j];
+            j--;
+        }
+    }
+
+    return {
+        .size = count,
+        .mean = sum / count,
+        .variance = varsum / (count - 1)
+    };
+}
+
 /* Samples membus lock latencies periodically to infer contention. If calibrate is set, uses those reading as baseline. */
-uint64_t base_mean_latency = 0;
-uint64_t last_mean;
-uint64_t samples[SAMPLES_PER_BIT];
-int read_bit(uint32_t* addr, microseconds release_time_mus, bool calibrate, int id, int phase, int round)
+sample_t base_sample;
+sample_t last_sample;
+int64_t samples[SAMPLES_PER_BIT];
+int read_bit(uint32_t* addr, microseconds release_time_mus, bool calibrate, int id, int phase, int round, double* pvalue)
 {
     int i;
     microseconds one_ms = microseconds(1000);
@@ -119,8 +200,7 @@ int read_bit(uint32_t* addr, microseconds release_time_mus, bool calibrate, int 
      * assuming each locking op costs few microseconds, check time every few hundred microseconds
      * Release a bit early to avoid overruns */
     release_time_mus -= ten_ms;
-    uint64_t start, end, sum = 0, count = 0, mean;
-
+    int64_t start, end, mean, count = 0;
     // printf("%ld, %ld,\n", next.count(), release_time_mus.count());      /** COMMENT OUT IN REAL RUNS **/
     for (i = 0; i < SAMPLES_PER_BIT && within_time(release_time_mus); i++)
     {   
@@ -129,10 +209,8 @@ int read_bit(uint32_t* addr, microseconds release_time_mus, bool calibrate, int 
         __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
         rdtsc1();
 
-        start = ( ((uint64_t)cycles_high << 32) | cycles_low );
-        end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
-        //std::cout << (end - start) << std::endl;
-        sum += (end - start);
+        start = ( ((int64_t)cycles_high << 32) | cycles_low );
+        end = ( ((int64_t)cycles_high1 << 32) | cycles_low1 );
         samples[i] = (end - start);
         count++;
           
@@ -140,11 +218,10 @@ int read_bit(uint32_t* addr, microseconds release_time_mus, bool calibrate, int 
         poll_wait(next);
     }
 
-    mean = sum / (count > 0 ? count : 1);
-    last_mean = mean;
+    last_sample = prepare_sample(samples, count);
     if (calibrate) {
-        base_mean_latency = mean;
-        printf("Base mean latency: %lu\n", base_mean_latency);
+        base_sample = last_sample;
+        printf("Baseline sample: Size- %d, Mean- %lu\n", base_sample.size, base_sample.mean);
     }
 
     bool write_to_file = true;                                   /** COMMENT OUT IN REAL RUNS **/       
@@ -159,8 +236,9 @@ int read_bit(uint32_t* addr, microseconds release_time_mus, bool calibrate, int 
         fclose(fp);
     }
 
-    // printf("mean: %lu, base: %lu, samples: %lu\n", mean, base_mean_latency, count);
-    return ( 100 * mean > 130 * base_mean_latency);         // For now, call it 1 if mean observed is 30% more than base.
+    *pvalue = welsch_ttest_pvalue(base_sample.mean, base_sample.variance, base_sample.size, 
+                last_sample.mean, last_sample.variance, last_sample.size);
+    return *pvalue < 0.0005;        /* Need to find the threshold that works for current platform */
 }
 
 /* Causes membus locking contention until a certain time */
@@ -225,28 +303,33 @@ uint32_t* get_cache_line_straddled_address()
 
 /* Execute the info exchange protocol where all participating lambdas on a same machine
  * learn the id of one (max-id) lambda in each phase. Runs till all lambdas know each 
- * other or for a specified number of phases */
-int run_membus_protocol(int my_id, microseconds start_time_mus, int max_phases, uint32_t* cacheline_addr)
+ * other or for a specified number of phases
+ * If repeat_phases is true, protocol repeats the first phase i.e., in every phase all 
+ * lambdas try to agree on the same max lambda id  */
+result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_phases, uint32_t* cacheline_addr, bool repeat_phases)
 {
+    double pvalue;
     microseconds bit_duration = microseconds(BIT_INTERVAL_MUS);
     microseconds five_ms = microseconds(5000);
     microseconds ten_ms = microseconds(10000);
     microseconds phase_duration = bit_duration * MAX_BITS_IN_ID;
+    result_t* result = (result_t*) malloc(sizeof(result_t));
+    result->num_phases = 0;
 
     // Sync with other lamdas a few milliseconds early
     if (poll_wait(start_time_mus - ten_ms)){
         printf("ERROR! Already past the intitial sync point, bad run for current lambda.\n");
-        return 1;
+        return result;
     }
 
     // Calibrate baseline latencies (when no contention)
     microseconds next_time_mus = start_time_mus + microseconds(BASELINE_INTERVAL);
     if (my_id % 2)   next_time_mus += five_ms;
-    read_bit(cacheline_addr, next_time_mus - ten_ms, true, my_id, 0, 0);
+    read_bit(cacheline_addr, next_time_mus - ten_ms, true, my_id, 0, 0, &pvalue);
 
     // Start protocol phases
     bool advertised = false;
-    printf("[Lambda: %3d] Phase, Position, Bit, Sent, Read, Mean Lat, Base Lat\n", my_id);
+    printf("[Lambda: %3d] Phase, Position, Bit, Sent, Read, Lat Mean, Lat Std, Lat Size, Base Mean, Base Lat, PValue\n", my_id);
     for (int phase = 0; phase < max_phases; phase++) {
         bool advertising = !advertised;
         int id_read = 0;
@@ -264,7 +347,7 @@ int run_membus_protocol(int my_id, microseconds start_time_mus, int max_phases, 
                 bit_read = 1;                                           // When writing a bit, assume that bit read is one.
             }
             else {
-                bit_read = read_bit(cacheline_addr, next_time_mus - ten_ms, false, my_id, phase, bit_pos);
+                bit_read = read_bit(cacheline_addr, next_time_mus - ten_ms, false, my_id, phase, bit_pos, &pvalue);
             }
 
             /* Stop advertising if my bit is 0 and bit read is 1 i.e., someone else has higher id than mine */
@@ -272,15 +355,21 @@ int run_membus_protocol(int my_id, microseconds start_time_mus, int max_phases, 
                 advertising = false;
 
             id_read = (2 * id_read) + bit_read;     // We get bits in most to least significant order
-            printf("[Lambda: %3d] %3d %9d %4d %5d %5d %9lu %9lu \n", 
+
+            printf("[Lambda: %3d] %3d %9d %4d %5d %5d %9lu %6.2lf %10d %10lu %6.2lf %2.10f\n", 
                 my_id, phase, bit_pos, my_bit, advertising && my_bit, bit_read, 
-                advertising && my_bit ? 0 : last_mean, base_mean_latency);                          /** COMMENT OUT IN REAL RUNS **/
+                advertising && my_bit ? 0 : last_sample.mean, 
+                advertising && my_bit ? 0 : sqrt(last_sample.variance), 
+                last_sample.size, base_sample.mean, sqrt(base_sample.variance), pvalue);                          /** COMMENT OUT IN REAL RUNS **/
         }
 
         if (id_read == 0)               // End of protocol
             break;
 
-        if (id_read == my_id)           // My part is done, I will just listen from now on.
+        result->ids[result->num_phases] = id_read;
+        result->num_phases++;
+
+        if (!repeat_phases && id_read == my_id)           // My part is done, I will just listen from now on.
             advertised = true;
         
         printf("[Lambda-%d] Phase %d, Id read: %d\n", my_id, phase, id_read);      /** COMMENT OUT IN REAL RUNS **/
@@ -352,7 +441,7 @@ int main(int argc, char** argv)
 
     /* Run id exchange protocol */
     microseconds start_time_mus = duration_cast<microseconds>(std::chrono::seconds(start_time_secs));
-    run_membus_protocol(id, start_time_mus, 4, addr);
+    run_membus_protocol(id, start_time_mus, 4, addr, false);
 
     return 0;
 }

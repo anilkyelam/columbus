@@ -439,7 +439,8 @@ def main():
     labels = [l.get_label() for l in lns]
     set_axes_legend_loc(axmain, lns, labels, args.lloc)
 
-    plt.savefig(args.output, format="eps")
+    # plt.savefig(args.output, format="eps")
+    plt.savefig(args.output)
     if args.show:
         plt.show()
 

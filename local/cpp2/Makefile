@@ -8,7 +8,7 @@ OBJ =
 
 all: lambda
 
-lambda: lambda.cpp
+lambda: lambda.cpp ttest.cpp
 	$(CC) -o $@ $^ $(CFLAGS) 
 	
 

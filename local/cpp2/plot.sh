@@ -1,4 +1,4 @@
-lambdas=(101 303 510 950)       #from run.sh
+lambdas=(101  303 510 950)       #from run.sh
 
 phase=$1
 round=$2
@@ -27,10 +27,13 @@ if [[ $phase ]] && [[ $round ]]; then
     done
 fi
 
-desc="CDF of sampled latencies (Phase:${phase},Round:${round} vs Baseline)"
-outfile=results/latcdf_${phase}_${round}.eps
-outfile_nt=results/latcdf_${phase}_${round}_nt.eps      #no tail version
+#desc="CDF of sampled latencies (Phase:${phase},Round:${round} vs Baseline)"
+outfile=results/latcdf_${phase}_${round}.png
+outfile_nt=results/latcdf_${phase}_${round}_nt.png      #no tail version
 eval "python plot.py -t \"$desc\" -yc 'Cycles' -xl 'Latency (Cycles)' -yl 'CDF' -z cdf -nm -o ${outfile} ${plots} " 1> /dev/null
 eval "python plot.py -t \"$desc\" -yc 'Cycles' -xl 'Latency (Cycles)' -yl 'CDF' -z cdf -nm -o ${outfile_nt} ${plots} -nt " 1> /dev/null
-gv ${outfile} &
-gv ${outfile_nt} &
+# gv ${outfile} &
+# gv ${outfile_nt} &
+display ${outfile} &
+display ${outfile_nt} &
+echo "Output file: ${outfile}"
