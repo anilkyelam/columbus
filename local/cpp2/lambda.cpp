@@ -356,11 +356,11 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
 
             id_read = (2 * id_read) + bit_read;     // We get bits in most to least significant order
 
-            printf("[Lambda: %3d] %3d %9d %4d %5d %5d %9lu %6.2lf %10d %10lu %6.2lf %2.10f\n", 
-                my_id, phase, bit_pos, my_bit, advertising && my_bit, bit_read, 
-                advertising && my_bit ? 0 : last_sample.mean, 
-                advertising && my_bit ? 0 : sqrt(last_sample.variance), 
-                last_sample.size, base_sample.mean, sqrt(base_sample.variance), pvalue);                          /** COMMENT OUT IN REAL RUNS **/
+            // printf("[Lambda: %3d] %3d %9d %4d %5d %5d %9lu %6.2lf %10d %10lu %6.2lf %2.10f\n", 
+            //     my_id, phase, bit_pos, my_bit, advertising && my_bit, bit_read, 
+            //     advertising && my_bit ? 0 : last_sample.mean, 
+            //     advertising && my_bit ? 0 : sqrt(last_sample.variance), 
+            //     last_sample.size, base_sample.mean, sqrt(base_sample.variance), pvalue);                          /** COMMENT OUT IN REAL RUNS **/
         }
 
         if (id_read == 0)               // End of protocol

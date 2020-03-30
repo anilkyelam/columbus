@@ -15,4 +15,4 @@ lambda: lambda.cpp ttest.cpp
 .PHONY: clean
 
 clean:
-	rm -r lambda
+	rm -r lambda ttest
