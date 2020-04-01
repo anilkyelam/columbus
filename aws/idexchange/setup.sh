@@ -23,7 +23,7 @@ case $i in
     accountid="${i#*=}"
     ;;
     
-    -n=*|--name=*)          # Function name
+    -n=*|--name=*)          # Function name, defaults to 'membusv2'
     lambdafn="${i#*=}"
     ;;
         
@@ -66,6 +66,7 @@ fi
 # One-time setup
 if [[ $SETUP ]]; then
     bash cpp/deploy.sh --setup
+    exit 0
 fi
 
 # Set region
@@ -132,6 +133,9 @@ fi
 
 # Test Lambda and API
 echo "Invoking function using API. Result:"
-curl -X POST $url > output.txt
+secs_since_epoch=$(date +%s)
+secs_since_epoch=$((secs_since_epoch+2))    # now + 2 secs
+echo ${secs_since_epoch}
+curl -X POST $url -d '{ "id": 111, "stime": '${secs_since_epoch}', "log": 1 }' > output.txt
 echo "$(cat output.txt)"
 rm output.txt

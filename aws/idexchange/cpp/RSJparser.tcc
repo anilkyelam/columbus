@@ -234,6 +234,7 @@ private:
     // main data
     std::string data; // can be object, vector or leaf data
     bool _exists;      // whether the RSJ resource exists.
+    bool _leaf;         // whether to always parse data as leaf, even if it is in json format
     
     // parsed data
     RSJparsedData* parsed_data_p;
@@ -242,20 +243,22 @@ public:
     // constructor
     RSJresource () : _exists (false), parsed_data_p (NULL) { } // no data field.
     
-    RSJresource (std::string str) : data (str), _exists (true), parsed_data_p (NULL) { }
-    RSJresource (const char* str) : RSJresource(std::string(str)) { }
+    RSJresource (std::string str, bool treat_as_leaf = false) : data (str), _exists (true), _leaf (treat_as_leaf), parsed_data_p (NULL) { }
+    RSJresource (const char* str, bool treat_as_leaf = false) : RSJresource(std::string(str), treat_as_leaf) { }
     
     // other convertion
     template <class dataType>
-    RSJresource (dataType d) : RSJresource(std::to_string(d)) { }
+    RSJresource (dataType d, bool treat_as_leaf = false) : RSJresource(std::to_string(d), treat_as_leaf) { }
     
     // read from file and stream
-    RSJresource (std::istream& is) : _exists (true), parsed_data_p (NULL) {
+    RSJresource (std::istream& is, bool treat_as_leaf = false) : _exists (true), parsed_data_p (NULL) {
         data = std::string ( (std::istreambuf_iterator<char>(is)), (std::istreambuf_iterator<char>()) );
+        _leaf = treat_as_leaf;
     }
-    RSJresource (std::ifstream& ifs) : _exists (true), parsed_data_p (NULL) {
+    RSJresource (std::ifstream& ifs, bool treat_as_leaf = false) : _exists (true), parsed_data_p (NULL) {
         std::istream& is = ifs;
         data = std::string ( (std::istreambuf_iterator<char>(is)), (std::istreambuf_iterator<char>()) );
+        _leaf = treat_as_leaf;
     }
     
     // free allocated memory for parsed data
@@ -275,7 +278,7 @@ public:
     RSJobject& as_object (bool force=false);
     RSJarray& as_array (bool force=false);
     
-    // ------------------------------------
+    // ------------------------ ------------
     
     // access raw data and other attributes
     int size(void);
@@ -336,7 +339,7 @@ public:
                                         RSJresource (strtrim (nvPairs[a].substr (assignmentPos+1) ) )
                                ) );
                 }
-                if (object.size() > 0) {
+                if (object.size() > 0 || strtrim(content).length() == 0) {     // empty parenthesis is also a valid object
                     type = RSJ_OBJECT;
                     return;
                 }
@@ -357,7 +360,7 @@ public:
             }
         }
         
-        if (typ==RSJ_UNKNOWN)
+        if (typ==RSJ_LEAF || typ==RSJ_UNKNOWN)
             type = RSJ_LEAF;
     }
     
@@ -406,6 +409,7 @@ RSJresource::~RSJresource (){
 RSJresource::RSJresource (const RSJresource& r) {
     data=r.data;
     _exists = r._exists;
+    _leaf = r._leaf;
     if(r.parsed_data_p) parsed_data_p = new RSJparsedData(*(r.parsed_data_p));
     else parsed_data_p = NULL;
 }
@@ -413,6 +417,7 @@ RSJresource::RSJresource (const RSJresource& r) {
 RSJresource& RSJresource::operator= (const RSJresource& r) {
     data=r.data;
     _exists = r._exists;
+    _leaf = r._leaf;
     if(r.parsed_data_p) parsed_data_p = new RSJparsedData(*(r.parsed_data_p));
     else parsed_data_p = NULL;
     return *this;
@@ -458,7 +463,7 @@ std::string RSJresource::as_str (bool print_comments, bool update_data) {
             ret += "]";
         }
         else // RSJ_LEAF or RSJ_UNKNOWN
-             ret = strtrim (data);
+            ret = "\"" + strtrim (data) + "\"";
         
         if (update_data) data = ret;
         return (ret);
@@ -471,14 +476,14 @@ std::string RSJresource::as_str (bool print_comments, bool update_data) {
 
 RSJresourceType RSJresource::parse (bool force) {
     if (!parsed_data_p)  parsed_data_p = new RSJparsedData;
-    if (parsed_data_p->type==RSJ_UNKNOWN || force)  parsed_data_p->parse (data, RSJ_UNKNOWN);
+    if (parsed_data_p->type==RSJ_UNKNOWN || force)  parsed_data_p->parse (data, _leaf ? RSJ_LEAF : RSJ_UNKNOWN);
     return (parsed_data_p->type);
 }
 
 void RSJresource::parse_full (bool force, int max_depth, int* parse_count_for_verbose_p) { // recursive parsing (slow)
     if (max_depth==0) return;
     if (!parsed_data_p)  parsed_data_p = new RSJparsedData;
-    if (parsed_data_p->type==RSJ_UNKNOWN || force)  parsed_data_p->parse (data, RSJ_UNKNOWN);
+    if (parsed_data_p->type==RSJ_UNKNOWN || force)  parsed_data_p->parse (data, _leaf ? RSJ_LEAF : RSJ_UNKNOWN);
     // verbose
     if (parse_count_for_verbose_p) {
         (*parse_count_for_verbose_p)++;

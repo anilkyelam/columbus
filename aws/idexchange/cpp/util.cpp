@@ -6,33 +6,110 @@
 namespace util 
 {
     /* Escape a json string */
-    std::string escape_json(const std::string &s) {
-        std::ostringstream o;
-        for (auto c = s.cbegin(); c != s.cend(); c++) {
-            switch (*c) {
-            case '"': o << "\\\""; break;
-            case '\\': o << "\\\\"; break;
-            case '\b': o << "\\b"; break;
-            case '\f': o << "\\f"; break;
-            case '\n': o << "\\n"; break;
-            case '\r': o << "\\r"; break;
-            case '\t': o << "\\t"; break;
-            default:
-                if ('\x00' <= *c && *c <= '\x1f') {
-                    o << "\\u"
-                    << std::hex << std::setw(4) << std::setfill('0') << (int)*c;
-                } else {
-                    o << *c;
-                }
+    /* Courtesy: https://stackoverflow.com/a/19636328 */
+    std::string escape_json(const std::string& input)
+    {
+        std::string output;
+        output.reserve(input.length());
+
+        for (std::string::size_type i = 0; i < input.length(); ++i)
+        {
+            switch (input[i]) {
+                case '"':
+                    output += "\\\"";
+                    break;
+                case '/':
+                    output += "\\/";
+                    break;
+                case '\b':
+                    output += "\\b";
+                    break;
+                case '\f':
+                    output += "\\f";
+                    break;
+                case '\n':
+                    output += "\\n";
+                    break;
+                case '\r':
+                    output += "\\r";
+                    break;
+                case '\t':
+                    output += "\\t";
+                    break;
+                case '\\':
+                    output += "\\\\";
+                    break;
+                default:
+                    output += input[i];
+                    break;
             }
         }
-        return o.str();
+
+        return output;
     }
 
-    /* Escape a json string and add quotes */
-    std::string escape_json_add_quotes(const std::string &s) {
-        std::string ostr = "\"";
-        ostr += escape_json(s);
-        return ostr + "\"";
+    /* Unescape a json string */
+    /* Courtesy: https://stackoverflow.com/a/19636328 */
+    std::string unescape_json(const std::string& input)
+    {
+        bool escaped = false;
+        std::string output;
+        output.reserve(input.length());
+
+        for (std::string::size_type i = 0; i < input.length(); ++i)
+        {
+            switch(escaped)
+            {
+                case true:
+                    {
+                        switch(input[i])
+                        {
+                            case '"':
+                                output += '\"';
+                                break;
+                            case '/':
+                                output += '/';
+                                break;
+                            case 'b':
+                                output += '\b';
+                                break;
+                            case 'f':
+                                output += '\f';
+                                break;
+                            case 'n':
+                                output += '\n';
+                                break;
+                            case 'r':
+                                output += '\r';
+                                break;
+                            case 't':
+                                output += '\t';
+                                break;
+                            case '\\':
+                                output += '\\';
+                                break;
+                            default:
+                                output += input[i];
+                                break;
+                        }
+
+                        escaped = false;
+                        break;
+                    }
+                case false:
+                    {
+                        switch(input[i])
+                        {
+                            case '\\':
+                                escaped = true;
+                                break;
+                            default:
+                                output += input[i];
+                                break;
+                        }
+                    }
+            }
+        }
+        return output;
     }
 }
