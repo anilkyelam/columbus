@@ -287,7 +287,7 @@ public:
     bool is_parsed (void) { return (parsed_data_p!=NULL); }
     RSJresourceType type (void);
     // emitter
-    std::string as_str (bool print_comments=false, bool update_data=true);
+    std::string as_str (bool print_comments=false, bool update_data=true, bool new_lines = false);
     void print (bool print_comments=false, bool update_data=true) 
         { std::cout << as_str(print_comments,update_data) << std::endl; }
     
@@ -434,31 +434,33 @@ RSJresourceType RSJresource::type (void) {
     return (parsed_data_p->type);
 }
 
-std::string RSJresource::as_str (bool print_comments, bool update_data) {
+std::string RSJresource::as_str (bool print_comments, bool update_data, bool new_lines) {
     if (exists()) {
         std::string ret;
         parse(); // parse if not parsed
         parsed_data_p->cleanup();
         
         if (parsed_data_p->type==RSJ_OBJECT) {
-            ret = "{\n";
+            ret = "{";
+            if (new_lines)  ret += "\n";
             for (auto it=parsed_data_p->object.begin(); it!=parsed_data_p->object.end(); ++it) {
                 ret += RSJprinttab + "\"" + it->first + "\": " + insert_tab_after_newlines( it->second.as_str (print_comments, update_data) );
                 if (std::next(it) != parsed_data_p->object.end()) ret += ",";
                 if (print_comments)
                     ret += " // " + to_string(it->second.type());
-                ret += "\n";
+                if (new_lines)  ret += "\n";
             }
             ret += "}";
         }
         else if (parsed_data_p->type==RSJ_ARRAY) {
-            ret = "[\n";
+            ret = "[";
+            if (new_lines)  ret += "\n";
             for (auto it=parsed_data_p->array.begin(); it!=parsed_data_p->array.end(); ++it) {
                 ret += RSJprinttab + insert_tab_after_newlines( it->as_str (print_comments, update_data) );
                 if (std::next(it) != parsed_data_p->array.end()) ret += ",";
                 if (print_comments)
                     ret += " // " + to_string(it->type());
-                ret += "\n";
+                if (new_lines)  ret += "\n";
             }
             ret += "]";
         }

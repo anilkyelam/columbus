@@ -15,7 +15,7 @@
 for i in "$@"
 do
 case $i in
-    -s|--setup)            # one-time setup
+    -s|--setup)             # one-time setup
     SETUP=1
     ;;
     
@@ -79,7 +79,7 @@ aws lambda get-function --function-name ${NAME}
 if [ $? -ne 0 ]; then
     # Does not exist
     aws lambda create-function --function-name ${NAME} --role "arn:aws:iam::${ACCOUNTID}:role/${ROLE}" \
-        --runtime provided --timeout 30 --memory-size 128 --handler hello --zip-file fileb://$dir/cpp/build/hello.zip
+        --runtime provided --timeout 60 --memory-size 128 --handler hello --zip-file fileb://$dir/cpp/build/hello.zip
 fi
 
 # Update function

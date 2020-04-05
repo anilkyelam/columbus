@@ -23,7 +23,7 @@ case $i in
     accountid="${i#*=}"
     ;;
     
-    -n=*|--name=*)          # Function name, defaults to 'membusv2'
+    -n=*|--name=*)          # Function name, defaults to 'membusv21'
     lambdafn="${i#*=}"
     ;;
         
@@ -41,7 +41,7 @@ esac
 done
 
 # Defaults
-lambdafn=${lambdafn:-membusv2}    # Default lambda name
+lambdafn=${lambdafn:-membusv21}    # Default lambda name
 
 # Get account id from aws cli if not set
 if [ -z ${accountid+x} ]; then

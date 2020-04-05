@@ -392,6 +392,8 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
                 last_sample.size, base_sample.mean, sqrt(base_sample.variance), pvalue);                          /** COMMENT OUT IN REAL RUNS **/
         }
 
+        lprintf("[Lambda-%d] Phase %d, Id read: %d\n", my_id, phase, id_read);      /** COMMENT OUT IN REAL RUNS **/
+
         if (id_read == 0)               // End of protocol
             break;
 
@@ -400,11 +402,9 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
 
         if (!repeat_phases && id_read == my_id)           // My part is done, I will just listen from now on.
             advertised = true;
-        
-        lprintf("[Lambda-%d] Phase %d, Id read: %d\n", my_id, phase, id_read);      /** COMMENT OUT IN REAL RUNS **/
     }
 
-    return 0;
+    return result;
 }
 
 /* Get comma-seperated MAC addresses of all interfaces */
@@ -456,10 +456,11 @@ const std::string current_datetime() {
 invocation_response my_handler(invocation_request const& request)
 {
    std::string start_time = current_datetime();
-   int id;
+   int id, max_phases;
    long start_time_secs;
    bool success = true, sysinfo;
    std::string error;
+   result_t* res = NULL;
    
    /* Parse request body for arguments */
    try {     
@@ -469,10 +470,12 @@ invocation_response my_handler(invocation_request const& request)
       id = body["id"].as<int>(0);
       start_time_secs = body["stime"].as<int>(0);
       log_ = body["log"].as<bool>(false);
+      max_phases = body["phases"].as<int>(1);      // run 1 phase by default
    }
    catch(std::exception& e){
       success = false;
       error = "INVALID_BODY";
+      lprintf("Could not parse request body\n");
    }
 
    if (success && id <= 0 || id >= (1<<MAX_BITS_IN_ID)) {
@@ -525,7 +528,7 @@ invocation_response my_handler(invocation_request const& request)
       if (success) {
          /* Run id exchange protocol */
          microseconds start_time_mus = duration_cast<microseconds>(std::chrono::seconds(start_time_secs));
-         run_membus_protocol(id, start_time_mus, 1, addr, false);
+         res = run_membus_protocol(id, start_time_mus, max_phases, addr, true);
       }
    }
 
@@ -537,18 +540,16 @@ invocation_response my_handler(invocation_request const& request)
    body["End Time"] =   current_datetime();
    body["Request ID"] = request.request_id;
 
-   /* Save results */
+   /* Save results (return all fields whether applicable or not) */
    body["Success"] = success;
-   if (success) {
-      // Save results
-   }
-   else {
-      // Save error
-      body["Error"] = error;
+   body["Error"] = error;
+   body["Phases"] =  res != NULL ? res->num_phases : 0;
+   for (int i = 0; i < max_phases; i++) {
+      body["Phase " + std::to_string(i+1)] = (res != NULL && i < res->num_phases) ? res->ids[i] : -1;
    }
 
    /* Save some system info */
-   /* Get MAC addresses and add to the buffer */
+   /* Get MAC addresses and add to the buffer */ 
    char mac[50] = "";
    get_mac_addrs(mac);
    body["MAC Address"] = std::string(mac);
@@ -558,7 +559,6 @@ invocation_response my_handler(invocation_request const& request)
    body["Boot ID"] = boot_id;
 
    /* Save logs to response */
-   body["log"] = logs.size();
    if (log_) {
       std::string logarr;
       for (std::vector<std::string>::const_iterator it = begin (logs); it != end (logs); ++it) {

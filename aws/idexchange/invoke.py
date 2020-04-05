@@ -1,0 +1,142 @@
+#
+# 1. bash setup.sh
+# 2. Get URL
+# 3. python3 invoke.py -u https://ockhe03c0i.execute-api.us-west-1.amazonaws.com/latest/membus -c 10
+#
+
+from urllib.parse import urlparse
+from threading import Thread
+import http.client, sys
+from queue import Queue
+import argparse
+import json
+import csv
+import time
+
+
+MAX_CONCURRENT = 1500
+req_q = Queue(MAX_CONCURRENT * 2)
+data_q = Queue(MAX_CONCURRENT * 2)
+
+# Function to calculate hamming distance  
+def hammingDistance(n1, n2) : 
+    x = n1 ^ n2  
+    setBits = 0
+    while (x > 0) : 
+        setBits += x & 1
+        x >>= 1
+    return setBits 
+
+def getResponse(ourl, body):
+    try:
+        url = urlparse(ourl)
+        conn = http.client.HTTPSConnection(url.netloc,timeout=500)   
+        conn.request("POST", url.path, body)
+        res = conn.getresponse()
+        return res
+    except Exception as e:
+        print(e)
+        return None
+
+
+def worker():
+    while True:
+        (url, id, syncpt, phases) = req_q.get()
+        
+        body = { "id": id, "stime" : syncpt, "phases": phases, "log": True }
+        resp = getResponse(url, json.dumps(body))
+        if resp and resp.status == 200:
+            data = resp.read()
+            data_q.put(data)
+        else:
+            #print (resp.status)
+            pass
+        req_q.task_done()
+
+def main():
+    parser = argparse.ArgumentParser("Makes concurrent requests to lambda URLs")
+    parser.add_argument('-c', '--count', action='store', type=int, help='number of requests to make (max:{0})'.format(MAX_CONCURRENT), default=5)
+    parser.add_argument('-o', '--out', action='store', help='path to results file', default="results.csv")
+    parser.add_argument('-u', '--url', action='store', help='url to call', required=True) #default=defaulturl)
+    parser.add_argument('-p', '--phases', action='store', type=int, help='number of phases to run', default=2)
+    parser.add_argument('-d', '--delay', action='store', type=int, help='initial delay for lambdas to sync up (in seconds)', default=5)
+    args = parser.parse_args()
+
+    # Lambda sync point
+    sync_point = int(time.time()) + args.delay       # now + delay, assuming (api invoke + lambda create + lambda setup) happens within this delay for all lambdas
+
+    # Start enough threads
+    for i in range(args.count):
+        t = Thread(target=worker, args=())
+        t.daemon = True
+        t.start()
+
+    # Invoke lambdas
+    phases=args.phases
+    for i in range(args.count):
+        req_q.put((args.url, i*10+1, sync_point, phases))
+
+    # Wait for everything to finish 
+    try:
+        req_q.join()
+    except KeyboardInterrupt:
+        sys.exit(1)
+    
+    # Write to file
+    first = True
+    with open(args.out, 'w') as csvfile:
+        with  open("logs", "w") as logfile:
+            while not data_q.empty():
+
+                # get response
+                item = data_q.get()
+                # print(item)   #raw
+                item_d = json.loads(item.decode("utf-8"), strict=False)
+
+                # Write col headers
+                if first:
+                    writer = csv.DictWriter(csvfile, fieldnames=list(item_d.keys()))
+                    writer.writeheader()
+                    #first = False
+
+                # If logs exist, put them in seperate file
+                if "Logs" in item_d:
+                    logfile.write(item_d["Logs"])
+                    item_d["Logs"] = "Yes"
+                else:
+                    item_d["Logs"] = "No"
+
+                # append row to results
+                writer.writerow(item_d)
+
+                # Print stdout
+                cols = ["Success", "Logs", "Phases", "Id"]
+                for i in range(phases): cols += ["Phase {0}".format(i+1)]
+                cols += ["Error"]
+
+                firstline = ""
+                line = ""
+                id = 0
+                for k in cols:
+                    if k in item_d:
+                        if first: 
+                            # col headers
+                            firstline += " {:<10}".format(k)
+
+                        # Preprocess each line
+                        post_val = item_d[k]
+                        if k == "Id":   id = int(item_d[k])
+                        if "Phase " in k:
+                            val = int(item_d[k])
+                            edit = hammingDistance(val, id)
+                            post_val = "{:<4}({})".format(val, edit)
+
+                        line += " {:<10}".format(post_val)
+                if first:
+                    print(firstline)
+                print(line)
+
+                first = False
+
+if __name__ == '__main__':
+    main()
