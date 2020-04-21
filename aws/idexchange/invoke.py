@@ -12,6 +12,8 @@ import argparse
 import json
 import csv
 import time
+import os
+from datetime import datetime
 
 
 MAX_CONCURRENT = 1500
@@ -43,7 +45,7 @@ def worker():
     while True:
         (url, id, syncpt, phases) = req_q.get()
         
-        body = { "id": id, "stime" : syncpt, "phases": phases, "log": True }
+        body = { "id": id, "stime": syncpt, "phases": phases, "log": True, "samples": True }
         resp = getResponse(url, json.dumps(body))
         if resp and resp.status == 200:
             data = resp.read()
@@ -58,7 +60,7 @@ def main():
     parser.add_argument('-c', '--count', action='store', type=int, help='number of requests to make (max:{0})'.format(MAX_CONCURRENT), default=5)
     parser.add_argument('-o', '--out', action='store', help='path to results file', default="results.csv")
     parser.add_argument('-u', '--url', action='store', help='url to call', required=True) #default=defaulturl)
-    parser.add_argument('-p', '--phases', action='store', type=int, help='number of phases to run', default=2)
+    parser.add_argument('-p', '--phases', action='store', type=int, help='number of phases to run', default=1)
     parser.add_argument('-d', '--delay', action='store', type=int, help='initial delay for lambdas to sync up (in seconds)', default=5)
     args = parser.parse_args()
 
@@ -82,10 +84,16 @@ def main():
     except KeyboardInterrupt:
         sys.exit(1)
     
-    # Write to file
+    # Pick a folder for logs
+    resdir = os.path.join("out", datetime.now().strftime("%m-%d-%H-%M"))
+    if not os.path.exists(resdir):
+        os.makedirs(resdir)
+    logpath = os.path.join(resdir, "log")
+    respath = os.path.join(resdir, args.out)
+
     first = True
-    with open(args.out, 'w') as csvfile:
-        with  open("logs", "w") as logfile:
+    with open(respath, 'w') as csvfile:
+        with open(logpath, "w") as logfile:
             while not data_q.empty():
 
                 # get response
@@ -93,35 +101,46 @@ def main():
                 # print(item)   #raw
                 item_d = json.loads(item.decode("utf-8"), strict=False)
 
+                # If logs exist, put them in seperate file
+                if "Logs" in item_d:
+                    logfile.write(item_d["Logs"] + "\n")
+                    item_d["Logs"] = logpath
+                else:
+                    item_d["Logs"] = "-"
+
+                # If samples exist, put them in seperate file(s)
+                if "Samples" in item_d:
+                    sfilepath = os.path.join(resdir, "samples{0}".format(item_d["Id"]))
+                    with open(sfilepath, "w") as sfile:
+                        sfile.write("Latencies\n")
+                        sfile.write("\n".join(item_d["Samples"].split(",")))
+                    item_d["Samples"] = sfilepath
+                else:
+                    item_d["Samples"] = "-"
+
                 # Write col headers
                 if first:
                     writer = csv.DictWriter(csvfile, fieldnames=list(item_d.keys()))
                     writer.writeheader()
                     #first = False
 
-                # If logs exist, put them in seperate file
-                if "Logs" in item_d:
-                    logfile.write(item_d["Logs"])
-                    item_d["Logs"] = "Yes"
-                else:
-                    item_d["Logs"] = "No"
-
                 # append row to results
                 writer.writerow(item_d)
 
                 # Print stdout
-                cols = ["Success", "Logs", "Phases", "Id"]
+                cols = ["Success", "Phases", "Id"]
                 for i in range(phases): cols += ["Phase {0}".format(i+1)]
-                cols += ["Error"]
+                cols += ["Logs", "Samples", "Error"]
 
                 firstline = ""
                 line = ""
                 id = 0
                 for k in cols:
+                    format_str = " {:<25}" if k in ["Logs", "Samples", "Error"] else " {:<10}"
                     if k in item_d:
                         if first: 
                             # col headers
-                            firstline += " {:<10}".format(k)
+                            firstline += format_str.format(k) 
 
                         # Preprocess each line
                         post_val = item_d[k]
@@ -131,12 +150,15 @@ def main():
                             edit = hammingDistance(val, id)
                             post_val = "{:<4}({})".format(val, edit)
 
-                        line += " {:<10}".format(post_val)
+                        line += format_str.format(post_val)
+
                 if first:
                     print(firstline)
                 print(line)
 
                 first = False
+
+        print("Full results at: %s", respath)
 
 if __name__ == '__main__':
     main()

@@ -75,7 +75,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Create function
-aws lambda get-function --function-name ${NAME} 
+aws lambda get-function --function-name ${NAME}
 if [ $? -ne 0 ]; then
     # Does not exist
     aws lambda create-function --function-name ${NAME} --role "arn:aws:iam::${ACCOUNTID}:role/${ROLE}" \
