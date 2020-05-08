@@ -31,6 +31,7 @@ class PlotType(Enum):
 
 
 class LegendLoc(Enum):
+    none = "none"
     best = 'best'
     topout = "topout"
     rightout = "rightout"
@@ -41,6 +42,8 @@ class LegendLoc(Enum):
         return self.value
 
 def set_axes_legend_loc(ax, lns, labels, loc):
+    if loc == LegendLoc.none:
+        return
     if loc == LegendLoc.best:
         ax.legend(lns, labels, loc='best', ncol=1, fancybox=True, shadow=True)
     if loc == LegendLoc.rightin:
@@ -153,6 +156,10 @@ def parse_args():
         help='Plot y-axis on log scale',
         default=False)
 
+    parser.add_argument('-pg', '--pgroup', 
+        action='append', 
+        help='plot group, number, can provide one group id per ycol or datafile. Plots with same group id will get single plot attribtes like color, label, etc')
+
     parser.add_argument('-l', '--plabel', 
         action='append', 
         help='plot label, can provide one label per ycol or datafile')
@@ -167,6 +174,14 @@ def parse_args():
     parser.add_argument('-cmi', '--colormarkerincr', 
         action='append', 
         help='whether to move to the next color/marker pair, one per ycol or datafile',
+        type=int
+        # type=LineStyle, 
+        # choices=list(LineStyle))
+    )
+
+    parser.add_argument('-li', '--labelincr', 
+        action='append', 
+        help='whether to move to the next label in the list, one per ycol or datafile',
         type=int
         # type=LineStyle, 
         # choices=list(LineStyle))
@@ -273,11 +288,21 @@ def main():
                 dfile_xcol = (dfile, args.xcol)
             for ycol in args.ycol:
                 dfile_ycol_map.append((dfile, ycol))
-                num_plots += 1
+                num_plots += 1  
 
-    if args.plabel and len(args.plabel) != num_plots:
-        print("If plot labels are provided, they must be provided for all the plots and are mapped one-to-one in input order")
+    if not args.labelincr and args.plabel and len(args.plabel) != num_plots:
+        print("If plot labels are provided and --labelincr is not, they must be provided for all the plots and are mapped one-to-one in input order")
         return -1
+    
+    if args.labelincr:
+        if not args.plabel:
+            print("If --labelincr is specified, plot labels must be specified with -l/--plabel")
+            return -1
+
+        if len(args.plabel) <= sum(args.labelincr):
+            print("If plot labels and --labelincr are provided, sum of lable increments should not cross the number of plot labels")
+            return -1
+    
 
     xlabel = args.xlabel if args.xlabel else args.xcol
     ylabel = args.ylabel if args.ylabel else dfile_ycol_map[0][1]
@@ -286,6 +311,7 @@ def main():
     midx = 0
     lidx = 0
     aidx = 0
+    labelidx = 0
 
     font = {'family' : 'sans',
             'size'   : 15}
@@ -331,9 +357,12 @@ def main():
                 print(label, df[ycol].mean(), df[ycol].std())
             continue
  
-        if args.plabel:                 label = args.plabel[plot_num]
+        if args.plabel:                 label = args.plabel[labelidx] if args.labelincr else args.plabel[plot_num]
         elif len(args.datafile) == 1:   label = ycol
         else:                           label = datafile
+
+        if args.pgroup:                 gid = args.pgroup[plot_num]
+        else:                           gid = plot_num
 
         if xcol is None:
             xcol = df.index
@@ -418,6 +447,11 @@ def main():
         else:
             cidx = (cidx + 1) % len(colors)
             midx = (midx + 1) % len(markers)
+     
+        if args.labelincr:
+            if args.labelincr[plot_num] == 1:
+                labelidx = (labelidx + 1) 
+        
 
         plot_num += 1
 
@@ -437,7 +471,7 @@ def main():
             lns[idx].set_linestyle(ls)
     
     labels = [l.get_label() for l in lns]
-    # set_axes_legend_loc(axmain, lns, labels, args.lloc)
+    set_axes_legend_loc(axmain, lns, labels, args.lloc)
 
     # plt.savefig(args.output, format="eps")
     plt.savefig(args.output)

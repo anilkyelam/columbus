@@ -26,6 +26,10 @@ case $i in
     -n=*|--name=*)          # Function name
     NAME="${i#*=}"
     ;;
+    
+    -s=*|--size=*)          # Function size in MB. Multiples of 64MB, from 128-3008
+    SIZE="${i#*=}"
+    ;;
 
     *)                      # unknown option
     ;;
@@ -34,6 +38,7 @@ done
 
 NAME=${NAME:-membus}    # Default lambda name
 ROLE=membus-cpp         # Creates this role if not exists
+SIZE=${SIZE:-128}
 
 # One-time setup
 if [[ $SETUP ]]; then
@@ -79,7 +84,7 @@ aws lambda get-function --function-name ${NAME}
 if [ $? -ne 0 ]; then
     # Does not exist
     aws lambda create-function --function-name ${NAME} --role "arn:aws:iam::${ACCOUNTID}:role/${ROLE}" \
-        --runtime provided --timeout 60 --memory-size 128 --handler hello --zip-file fileb://$dir/cpp/build/hello.zip
+        --runtime provided --timeout 60 --memory-size ${SIZE} --handler hello --zip-file fileb://$dir/cpp/build/hello.zip
 fi
 
 # Update function

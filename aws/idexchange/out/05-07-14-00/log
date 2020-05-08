@@ -1,0 +1,832 @@
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555682683e
+    	Baseline sample: Size- 500, Mean- 7780
+    	[Lambda- 71] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda- 71]   0         9    0     0     0       474      6920     5107    35040     4976       7780     6842 0.025965786759447
+    	[Lambda- 71]   0         8    0     0     0       496      6763     4816    43066     5048       7780     6842 0.006774879545213
+    	[Lambda- 71]   0         7    0     0     1       499     10883     4451    45714     5208       7780     6842 0.000000000000000
+    	[Lambda- 71]   0         6    1     0     1       491     11039     5965   111448     5316       7780     6842 0.000000000000004
+    	[Lambda- 71]   0         5    0     0     1       496     11012     4984    65390     5320       7780     6842 0.000000000000000
+    	[Lambda- 71]   0         4    0     0     1       500     12931    25464   419074     5424       7780     6842 0.000014884243941
+    	[Lambda- 71]   0         3    0     0     0       500      6815     5168    51398     5054       7780     6842 0.012027145563361
+    	[Lambda- 71]   0         2    1     0     0       483      6905     5202    51152     5042       7780     6842 0.023950335148721
+    	[Lambda- 71]   0         1    1     0     0       476      7048     5846    55412     5026       7780     6842 0.072239972379711
+    	[Lambda- 71]   0         0    1     0     1       500     11650     5884    50556     5270       7780     6842 0.000000000000000
+    	[Lambda-71] Phase 0, Id read: 241
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555704f83e
+    	Baseline sample: Size- 486, Mean- 6981
+    	[Lambda-  1] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  1]   0         9    0     0     0       466      7197     5659    40850     5080       6981     5088 0.536480038302892
+    	[Lambda-  1]   0         8    0     0     0       474      7313     5782    41522     5128       6981     5088 0.345657089530865
+    	[Lambda-  1]   0         7    0     0     0       483      7511     6311    41744     5116       6981     5088 0.150622716080332
+    	[Lambda-  1]   0         6    0     0     0       469      7002     5106    52022     5088       6981     5088 0.949266716334953
+    	[Lambda-  1]   0         5    0     0     1       460     11758     8082   145934     5568       6981     5088 0.000000000000000
+    	[Lambda-  1]   0         4    0     0     1       494     12237     7754   103904     5526       6981     5088 0.000000000000000
+    	[Lambda-  1]   0         3    0     0     0       500      7049     5527    37542     5084       6981     5088 0.840681965415875
+    	[Lambda-  1]   0         2    0     0     0       500      7724     5996    40886     5086       6981     5088 0.035996130074018
+    	[Lambda-  1]   0         1    0     0     1       444     12607     7241    64972     5314       6981     5088 0.000000000000000
+    	[Lambda-  1]   0         0    1     0     1       500     11685     5839    60518     5300       6981     5088 0.000000000000000
+    	[Lambda-1] Phase 0, Id read: 51
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555559ea83e
+    	Baseline sample: Size- 500, Mean- 7187
+    	[Lambda-221] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-221]   0         9    0     0     0       500      6795     5203    42178     4994       7187     6009 0.270432977301841
+    	[Lambda-221]   0         8    0     0     1       500     13340     8315    69358     5578       7187     6009 0.000000000000000
+    	[Lambda-221]   0         7    1     0     1       500     13871    24199   525800     5240       7187     6009 0.000000003665003
+    	[Lambda-221]   0         6    1     0     0       447      6645     4285    32382     5044       7187     6009 0.107703204398632
+    	[Lambda-221]   0         5    0     0     0       476      6399     3862    35064     5056       7187     6009 0.014538041927774
+    	[Lambda-221]   0         4    1     0     0       500      7015     6015    52390     5002       7187     6009 0.651126972577196
+    	[Lambda-221]   0         3    1     0     0       498      7039     5151    35754     4982       7187     6009 0.676227784452648
+    	[Lambda-221]   0         2    1     0     1       494     12681     7022    53514     5564       7187     6009 0.000000000000000
+    	[Lambda-221]   0         1    0     0     0       498     20935   184095  4117698     5368       7187     6009 0.096414798563825
+    	[Lambda-221]   0         0    1     0     1       500     13137     9061    90474     5384       7187     6009 0.000000000000000
+    	[Lambda-221] Phase 0, Id read: 389
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555723883e
+    	Baseline sample: Size- 496, Mean- 6276
+    	[Lambda-201] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-201]   0         9    0     0     0       474      6402     4610    36696     5074       6276     4309 0.660606381384734
+    	[Lambda-201]   0         8    0     0     0       465      6343     4271    31930     5068       6276     4309 0.808882522547037
+    	[Lambda-201]   0         7    1     1     1       465         0        0        0        0       6276     4309 0.808882522547037
+    	[Lambda-201]   0         6    1     1     1       465         0        0        0        0       6276     4309 0.808882522547037
+    	[Lambda-201]   0         5    0     0     1       472     14015     9603   102418     5578       6276     4309 0.000000000000000
+    	[Lambda-201]   0         4    0     0     0       487      6456     4429    35752     5078       6276     4309 0.518698703828893
+    	[Lambda-201]   0         3    1     0     0       491      6578     4870    50672     5072       6276     4309 0.302666562003497
+    	[Lambda-201]   0         2    0     0     1       490     13231     9107    71226     5180       6276     4309 0.000000000000000
+    	[Lambda-201]   0         1    0     0     1       477     14067     9474    77556     5538       6276     4309 0.000000000000000
+    	[Lambda-201]   0         0    1     0     1       500     13975    10317    89596     5398       6276     4309 0.000000000000000
+    	[Lambda-201] Phase 0, Id read: 231
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555645383e
+    	Baseline sample: Size- 452, Mean- 6661
+    	[Lambda- 51] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda- 51]   0         9    0     0     0       466      6664     4687    34420     5004       6661     5396 0.992836868905083
+    	[Lambda- 51]   0         8    0     0     0       500      6894     5416    39910     4950       6661     5396 0.506844116136706
+    	[Lambda- 51]   0         7    0     0     0       452      7165     5471    34948     4970       6661     5396 0.163588904166210
+    	[Lambda- 51]   0         6    0     0     0       498      6702     4915    40406     4988       6661     5396 0.902931792059572
+    	[Lambda- 51]   0         5    1     1     1       498         0        0        0        0       6661     5396 0.902931792059572
+    	[Lambda- 51]   0         4    1     1     1       498         0        0        0        0       6661     5396 0.902931792059572
+    	[Lambda- 51]   0         3    0     0     0       498      6974     5659    60376     5006       6661     5396 0.383297876034332
+    	[Lambda- 51]   0         2    0     0     0       500      6685     4786    46572     4972       6661     5396 0.942395977863865
+    	[Lambda- 51]   0         1    1     1     1       500         0        0        0        0       6661     5396 0.942395977863865
+    	[Lambda- 51]   0         0    1     1     1       500         0        0        0        0       6661     5396 0.942395977863865
+    	[Lambda-51] Phase 0, Id read: 51
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555565d983e
+    	Baseline sample: Size- 492, Mean- 7589
+    	[Lambda-281] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-281]   0         9    0     0     0       473      6721     5334    61608     5036       7589     6262 0.020500054883924
+    	[Lambda-281]   0         8    1     1     1       473         0        0        0        0       7589     6262 0.020500054883924
+    	[Lambda-281]   0         7    0     0     0       500      7276     6346    56686     5026       7589     6262 0.434482662963585
+    	[Lambda-281]   0         6    0     0     0       495      6979     5459    53164     4980       7589     6262 0.103263710977237
+    	[Lambda-281]   0         5    0     0     0       500      7000     5193    36050     5008       7589     6262 0.107483743576860
+    	[Lambda-281]   0         4    1     1     1       500         0        0        0        0       7589     6262 0.107483743576860
+    	[Lambda-281]   0         3    1     1     1       500         0        0        0        0       7589     6262 0.107483743576860
+    	[Lambda-281]   0         2    0     0     0       500      6813     4718    41092     5006       7589     6262 0.027945966883990
+    	[Lambda-281]   0         1    0     0     0       500      7122     5763    50892     5002       7589     6262 0.222146218326272
+    	[Lambda-281]   0         0    1     1     1       500         0        0        0        0       7589     6262 0.222146218326272
+    	[Lambda-281] Phase 0, Id read: 281
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555700783e
+    	Baseline sample: Size- 474, Mean- 7300
+    	[Lambda- 21] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda- 21]   0         9    0     0     0       470      7178     5377    37752     4980       7300     6414 0.751486213751680
+    	[Lambda- 21]   0         8    0     0     1       496     25559    51773   827984     5782       7300     6414 0.000000000000037
+    	[Lambda- 21]   0         7    0     0     0       500      6504     4524    40144     4964       7300     6414 0.026198605554304
+    	[Lambda- 21]   0         6    0     0     1       500     22188    80402  1777332     5442       7300     6414 0.000043038413125
+    	[Lambda- 21]   0         5    0     0     0       475      6880     6386    74648     5048       7300     6414 0.312398343615283
+    	[Lambda- 21]   0         4    1     0     1       456     16991    10158   129736     5400       7300     6414 0.000000000000000
+    	[Lambda- 21]   0         3    0     0     1       500     12820    18789   391672     5278       7300     6414 0.000000001036829
+    	[Lambda- 21]   0         2    1     0     1       500     11670     4194    49344     5544       7300     6414 0.000000000000000
+    	[Lambda- 21]   0         1    0     0     1       452     11698     5253    44566     5338       7300     6414 0.000000000000000
+    	[Lambda- 21]   0         0    1     0     1       484     11592     5254    51292     5280       7300     6414 0.000000000000000
+    	[Lambda-21] Phase 0, Id read: 351
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555627083e
+    	Baseline sample: Size- 500, Mean- 6856
+    	[Lambda- 91] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda- 91]   0         9    0     0     0       494      7142     5740    52870     5134       6856     4928 0.399811987909914
+    	[Lambda- 91]   0         8    0     0     1       478     11845     6410    75000     5492       6856     4928 0.000000000000000
+    	[Lambda- 91]   0         7    0     0     0       500      6892     4781    43514     5124       6856     4928 0.906700420241873
+    	[Lambda- 91]   0         6    1     0     1       500     11584     6862    86000     5576       6856     4928 0.000000000000000
+    	[Lambda- 91]   0         5    0     0     0       500      6925     5255    42374     5144       6856     4928 0.830485314888670
+    	[Lambda- 91]   0         4    1     0     1       491     11917     7284   125304     5404       6856     4928 0.000000000000000
+    	[Lambda- 91]   0         3    1     0     1       500     11649     6743    97056     5416       6856     4928 0.000000000000000
+    	[Lambda- 91]   0         2    0     0     1       499     11943    11779   241212     5440       6856     4928 0.000000000000000
+    	[Lambda- 91]   0         1    1     0     1       492     10951     5252    89082     5498       6856     4928 0.000000000000000
+    	[Lambda- 91]   0         0    1     0     1       444     10981     3685    45386     5434       6856     4928 0.000000000000000
+    	[Lambda-91] Phase 0, Id read: 351
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555697383e
+    	Baseline sample: Size- 500, Mean- 6875
+    	[Lambda-391] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-391]   0         9    0     0     0       500      7364     6591    66910     4930       6875     4791 0.180000687914300
+    	[Lambda-391]   0         8    1     1     1       500         0        0        0        0       6875     4791 0.180000687914300
+    	[Lambda-391]   0         7    1     1     1       500         0        0        0        0       6875     4791 0.180000687914300
+    	[Lambda-391]   0         6    0     0     0       500      6786     5220    46570     4958       6875     4791 0.778888176267150
+    	[Lambda-391]   0         5    0     0     0       500      6533     4496    35954     4984       6875     4791 0.244799722225001
+    	[Lambda-391]   0         4    0     0     0       500      6692     4787    40446     4970       6875     4791 0.545905319284282
+    	[Lambda-391]   0         3    0     0     0       473      7664     8106    84202     4950       6875     4791 0.066871972231623
+    	[Lambda-391]   0         2    1     1     1       473         0        0        0        0       6875     4791 0.066871972231623
+    	[Lambda-391]   0         1    1     1     1       473         0        0        0        0       6875     4791 0.066871972231623
+    	[Lambda-391]   0         0    1     1     1       473         0        0        0        0       6875     4791 0.066871972231623
+    	[Lambda-391] Phase 0, Id read: 391
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555def83e
+    	Baseline sample: Size- 497, Mean- 7067
+    	[Lambda-301] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-301]   0         9    0     0     0       500      6940     5475    54616     4992       7067     5316 0.710310252775379
+    	[Lambda-301]   0         8    1     1     1       500         0        0        0        0       7067     5316 0.710310252775379
+    	[Lambda-301]   0         7    0     0     0       491      7244     6111    64498     5022       7067     5316 0.627458560633631
+    	[Lambda-301]   0         6    0     0     0       500      7735     7128    79660     4968       7067     5316 0.093716347142893
+    	[Lambda-301]   0         5    1     1     1       500         0        0        0        0       7067     5316 0.093716347142893
+    	[Lambda-301]   0         4    0     0     0       475      6565     4199    34044     5012       7067     5316 0.101888026587878
+    	[Lambda-301]   0         3    1     1     1       475         0        0        0        0       7067     5316 0.101888026587878
+    	[Lambda-301]   0         2    1     1     1       475         0        0        0        0       7067     5316 0.101888026587878
+    	[Lambda-301]   0         1    0     0     0       473      6844     4974    40152     4978       7067     5316 0.499933102069854
+    	[Lambda-301]   0         0    1     1     1       473         0        0        0        0       7067     5316 0.499933102069854
+    	[Lambda-301] Phase 0, Id read: 301
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555742a83e
+    	Baseline sample: Size- 499, Mean- 7180
+    	[Lambda- 31] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda- 31]   0         9    0     0     0       467      7386     6751    85752     5032       7180     5827 0.612889412581328
+    	[Lambda- 31]   0         8    0     0     0       500      7507     7141    78808     5018       7180     5827 0.427971085320302
+    	[Lambda- 31]   0         7    0     0     0       495      7031     5421    50318     5038       7180     5827 0.676484808974936
+    	[Lambda- 31]   0         6    0     0     0       474      7351     5864    44084     5042       7180     5827 0.648479116603081
+    	[Lambda- 31]   0         5    0     0     0       471      7276     6761    79382     5024       7180     5827 0.813281944719690
+    	[Lambda- 31]   0         4    1     1     1       471         0        0        0        0       7180     5827 0.813281944719690
+    	[Lambda- 31]   0         3    1     1     1       471         0        0        0        0       7180     5827 0.813281944719690
+    	[Lambda- 31]   0         2    1     1     1       471         0        0        0        0       7180     5827 0.813281944719690
+    	[Lambda- 31]   0         1    1     1     1       471         0        0        0        0       7180     5827 0.813281944719690
+    	[Lambda- 31]   0         0    1     1     1       471         0        0        0        0       7180     5827 0.813281944719690
+    	[Lambda-31] Phase 0, Id read: 31
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556df783e
+    	Baseline sample: Size- 500, Mean- 7624
+    	[Lambda-311] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-311]   0         9    0     0     0       494      7231     5580    43584     4986       7624     6692 0.314681815769206
+    	[Lambda-311]   0         8    1     1     1       494         0        0        0        0       7624     6692 0.314681815769206
+    	[Lambda-311]   0         7    0     0     0       495      7363     6419    51686     4954       7624     6692 0.530263872373225
+    	[Lambda-311]   0         6    0     0     0       500      7043     5461    35696     4964       7624     6692 0.132935522744931
+    	[Lambda-311]   0         5    1     1     1       500         0        0        0        0       7624     6692 0.132935522744931
+    	[Lambda-311]   0         4    1     1     1       500         0        0        0        0       7624     6692 0.132935522744931
+    	[Lambda-311]   0         3    0     0     0       469      6970     5547    36106     4954       7624     6692 0.097230473376602
+    	[Lambda-311]   0         2    1     1     1       469         0        0        0        0       7624     6692 0.097230473376602
+    	[Lambda-311]   0         1    1     1     1       469         0        0        0        0       7624     6692 0.097230473376602
+    	[Lambda-311]   0         0    1     1     1       469         0        0        0        0       7624     6692 0.097230473376602
+    	[Lambda-311] Phase 0, Id read: 311
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555703983e
+    	Baseline sample: Size- 487, Mean- 7324
+    	[Lambda-251] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-251]   0         9    0     0     0       500      7075     5066    43356     5136       7324     5959 0.480115984910217
+    	[Lambda-251]   0         8    0     0     0       477      6906     4822    37214     5126       7324     5959 0.231107071190090
+    	[Lambda-251]   0         7    1     1     1       477         0        0        0        0       7324     5959 0.231107071190090
+    	[Lambda-251]   0         6    1     1     1       477         0        0        0        0       7324     5959 0.231107071190090
+    	[Lambda-251]   0         5    1     1     1       477         0        0        0        0       7324     5959 0.231107071190090
+    	[Lambda-251]   0         4    1     1     1       477         0        0        0        0       7324     5959 0.231107071190090
+    	[Lambda-251]   0         3    1     1     1       477         0        0        0        0       7324     5959 0.231107071190090
+    	[Lambda-251]   0         2    0     0     0       474      7287     5480    41404     5152       7324     5959 0.920186658473160
+    	[Lambda-251]   0         1    1     1     1       474         0        0        0        0       7324     5959 0.920186658473160
+    	[Lambda-251]   0         0    1     1     1       474         0        0        0        0       7324     5959 0.920186658473160
+    	[Lambda-251] Phase 0, Id read: 251
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555560eabe
+    	Baseline sample: Size- 500, Mean- 7217
+    	[Lambda- 11] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda- 11]   0         9    0     0     0       500      7311     5909    37928     4962       7217     5781 0.799357382847225
+    	[Lambda- 11]   0         8    0     0     0       500      7004     5573    35016     4990       7217     5781 0.553233061128648
+    	[Lambda- 11]   0         7    0     0     0       500      7054     5522    39394     4988       7217     5781 0.648571838380054
+    	[Lambda- 11]   0         6    0     0     0       451      7116     5587    37870     5046       7217     5781 0.784286845755799
+    	[Lambda- 11]   0         5    0     0     0       482      7448     6302    38906     4992       7217     5781 0.550031784934109
+    	[Lambda- 11]   0         4    0     0     0       500      7372     6638    83056     5016       7217     5781 0.693873805170449
+    	[Lambda- 11]   0         3    1     1     1       500         0        0        0        0       7217     5781 0.693873805170449
+    	[Lambda- 11]   0         2    0     0     0       485      6745     4627    37056     5038       7217     5781 0.156876130246007
+    	[Lambda- 11]   0         1    1     1     1       485         0        0        0        0       7217     5781 0.156876130246007
+    	[Lambda- 11]   0         0    1     1     1       485         0        0        0        0       7217     5781 0.156876130246007
+    	[Lambda-11] Phase 0, Id read: 11
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555556115fe
+    	Baseline sample: Size- 500, Mean- 6612
+    	[Lambda-  1] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  1]   0         9    0     0     0       497      7054     5591    40480     4920       6612     4727 0.178145948911627
+    	[Lambda-  1]   0         8    0     0     0       500      6771     5527    52914     4966       6612     4727 0.625074905835100
+    	[Lambda-  1]   0         7    0     0     0       489      6850     5277    41960     4990       6612     4727 0.455560681341471
+    	[Lambda-  1]   0         6    0     0     0       485      6914     5345    52240     4962       6612     4727 0.348410261522675
+    	[Lambda-  1]   0         5    0     0     0       483      7214     6396    59442     5006       6612     4727 0.094612290314949
+    	[Lambda-  1]   0         4    0     0     0       495      6472     4314    35320     4952       6612     4727 0.625658654896456
+    	[Lambda-  1]   0         3    0     0     0       500      6968     5513    64992     4918       6612     4727 0.273352143021364
+    	[Lambda-  1]   0         2    0     0     0       431      7072     6101    74444     5018       6612     4727 0.204254764625416
+    	[Lambda-  1]   0         1    0     0     0       477      7457     6055    48722     4992       6612     4727 0.015565459028893
+    	[Lambda-  1]   0         0    1     1     1       477         0        0        0        0       6612     4727 0.015565459028893
+    	[Lambda-1] Phase 0, Id read: 1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555611dbe
+    	Baseline sample: Size- 493, Mean- 7810
+    	[Lambda-111] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-111]   0         9    0     0     0       447      7041     5832    41500     4946       7810     6999 0.066719994187312
+    	[Lambda-111]   0         8    0     0     0       500      7081     7631   107518     4996       7810     6999 0.116956597909211
+    	[Lambda-111]   0         7    0     0     0       492      6614     4496    35690     4968       7810     6999 0.001469988096936
+    	[Lambda-111]   0         6    1     1     1       492         0        0        0        0       7810     6999 0.001469988096936
+    	[Lambda-111]   0         5    1     1     1       492         0        0        0        0       7810     6999 0.001469988096936
+    	[Lambda-111]   0         4    0     0     0       486      7121     6648    99786     5004       7810     6999 0.114599465068907
+    	[Lambda-111]   0         3    1     1     1       486         0        0        0        0       7810     6999 0.114599465068907
+    	[Lambda-111]   0         2    1     1     1       486         0        0        0        0       7810     6999 0.114599465068907
+    	[Lambda-111]   0         1    1     1     1       486         0        0        0        0       7810     6999 0.114599465068907
+    	[Lambda-111]   0         0    1     1     1       486         0        0        0        0       7810     6999 0.114599465068907
+    	[Lambda-111] Phase 0, Id read: 111
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555559a683e
+    	Baseline sample: Size- 469, Mean- 7359
+    	[Lambda-421] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-421]   0         9    0     0     0       474      6755     5022    55832     5050       7359     6047 0.095734458132578
+    	[Lambda-421]   0         8    1     1     1       474         0        0        0        0       7359     6047 0.095734458132578
+    	[Lambda-421]   0         7    1     1     1       474         0        0        0        0       7359     6047 0.095734458132578
+    	[Lambda-421]   0         6    0     0     0       497      6778     4764    39194     5068       7359     6047 0.098833319731505
+    	[Lambda-421]   0         5    1     1     1       497         0        0        0        0       7359     6047 0.098833319731505
+    	[Lambda-421]   0         4    0     0     0       500      6729     4584    35220     5054       7359     6047 0.069321670318522
+    	[Lambda-421]   0         3    0     0     0       486      7084     5524    40178     5034       7359     6047 0.463759703146417
+    	[Lambda-421]   0         2    1     1     1       486         0        0        0        0       7359     6047 0.463759703146417
+    	[Lambda-421]   0         1    0     0     0       496      7184     5695    41394     5006       7359     6047 0.644068393250168
+    	[Lambda-421]   0         0    1     1     1       496         0        0        0        0       7359     6047 0.644068393250168
+    	[Lambda-421] Phase 0, Id read: 421
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556d8b83e
+    	Baseline sample: Size- 497, Mean- 7070
+    	[Lambda-181] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-181]   0         9    0     0     0       500      7268     6248    54122     4988       7070     5446 0.593844095458339
+    	[Lambda-181]   0         8    0     0     1       498     13316    10014   126514     5554       7070     5446 0.000000000000000
+    	[Lambda-181]   0         7    1     0     1       478     12916     7333    56620     5358       7070     5446 0.000000000000000
+    	[Lambda-181]   0         6    0     0     0       500      6616     4632    43300     5040       7070     5446 0.156687527284043
+    	[Lambda-181]   0         5    1     0     0       474      6702     4578    42032     5000       7070     5446 0.253918418729621
+    	[Lambda-181]   0         4    1     0     0       481      6311     3595    32364     4976       7070     5446 0.010050840930572
+    	[Lambda-181]   0         3    0     0     0       488      7140     5779    44384     4946       7070     5446 0.844993868753280
+    	[Lambda-181]   0         2    1     0     1       500     13313     8210    85032     5418       7070     5446 0.000000000000000
+    	[Lambda-181]   0         1    0     0     1       480     12949     9483   126138     5490       7070     5446 0.000000000000000
+    	[Lambda-181]   0         0    1     0     1       467     13148     7821    71974     5624       7070     5446 0.000000000000000
+    	[Lambda-181] Phase 0, Id read: 391
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555751283e
+    	Baseline sample: Size- 499, Mean- 7605
+    	[Lambda-241] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-241]   0         9    0     0     0       500      7455     5957    42876     5104       7605     6281 0.698690003209612
+    	[Lambda-241]   0         8    0     0     0       497      6888     5465    80168     5158       7605     6281 0.054913513814409
+    	[Lambda-241]   0         7    1     1     1       497         0        0        0        0       7605     6281 0.054913513814409
+    	[Lambda-241]   0         6    1     1     1       497         0        0        0        0       7605     6281 0.054913513814409
+    	[Lambda-241]   0         5    1     1     1       497         0        0        0        0       7605     6281 0.054913513814409
+    	[Lambda-241]   0         4    1     1     1       497         0        0        0        0       7605     6281 0.054913513814409
+    	[Lambda-241]   0         3    0     0     0       492      7262     6076    67916     5164       7605     6281 0.382504044245698
+    	[Lambda-241]   0         2    0     0     0       470      6996     5181    40768     5160       7605     6281 0.099241943759836
+    	[Lambda-241]   0         1    0     0     0       466      7418     5901    51168     5140       7605     6281 0.633610924821569
+    	[Lambda-241]   0         0    1     1     1       466         0        0        0        0       7605     6281 0.633610924821569
+    	[Lambda-241] Phase 0, Id read: 241
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555737983e
+    	Baseline sample: Size- 452, Mean- 7383
+    	[Lambda- 61] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda- 61]   0         9    0     0     0       466      7465     6294    57252     5136       7383     5801 0.837364045907397
+    	[Lambda- 61]   0         8    0     0     1       500     12038     7213   103250     5500       7383     5801 0.000000000000000
+    	[Lambda- 61]   0         7    0     0     1       452     12477    16174   317692     5418       7383     5801 0.000000000589674
+    	[Lambda- 61]   0         6    0     0     0       498      7202     5426    40146     5150       7383     5801 0.620591773294386
+    	[Lambda- 61]   0         5    1     0     1       498     11759     7225   104106     5286       7383     5801 0.000000000000000
+    	[Lambda- 61]   0         4    1     0     0       500      7133     6050    81022     5106       7383     5801 0.515495095711088
+    	[Lambda- 61]   0         3    1     0     0       496      7355     5912    42488     5122       7383     5801 0.941389862017204
+    	[Lambda- 61]   0         2    1     0     1       487     11641     7596   122670     5360       7383     5801 0.000000000000000
+    	[Lambda- 61]   0         1    0     0     0       500      6783     4876    42230     5108       7383     5801 0.086214489078388
+    	[Lambda- 61]   0         0    1     0     1       473     12313    12039   237768     5378       7383     5801 0.000000000000006
+    	[Lambda-61] Phase 0, Id read: 421
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555611a83e
+    	Baseline sample: Size- 500, Mean- 7259
+    	[Lambda-401] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-401]   0         9    0     0     0       462      7328     6277    84948     5130       7259     5603 0.857743458926967
+    	[Lambda-401]   0         8    1     1     1       462         0        0        0        0       7259     5603 0.857743458926967
+    	[Lambda-401]   0         7    1     1     1       462         0        0        0        0       7259     5603 0.857743458926967
+    	[Lambda-401]   0         6    0     0     0       491      7031     5561    69968     5180       7259     5603 0.520483694392470
+    	[Lambda-401]   0         5    0     0     0       493      7264     5410    39810     5114       7259     5603 0.988589789219987
+    	[Lambda-401]   0         4    1     1     1       493         0        0        0        0       7259     5603 0.988589789219987
+    	[Lambda-401]   0         3    0     0     0       500      7152     5493    37868     5142       7259     5603 0.760512447621938
+    	[Lambda-401]   0         2    0     0     0       500      7299     5537    39864     5122       7259     5603 0.909629284134279
+    	[Lambda-401]   0         1    0     0     0       500      7236     5840    51394     5142       7259     5603 0.949348904213369
+    	[Lambda-401]   0         0    1     1     1       500         0        0        0        0       7259     5603 0.949348904213369
+    	[Lambda-401] Phase 0, Id read: 401
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555557d983e
+    	Baseline sample: Size- 500, Mean- 7119
+    	[Lambda-131] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-131]   0         9    0     0     0       482      6796     4736    36710     5002       7119     5990 0.347973316642176
+    	[Lambda-131]   0         8    0     0     0       478      7508     7435    75618     4992       7119     5990 0.369136957315169
+    	[Lambda-131]   0         7    1     1     1       478         0        0        0        0       7119     5990 0.369136957315169
+    	[Lambda-131]   0         6    0     0     0       500      7220     5708    60610     5000       7119     5990 0.784969883061551
+    	[Lambda-131]   0         5    0     0     0       471      7484     6406    50056     5028       7119     5990 0.360107598996505
+    	[Lambda-131]   0         4    0     0     0       486      7298     6418    80282     4984       7119     5990 0.651084369327093
+    	[Lambda-131]   0         3    0     0     0       484      7178     6039    49784     4982       7119     5990 0.877791378863293
+    	[Lambda-131]   0         2    0     0     0       475      7065     5614    42374     4952       7119     5990 0.884512423403975
+    	[Lambda-131]   0         1    1     1     1       475         0        0        0        0       7119     5990 0.884512423403975
+    	[Lambda-131]   0         0    1     1     1       475         0        0        0        0       7119     5990 0.884512423403975
+    	[Lambda-131] Phase 0, Id read: 131
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555759783e
+    	Baseline sample: Size- 500, Mean- 7364
+    	[Lambda-491] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-491]   0         9    0     0     0       474      7489     5968    44246     5130       7364     5665 0.737811708086482
+    	[Lambda-491]   0         8    1     1     1       474         0        0        0        0       7364     5665 0.737811708086482
+    	[Lambda-491]   0         7    1     1     1       474         0        0        0        0       7364     5665 0.737811708086482
+    	[Lambda-491]   0         6    1     1     1       474         0        0        0        0       7364     5665 0.737811708086482
+    	[Lambda-491]   0         5    1     1     1       474         0        0        0        0       7364     5665 0.737811708086482
+    	[Lambda-491]   0         4    0     0     0       493      7217     5675    62698     5174       7364     5665 0.683036187276010
+    	[Lambda-491]   0         3    1     1     1       493         0        0        0        0       7364     5665 0.683036187276010
+    	[Lambda-491]   0         2    0     0     0       472      7555     6094    51444     5142       7364     5665 0.613477568159165
+    	[Lambda-491]   0         1    1     1     1       472         0        0        0        0       7364     5665 0.613477568159165
+    	[Lambda-491]   0         0    1     1     1       472         0        0        0        0       7364     5665 0.613477568159165
+    	[Lambda-491] Phase 0, Id read: 491
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555567f983e
+    	Baseline sample: Size- 500, Mean- 7048
+    	[Lambda-431] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-431]   0         9    0     0     0       486      7587     6396    59876     5006       7048     5253 0.149182399540395
+    	[Lambda-431]   0         8    1     1     1       486         0        0        0        0       7048     5253 0.149182399540395
+    	[Lambda-431]   0         7    1     1     1       486         0        0        0        0       7048     5253 0.149182399540395
+    	[Lambda-431]   0         6    0     0     0       486      7653     7458    71940     5026       7048     5253 0.142247870882550
+    	[Lambda-431]   0         5    1     1     1       486         0        0        0        0       7048     5253 0.142247870882550
+    	[Lambda-431]   0         4    0     0     0       492      7502     6867    67376     5016       7048     5253 0.243065003915683
+    	[Lambda-431]   0         3    1     1     1       492         0        0        0        0       7048     5253 0.243065003915683
+    	[Lambda-431]   0         2    1     1     1       492         0        0        0        0       7048     5253 0.243065003915683
+    	[Lambda-431]   0         1    1     1     1       492         0        0        0        0       7048     5253 0.243065003915683
+    	[Lambda-431]   0         0    1     1     1       492         0        0        0        0       7048     5253 0.243065003915683
+    	[Lambda-431] Phase 0, Id read: 431
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555588b83e
+    	Baseline sample: Size- 494, Mean- 7507
+    	[Lambda-261] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-261]   0         9    0     0     0       483      7613     6440    43240     5042       7507     6319 0.795228576290710
+    	[Lambda-261]   0         8    1     1     1       483         0        0        0        0       7507     6319 0.795228576290710
+    	[Lambda-261]   0         7    0     0     0       495      7042     5564    39872     5030       7507     6319 0.219754870701967
+    	[Lambda-261]   0         6    0     0     0       500      6877     4591    38950     5064       7507     6319 0.072783258599180
+    	[Lambda-261]   0         5    0     0     0       500      7113     6471    76824     5042       7507     6319 0.331718856421421
+    	[Lambda-261]   0         4    0     0     0       500      7060     5528    43568     5002       7507     6319 0.235789182163225
+    	[Lambda-261]   0         3    0     0     0       500      6954     5476    52666     5012       7507     6319 0.140914167374560
+    	[Lambda-261]   0         2    1     1     1       500         0        0        0        0       7507     6319 0.140914167374560
+    	[Lambda-261]   0         1    0     0     0       497      7316     6707    86720     5040       7507     6319 0.644609718758670
+    	[Lambda-261]   0         0    1     1     1       497         0        0        0        0       7507     6319 0.644609718758670
+    	[Lambda-261] Phase 0, Id read: 261
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555a7d83e
+    	Baseline sample: Size- 472, Mean- 7582
+    	[Lambda-371] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-371]   0         9    0     0     0       500      7577     5928    39580     5114       7582     7355 0.990725504310024
+    	[Lambda-371]   0         8    1     1     1       500         0        0        0        0       7582     7355 0.990725504310024
+    	[Lambda-371]   0         7    0     0     1       498     12839     7621   100102     5572       7582     7355 0.000000000000000
+    	[Lambda-371]   0         6    1     0     0       480      7255     5385    39802     5128       7582     7355 0.434677377530641
+    	[Lambda-371]   0         5    1     0     1       500     11597     6150    67154     5490       7582     7355 0.000000000000000
+    	[Lambda-371]   0         4    1     0     1       498     11442     5243    45978     5414       7582     7355 0.000000000000000
+    	[Lambda-371]   0         3    0     0     1       458     10928     4049    45252     5416       7582     7355 0.000000000000000
+    	[Lambda-371]   0         2    0     0     0       485      6827     5140    40998     5116       7582     7355 0.066708872735908
+    	[Lambda-371]   0         1    1     0     0       500      6971     5113    53228     5106       7582     7355 0.135167230350892
+    	[Lambda-371]   0         0    1     0     1       478     11043     4704    47224     5266       7582     7355 0.000000000000000
+    	[Lambda-371] Phase 0, Id read: 441
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555574cd83e
+    	Baseline sample: Size- 500, Mean- 7790
+    	[Lambda- 41] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda- 41]   0         9    0     0     0       500      7809     7087    52832     5122       7790     6481 0.964726649722931
+    	[Lambda- 41]   0         8    0     0     1       500     11957     7155   112468     5696       7790     6481 0.000000000000000
+    	[Lambda- 41]   0         7    0     0     0       500     14751    61701  1387266     5488       7790     6481 0.012420771139688
+    	[Lambda- 41]   0         6    0     0     1       500     12000     5651    59686     5386       7790     6481 0.000000000000000
+    	[Lambda- 41]   0         5    1     0     1       500     11514     7292   115482     5694       7790     6481 0.000000000000000
+    	[Lambda- 41]   0         4    0     0     0       490      6944     5275    40246     5150       7790     6481 0.024396428512126
+    	[Lambda- 41]   0         3    1     0     1       494     11364     4508    42078     5392       7790     6481 0.000000000000000
+    	[Lambda- 41]   0         2    0     0     0       500      6914     4460    34754     5148       7790     6481 0.012973775923930
+    	[Lambda- 41]   0         1    0     0     1       500     11499     4648    42240     5616       7790     6481 0.000000000000000
+    	[Lambda- 41]   0         0    1     0     1       488     11577     6029   103664     5544       7790     6481 0.000000000000000
+    	[Lambda-41] Phase 0, Id read: 363
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555639d83e
+    	Baseline sample: Size- 500, Mean- 7060
+    	[Lambda-291] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-291]   0         9    0     0     0       500      7107     5651    38358     4926       7060     5703 0.895890791710074
+    	[Lambda-291]   0         8    1     1     1       500         0        0        0        0       7060     5703 0.895890791710074
+    	[Lambda-291]   0         7    0     0     0       484      6899     5277    42188     4940       7060     5703 0.645750839343699
+    	[Lambda-291]   0         6    0     0     1       468     17409     9416    83498     5684       7060     5703 0.000000000000000
+    	[Lambda-291]   0         5    1     0     0       441      6828     5082    38984     5006       7060     5703 0.509531873307600
+    	[Lambda-291]   0         4    0     0     1       500     18488    22694   474922     5944       7060     5703 0.000000000000000
+    	[Lambda-291]   0         3    0     0     1       467     12496     8354   111164     5478       7060     5703 0.000000000000000
+    	[Lambda-291]   0         2    0     0     1       481     11870     6269    90188     5592       7060     5703 0.000000000000000
+    	[Lambda-291]   0         1    1     0     1       500     11710     7525   146096     5428       7060     5703 0.000000000000000
+    	[Lambda-291]   0         0    1     0     1       441     11097     4115    44972     5340       7060     5703 0.000000000000000
+    	[Lambda-291] Phase 0, Id read: 351
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556feb83e
+    	Baseline sample: Size- 498, Mean- 7568
+    	[Lambda-191] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-191]   0         9    0     0     0       489      6983     5056    37864     5102       7568     6136 0.102225740658318
+    	[Lambda-191]   0         8    0     0     0       500      7165     5310    42738     5166       7568     6136 0.267654030401911
+    	[Lambda-191]   0         7    1     1     1       500         0        0        0        0       7568     6136 0.267654030401911
+    	[Lambda-191]   0         6    0     0     0       487      7178     5833    52410     5116       7568     6136 0.306813444666982
+    	[Lambda-191]   0         5    1     1     1       487         0        0        0        0       7568     6136 0.306813444666982
+    	[Lambda-191]   0         4    1     1     1       487         0        0        0        0       7568     6136 0.306813444666982
+    	[Lambda-191]   0         3    1     1     1       487         0        0        0        0       7568     6136 0.306813444666982
+    	[Lambda-191]   0         2    1     1     1       487         0        0        0        0       7568     6136 0.306813444666982
+    	[Lambda-191]   0         1    1     1     1       487         0        0        0        0       7568     6136 0.306813444666982
+    	[Lambda-191]   0         0    1     1     1       487         0        0        0        0       7568     6136 0.306813444666982
+    	[Lambda-191] Phase 0, Id read: 191
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555626f83e
+    	Baseline sample: Size- 500, Mean- 7573
+    	[Lambda-481] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-481]   0         9    0     0     0       466      7171     6676    74782     4994       7573     7562 0.380641905601117
+    	[Lambda-481]   0         8    1     1     1       466         0        0        0        0       7573     7562 0.380641905601117
+    	[Lambda-481]   0         7    1     1     1       466         0        0        0        0       7573     7562 0.380641905601117
+    	[Lambda-481]   0         6    1     1     1       466         0        0        0        0       7573     7562 0.380641905601117
+    	[Lambda-481]   0         5    1     1     1       466         0        0        0        0       7573     7562 0.380641905601117
+    	[Lambda-481]   0         4    0     0     0       483      7484     6425    41206     4998       7573     7562 0.842250353324688
+    	[Lambda-481]   0         3    0     0     0       468      7058     6385    71984     5030       7573     7562 0.251578096694256
+    	[Lambda-481]   0         2    0     0     0       497      7163     5883    36948     5014       7573     7562 0.339467847069354
+    	[Lambda-481]   0         1    0     0     0       497      6967     5472    41292     4930       7573     7562 0.147390685648427
+    	[Lambda-481]   0         0    1     1     1       497         0        0        0        0       7573     7562 0.147390685648427
+    	[Lambda-481] Phase 0, Id read: 481
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555557b083e
+    	Baseline sample: Size- 466, Mean- 6894
+    	[Lambda-271] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-271]   0         9    0     0     0       500      7415     7516    89058     4996       6894     5365 0.213000254883083
+    	[Lambda-271]   0         8    1     1     1       500         0        0        0        0       6894     5365 0.213000254883083
+    	[Lambda-271]   0         7    0     0     0       484      7070     5383    41824     5036       6894     5365 0.613961109871700
+    	[Lambda-271]   0         6    0     0     0       479      6966     6720    84980     4990       6894     5365 0.855418190172642
+    	[Lambda-271]   0         5    0     0     0       481      7172     5671    40236     4994       6894     5365 0.438493332625496
+    	[Lambda-271]   0         4    0     0     0       478      6719     5644    84554     5004       6894     5365 0.625439078323553
+    	[Lambda-271]   0         3    1     1     1       478         0        0        0        0       6894     5365 0.625439078323553
+    	[Lambda-271]   0         2    1     1     1       478         0        0        0        0       6894     5365 0.625439078323553
+    	[Lambda-271]   0         1    1     1     1       478         0        0        0        0       6894     5365 0.625439078323553
+    	[Lambda-271]   0         0    1     1     1       478         0        0        0        0       6894     5365 0.625439078323553
+    	[Lambda-271] Phase 0, Id read: 271
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556c8b83e
+    	Baseline sample: Size- 497, Mean- 7279
+    	[Lambda-461] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-461]   0         9    0     0     0       479      7241     6181    41786     4932       7279     6245 0.923921677857605
+    	[Lambda-461]   0         8    1     1     1       479         0        0        0        0       7279     6245 0.923921677857605
+    	[Lambda-461]   0         7    1     1     1       479         0        0        0        0       7279     6245 0.923921677857605
+    	[Lambda-461]   0         6    1     1     1       479         0        0        0        0       7279     6245 0.923921677857605
+    	[Lambda-461]   0         5    0     0     0       471      6525     4556    41428     5040       7279     6245 0.031526902532490
+    	[Lambda-461]   0         4    0     0     0       500      6568     4517    35650     4952       7279     6245 0.039842762711991
+    	[Lambda-461]   0         3    1     1     1       500         0        0        0        0       7279     6245 0.039842762711991
+    	[Lambda-461]   0         2    1     1     1       500         0        0        0        0       7279     6245 0.039842762711991
+    	[Lambda-461]   0         1    0     0     0       483      7072     5511    51360     4990       7279     6245 0.582100438564874
+    	[Lambda-461]   0         0    1     1     1       483         0        0        0        0       7279     6245 0.582100438564874
+    	[Lambda-461] Phase 0, Id read: 461
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555bc383e
+    	Baseline sample: Size- 500, Mean- 7006
+    	[Lambda-381] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-381]   0         9    0     0     0       452      6996     7178    41824     3104       7006     7017 0.982698020902771
+    	[Lambda-381]   0         8    1     1     1       452         0        0        0        0       7006     7017 0.982698020902771
+    	[Lambda-381]   0         7    0     0     0       500      6915     7242    51935     3084       7006     7017 0.840132691088761
+    	[Lambda-381]   0         6    1     1     1       500         0        0        0        0       7006     7017 0.840132691088761
+    	[Lambda-381]   0         5    1     1     1       500         0        0        0        0       7006     7017 0.840132691088761
+    	[Lambda-381]   0         4    1     1     1       500         0        0        0        0       7006     7017 0.840132691088761
+    	[Lambda-381]   0         3    1     1     1       500         0        0        0        0       7006     7017 0.840132691088761
+    	[Lambda-381]   0         2    1     1     1       500         0        0        0        0       7006     7017 0.840132691088761
+    	[Lambda-381]   0         1    0     0     0       500      6151     5980    40783     3175       7006     7017 0.038387435353081
+    	[Lambda-381]   0         0    1     1     1       500         0        0        0        0       7006     7017 0.038387435353081
+    	[Lambda-381] Phase 0, Id read: 381
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555e7a83e
+    	Baseline sample: Size- 471, Mean- 7632
+    	[Lambda-171] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-171]   0         9    0     0     0       489      6822     4867    41320     5020       7632     7296 0.044152906075175
+    	[Lambda-171]   0         8    0     0     1       494     23586    13846   185454     5454       7632     7296 0.000000000000000
+    	[Lambda-171]   0         7    1     0     0       500      7123     5546    41000     5030       7632     7296 0.223423833081600
+    	[Lambda-171]   0         6    0     0     1       482     17295     7737    69856     5330       7632     7296 0.000000000000000
+    	[Lambda-171]   0         5    1     0     0       500      7339     6043    52878     5058       7632     7296 0.497141480895193
+    	[Lambda-171]   0         4    0     0     1       460     16367     7254    62750     5500       7632     7296 0.000000000000000
+    	[Lambda-171]   0         3    1     0     1       500     12110     7281   108320     5630       7632     7296 0.000000000000000
+    	[Lambda-171]   0         2    0     0     1       492     11855     5717    65716     5196       7632     7296 0.000000000000000
+    	[Lambda-171]   0         1    1     0     1       493     11305     6088   106684     5528       7632     7296 0.000000000000000
+    	[Lambda-171]   0         0    1     0     1       500     11503     5274    51084     5350       7632     7296 0.000000000000000
+    	[Lambda-171] Phase 0, Id read: 351
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555686283e
+    	Baseline sample: Size- 500, Mean- 7210
+    	[Lambda-331] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-331]   0         9    0     0     0       500      7107     5314    42434     5098       7210     5445 0.762200146228629
+    	[Lambda-331]   0         8    1     1     1       500         0        0        0        0       7210     5445 0.762200146228629
+    	[Lambda-331]   0         7    0     0     0       490      7085     5311    38092     5156       7210     5445 0.714715130814756
+    	[Lambda-331]   0         6    1     1     1       490         0        0        0        0       7210     5445 0.714715130814756
+    	[Lambda-331]   0         5    0     0     0       500      6968     5156    53108     5160       7210     5445 0.470746730333706
+    	[Lambda-331]   0         4    0     0     0       500      7342     5354    36230     5204       7210     5445 0.699206651008303
+    	[Lambda-331]   0         3    1     1     1       500         0        0        0        0       7210     5445 0.699206651008303
+    	[Lambda-331]   0         2    0     0     0       456      7172     5048    35912     5122       7210     5445 0.910876810504552
+    	[Lambda-331]   0         1    1     1     1       456         0        0        0        0       7210     5445 0.910876810504552
+    	[Lambda-331]   0         0    1     1     1       456         0        0        0        0       7210     5445 0.910876810504552
+    	[Lambda-331] Phase 0, Id read: 331
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555e6483e
+    	Baseline sample: Size- 500, Mean- 7221
+    	[Lambda-151] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-151]   0         9    0     0     0       500      6761     6394    91562     4958       7221     5822 0.234575084992735
+    	[Lambda-151]   0         8    0     0     0       470      6592     4507    51628     4986       7221     5822 0.059386837326663
+    	[Lambda-151]   0         7    1     1     1       470         0        0        0        0       7221     5822 0.059386837326663
+    	[Lambda-151]   0         6    0     0     0       472      6748     5623    67446     4984       7221     5822 0.197950108872043
+    	[Lambda-151]   0         5    0     0     0       488      6484     4271    41256     4972       7221     5822 0.023293122134778
+    	[Lambda-151]   0         4    1     1     1       488         0        0        0        0       7221     5822 0.023293122134778
+    	[Lambda-151]   0         3    0     0     0       498      7238     5938    45180     4958       7221     5822 0.963590572813717
+    	[Lambda-151]   0         2    1     1     1       498         0        0        0        0       7221     5822 0.963590572813717
+    	[Lambda-151]   0         1    1     1     1       498         0        0        0        0       7221     5822 0.963590572813717
+    	[Lambda-151]   0         0    1     1     1       498         0        0        0        0       7221     5822 0.963590572813717
+    	[Lambda-151] Phase 0, Id read: 151
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555618683e
+    	Baseline sample: Size- 494, Mean- 7189
+    	[Lambda-471] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-471]   0         9    0     0     0       478      6994     5259    52906     5190       7189     7616 0.641514754100523
+    	[Lambda-471]   0         8    1     1     1       478         0        0        0        0       7189     7616 0.641514754100523
+    	[Lambda-471]   0         7    1     1     1       478         0        0        0        0       7189     7616 0.641514754100523
+    	[Lambda-471]   0         6    1     1     1       478         0        0        0        0       7189     7616 0.641514754100523
+    	[Lambda-471]   0         5    0     0     0       500      7191     6004    55468     5226       7189     7616 0.996335666684346
+    	[Lambda-471]   0         4    1     1     1       500         0        0        0        0       7189     7616 0.996335666684346
+    	[Lambda-471]   0         3    0     0     0       499      7012     5092    38480     5212       7189     7616 0.667277615109112
+    	[Lambda-471]   0         2    1     1     1       499         0        0        0        0       7189     7616 0.667277615109112
+    	[Lambda-471]   0         1    1     1     1       499         0        0        0        0       7189     7616 0.667277615109112
+    	[Lambda-471]   0         0    1     1     1       499         0        0        0        0       7189     7616 0.667277615109112
+    	[Lambda-471] Phase 0, Id read: 471
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555d6b83e
+    	Baseline sample: Size- 491, Mean- 7087
+    	[Lambda-321] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-321]   0         9    0     0     0       500      7452     6986    82916     4990       7087     5484 0.360057164784488
+    	[Lambda-321]   0         8    1     1     1       500         0        0        0        0       7087     5484 0.360057164784488
+    	[Lambda-321]   0         7    0     0     0       496      7286     5760    36858     4986       7087     5484 0.578439418825931
+    	[Lambda-321]   0         6    1     1     1       496         0        0        0        0       7087     5484 0.578439418825931
+    	[Lambda-321]   0         5    0     0     0       462      7046     5730    36832     4994       7087     5484 0.910291374974482
+    	[Lambda-321]   0         4    0     0     0       461      7219     5900    51594     4994       7087     5484 0.721237921623495
+    	[Lambda-321]   0         3    0     0     0       466      7017     5673    54534     4986       7087     5484 0.846306945855207
+    	[Lambda-321]   0         2    0     0     0       494      7511     6272    38536     5006       7087     5484 0.258973643386802
+    	[Lambda-321]   0         1    0     0     0       498      7026     5723    44484     4966       7087     5484 0.864152396736700
+    	[Lambda-321]   0         0    1     1     1       498         0        0        0        0       7087     5484 0.864152396736700
+    	[Lambda-321] Phase 0, Id read: 321
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555612683e
+    	Baseline sample: Size- 485, Mean- 7157
+    	[Lambda-121] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-121]   0         9    0     0     0       471      7029     5497    59300     5160       7157     5498 0.719015299801987
+    	[Lambda-121]   0         8    0     0     0       481      7422     5992    52552     5118       7157     5498 0.474184837096936
+    	[Lambda-121]   0         7    0     0     0       457      7138     5690    59644     5130       7157     5498 0.958493375098913
+    	[Lambda-121]   0         6    1     1     1       457         0        0        0        0       7157     5498 0.958493375098913
+    	[Lambda-121]   0         5    1     1     1       457         0        0        0        0       7157     5498 0.958493375098913
+    	[Lambda-121]   0         4    1     1     1       457         0        0        0        0       7157     5498 0.958493375098913
+    	[Lambda-121]   0         3    1     1     1       457         0        0        0        0       7157     5498 0.958493375098913
+    	[Lambda-121]   0         2    0     0     0       444      7329     6479    67822     5196       7157     5498 0.664229878958060
+    	[Lambda-121]   0         1    0     0     0       500      7291     5633    41246     5220       7157     5498 0.705685984664632
+    	[Lambda-121]   0         0    1     1     1       500         0        0        0        0       7157     5498 0.705685984664632
+    	[Lambda-121] Phase 0, Id read: 121
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555566c683e
+    	Baseline sample: Size- 477, Mean- 6751
+    	[Lambda-211] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-211]   0         9    0     0     0       500      6499     6563    43801     3105       6751     7555 0.578716686276534
+    	[Lambda-211]   0         8    0     0     0       474      6567     6575    42335     3099       6751     7555 0.688754019948265
+    	[Lambda-211]   0         7    1     1     1       474         0        0        0        0       6751     7555 0.688754019948265
+    	[Lambda-211]   0         6    1     1     1       474         0        0        0        0       6751     7555 0.688754019948265
+    	[Lambda-211]   0         5    0     0     0       492      7102     6820    32956     3104       6751     7555 0.448413587001743
+    	[Lambda-211]   0         4    1     1     1       492         0        0        0        0       6751     7555 0.448413587001743
+    	[Lambda-211]   0         3    0     0     0       494      6900     7314    46935     3063       6751     7555 0.755061372922187
+    	[Lambda-211]   0         2    0     0     0       500      6941     7316    43637     3069       6751     7555 0.689962581249221
+    	[Lambda-211]   0         1    1     1     1       500         0        0        0        0       6751     7555 0.689962581249221
+    	[Lambda-211]   0         0    1     1     1       500         0        0        0        0       6751     7555 0.689962581249221
+    	[Lambda-211] Phase 0, Id read: 211
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555565c583e
+    	Baseline sample: Size- 479, Mean- 6969
+    	[Lambda-411] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-411]   0         9    0     0     0       474      6399     3999    39472     5032       6969     5442 0.065560802487593
+    	[Lambda-411]   0         8    1     1     1       474         0        0        0        0       6969     5442 0.065560802487593
+    	[Lambda-411]   0         7    1     1     1       474         0        0        0        0       6969     5442 0.065560802487593
+    	[Lambda-411]   0         6    0     0     0       496      7067     5572    56752     5014       6969     5442 0.781219509637135
+    	[Lambda-411]   0         5    0     0     0       481      6548     4836    67730     4996       6969     5442 0.205582910520980
+    	[Lambda-411]   0         4    1     1     1       481         0        0        0        0       6969     5442 0.205582910520980
+    	[Lambda-411]   0         3    1     1     1       481         0        0        0        0       6969     5442 0.205582910520980
+    	[Lambda-411]   0         2    0     0     0       466      7193     6113    58284     4998       6969     5442 0.552399395618385
+    	[Lambda-411]   0         1    1     1     1       466         0        0        0        0       6969     5442 0.552399395618385
+    	[Lambda-411]   0         0    1     1     1       466         0        0        0        0       6969     5442 0.552399395618385
+    	[Lambda-411] Phase 0, Id read: 411
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555c9d83e
+    	Baseline sample: Size- 500, Mean- 6506
+    	[Lambda-231] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-231]   0         9    0     0     0       500      6384     4520    48592     5056       6506     4543 0.670488236217800
+    	[Lambda-231]   0         8    0     0     0       491      6366     4467    40742     5056       6506     4543 0.624892148765685
+    	[Lambda-231]   0         7    1     1     1       491         0        0        0        0       6506     4543 0.624892148765685
+    	[Lambda-231]   0         6    1     1     1       491         0        0        0        0       6506     4543 0.624892148765685
+    	[Lambda-231]   0         5    1     1     1       491         0        0        0        0       6506     4543 0.624892148765685
+    	[Lambda-231]   0         4    0     0     0       490      6177     3644    36378     5064       6506     4543 0.208693121354418
+    	[Lambda-231]   0         3    0     0     0       485      6258     4040    41298     5068       6506     4543 0.365241858254034
+    	[Lambda-231]   0         2    1     1     1       485         0        0        0        0       6506     4543 0.365241858254034
+    	[Lambda-231]   0         1    1     1     1       485         0        0        0        0       6506     4543 0.365241858254034
+    	[Lambda-231]   0         0    1     1     1       485         0        0        0        0       6506     4543 0.365241858254034
+    	[Lambda-231] Phase 0, Id read: 231
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555556c783e
+    	Baseline sample: Size- 470, Mean- 7690
+    	[Lambda-341] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-341]   0         9    0     0     0       500      6716     5565    81484     5018       7690     7144 0.018572072693938
+    	[Lambda-341]   0         8    1     1     1       500         0        0        0        0       7690     7144 0.018572072693938
+    	[Lambda-341]   0         7    0     0     0       500      6595     4398    38480     5012       7690     7144 0.004446426045987
+    	[Lambda-341]   0         6    1     1     1       500         0        0        0        0       7690     7144 0.004446426045987
+    	[Lambda-341]   0         5    0     0     0       490      6513     4397    53252     4978       7690     7144 0.002300358782834
+    	[Lambda-341]   0         4    1     1     1       490         0        0        0        0       7690     7144 0.002300358782834
+    	[Lambda-341]   0         3    0     0     1       500     11967     5594    49760     5626       7690     7144 0.000000000000000
+    	[Lambda-341]   0         2    1     0     1       496     11643     4289    37912     5624       7690     7144 0.000000000000000
+    	[Lambda-341]   0         1    0     0     0       500     31523   452747 10134640     5466       7690     7144 0.239784490674283
+    	[Lambda-341]   0         0    1     0     1       471     11927     6371   107884     5432       7690     7144 0.000000000000000
+    	[Lambda-341] Phase 0, Id read: 349
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555757f83e
+    	Baseline sample: Size- 500, Mean- 7041
+    	[Lambda-451] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-451]   0         9    0     0     0       500      7363     6366    76200     5024       7041     5726 0.400618867150029
+    	[Lambda-451]   0         8    1     1     1       500         0        0        0        0       7041     5726 0.400618867150029
+    	[Lambda-451]   0         7    1     1     1       500         0        0        0        0       7041     5726 0.400618867150029
+    	[Lambda-451]   0         6    1     1     1       500         0        0        0        0       7041     5726 0.400618867150029
+    	[Lambda-451]   0         5    0     0     0       460      6862     5174    52712     4992       7041     5726 0.611038215174907
+    	[Lambda-451]   0         4    0     0     0       495      7200     5813    51260     5038       7041     5726 0.663946781912923
+    	[Lambda-451]   0         3    0     0     0       480      6656     4383    34912     5010       7041     5726 0.236427627886192
+    	[Lambda-451]   0         2    0     0     0       468      7430     6263    52522     5048       7041     5726 0.314467535067957
+    	[Lambda-451]   0         1    1     1     1       468         0        0        0        0       7041     5726 0.314467535067957
+    	[Lambda-451]   0         0    1     1     1       468         0        0        0        0       7041     5726 0.314467535067957
+    	[Lambda-451] Phase 0, Id read: 451
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555702a83e
+    	Baseline sample: Size- 489, Mean- 6986
+    	[Lambda-441] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-441]   0         9    0     0     0       500      7578     6382    43480     4988       6986     5514 0.118610216057578
+    	[Lambda-441]   0         8    1     1     1       500         0        0        0        0       6986     5514 0.118610216057578
+    	[Lambda-441]   0         7    1     1     1       500         0        0        0        0       6986     5514 0.118610216057578
+    	[Lambda-441]   0         6    0     0     0       500      7297     5846    42382     5018       6986     5514 0.389560132920767
+    	[Lambda-441]   0         5    1     1     1       500         0        0        0        0       6986     5514 0.389560132920767
+    	[Lambda-441]   0         4    1     1     1       500         0        0        0        0       6986     5514 0.389560132920767
+    	[Lambda-441]   0         3    1     1     1       500         0        0        0        0       6986     5514 0.389560132920767
+    	[Lambda-441]   0         2    0     0     0       500      7233     6272    76894     5046       6986     5514 0.510619326822426
+    	[Lambda-441]   0         1    0     0     0       500      7026     5656    51634     5032       6986     5514 0.910363357090521
+    	[Lambda-441]   0         0    1     1     1       500         0        0        0        0       6986     5514 0.910363357090521
+    	[Lambda-441] Phase 0, Id read: 441
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555720183e
+    	Baseline sample: Size- 500, Mean- 7170
+    	[Lambda- 81] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda- 81]   0         9    0     0     0       500      6960     5097    39894     4964       7170     6289 0.562038712305029
+    	[Lambda- 81]   0         8    0     0     1       496     13178    10027   124666     5406       7170     6289 0.000000000000000
+    	[Lambda- 81]   0         7    0     0     0       500      6959     5546    43586     4988       7170     6289 0.573832762374316
+    	[Lambda- 81]   0         6    1     0     0       456      6858     5273    37444     5008       7170     6289 0.404743918953558
+    	[Lambda- 81]   0         5    0     0     1       490     12262     6648    63196     5216       7170     6289 0.000000000000000
+    	[Lambda- 81]   0         4    1     0     1       500     12756     6620    51166     5288       7170     6289 0.000000000000000
+    	[Lambda- 81]   0         3    0     0     0       458      6596     4636    40278     4992       7170     6289 0.106299180466064
+    	[Lambda- 81]   0         2    0     0     1       466     12394     6883    60260     5512       7170     6289 0.000000000000000
+    	[Lambda- 81]   0         1    0     0     1       500     11919     5309    52794     5342       7170     6289 0.000000000000000
+    	[Lambda- 81]   0         0    1     0     1       486     12110     5906    58730     5314       7170     6289 0.000000000000000
+    	[Lambda-81] Phase 0, Id read: 311
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555590f83e
+    	Baseline sample: Size- 500, Mean- 7706
+    	[Lambda-141] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-141]   0         9    0     0     0       500      7143     5537    51584     5152       7706     6373 0.136295324425179
+    	[Lambda-141]   0         8    0     0     1       500     11535     5713    58602     5388       7706     6373 0.000000000000000
+    	[Lambda-141]   0         7    1     0     1       475     12456    15013   300168     5490       7706     6373 0.000000000360561
+    	[Lambda-141]   0         6    0     0     0       483      7232     5959    55234     5162       7706     6373 0.228558621823717
+    	[Lambda-141]   0         5    0     0     1       473     13149    11057   142284     5482       7706     6373 0.000000000000000
+    	[Lambda-141]   0         4    0     0     0       475      7287     5770    54234     5140       7706     6373 0.281757965694852
+    	[Lambda-141]   0         3    1     0     1       500     13089     8696    93204     5452       7706     6373 0.000000000000000
+    	[Lambda-141]   0         2    1     0     1       485     12737     8765   112074     5508       7706     6373 0.000000000000000
+    	[Lambda-141]   0         1    0     0     1       500     11866     5597    53894     5468       7706     6373 0.000000000000000
+    	[Lambda-141]   0         0    1     0     1       471     11343     6084    96144     5468       7706     6373 0.000000000000000
+    	[Lambda-141] Phase 0, Id read: 431
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555573f083e
+    	Baseline sample: Size- 500, Mean- 7479
+    	[Lambda- 11] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda- 11]   0         9    0     0     0       457      7341     5819    42208     5142       7479     5772 0.713066723925029
+    	[Lambda- 11]   0         8    0     0     0       484      7176     5199    39710     5140       7479     5772 0.386852477190976
+    	[Lambda- 11]   0         7    0     0     0       500      7256     5625    51276     5124       7479     5772 0.536286550447612
+    	[Lambda- 11]   0         6    0     0     1       500     12296     6766    73890     5438       7479     5772 0.000000000000000
+    	[Lambda- 11]   0         5    0     0     1       490     12096     6492    83616     5548       7479     5772 0.000000000000000
+    	[Lambda- 11]   0         4    0     0     0       500      7189     5350    36358     5130       7479     5772 0.410226494168333
+    	[Lambda- 11]   0         3    1     0     0       497      7262     5190    38842     5144       7479     5772 0.532635111510485
+    	[Lambda- 11]   0         2    0     0     1       500     11494     4702    49848     5508       7479     5772 0.000000000000000
+    	[Lambda- 11]   0         1    1     0     0       495      7370     5824    39362     5186       7479     5772 0.766942436771096
+    	[Lambda- 11]   0         0    1     0     1       478     12285     7167    48230     5414       7479     5772 0.000000000000000
+    	[Lambda-11] Phase 0, Id read: 101
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556b7783e
+    	Baseline sample: Size- 500, Mean- 7219
+    	[Lambda-361] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-361]   0         9    0     0     0       500      7008     5643    42260     4950       7219     5991 0.566630872088160
+    	[Lambda-361]   0         8    1     1     1       500         0        0        0        0       7219     5991 0.566630872088160
+    	[Lambda-361]   0         7    0     0     1       475     13232     7390    52944     5290       7219     5991 0.000000000000000
+    	[Lambda-361]   0         6    1     0     0       476      7367     6602    50232     4914       7219     5991 0.714331512460267
+    	[Lambda-361]   0         5    1     0     1       463     11549     5558    47700     5702       7219     5991 0.000000000000000
+    	[Lambda-361]   0         4    0     0     1       443     12145     8264   117850     5242       7219     5991 0.000000000000000
+    	[Lambda-361]   0         3    1     0     1       494     12960    19161   402348     5324       7219     5991 0.000000000407843
+    	[Lambda-361]   0         2    0     0     0       500      7045     5698    53814     4950       7219     5991 0.638080703066482
+    	[Lambda-361]   0         1    0     0     0       487      6838     4992    39976     4966       7219     5991 0.277537715380211
+    	[Lambda-361]   0         0    1     0     1       475     11970     6528    86450     5458       7219     5991 0.000000000000000
+    	[Lambda-361] Phase 0, Id read: 441
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555a1783e
+    	Baseline sample: Size- 480, Mean- 7264
+    	[Lambda-161] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-161]   0         9    0     0     0       497      7294     6139    79400     5150       7264     5513 0.935923695598399
+    	[Lambda-161]   0         8    0     0     1       500     11250     5027    49530     5440       7264     5513 0.000000000000000
+    	[Lambda-161]   0         7    1     0     1       500     11028     5377    96504     5456       7264     5513 0.000000000000000
+    	[Lambda-161]   0         6    0     0     0       484      6841     4513    35962     5130       7264     5513 0.192980439745843
+    	[Lambda-161]   0         5    1     0     0       500      7058     5221    40452     5166       7264     5513 0.548607493099735
+    	[Lambda-161]   0         4    0     0     1       500     11476     6173   101004     5492       7264     5513 0.000000000000000
+    	[Lambda-161]   0         3    0     0     1       500     11356     5718    88692     5410       7264     5513 0.000000000000000
+    	[Lambda-161]   0         2    0     0     0       478      6770     4824    46924     5164       7264     5513 0.140290000526464
+    	[Lambda-161]   0         1    0     0     1       470     10690     3632    45430     5378       7264     5513 0.000000000000000
+    	[Lambda-161]   0         0    1     0     1       500     10847     4917    86940     5524       7264     5513 0.000000000000000
+    	[Lambda-161] Phase 0, Id read: 411
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556b9983e
+    	Baseline sample: Size- 500, Mean- 6780
+    	[Lambda-101] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-101]   0         9    0     0     0       458      7669     6682    63088     5004       6780     4972 0.020637491072733
+    	[Lambda-101]   0         8    0     0     0       500      7161     5986    63408     5028       6780     4972 0.273904543344704
+    	[Lambda-101]   0         7    0     0     0       500      7184     6286    72200     4978       6780     4972 0.260027288720497
+    	[Lambda-101]   0         6    1     1     1       500         0        0        0        0       6780     4972 0.260027288720497
+    	[Lambda-101]   0         5    1     1     1       500         0        0        0        0       6780     4972 0.260027288720497
+    	[Lambda-101]   0         4    0     0     0       500      6830     5019    52878     5008       6780     4972 0.874307400568845
+    	[Lambda-101]   0         3    0     0     0       466      7069     5844    40606     5018       6780     4972 0.409659992554682
+    	[Lambda-101]   0         2    1     1     1       466         0        0        0        0       6780     4972 0.409659992554682
+    	[Lambda-101]   0         1    0     0     0       500      6731     4736    40988     4996       6780     4972 0.873273781704454
+    	[Lambda-101]   0         0    1     1     1       500         0        0        0        0       6780     4972 0.873273781704454
+    	[Lambda-101] Phase 0, Id read: 101
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555627483e
+    	Baseline sample: Size- 500, Mean- 6989
+    	[Lambda-351] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-351]   0         9    0     0     0       500      7101     5568    41834     4978       6989     5394 0.746754776590518
+    	[Lambda-351]   0         8    1     1     1       500         0        0        0        0       6989     5394 0.746754776590518
+    	[Lambda-351]   0         7    0     0     0       477      7240     5786    51800     5022       6989     5394 0.483809462131623
+    	[Lambda-351]   0         6    1     1     1       477         0        0        0        0       6989     5394 0.483809462131623
+    	[Lambda-351]   0         5    0     0     0       486      6618     4405    52250     5036       6989     5394 0.236588129767475
+    	[Lambda-351]   0         4    1     1     1       486         0        0        0        0       6989     5394 0.236588129767475
+    	[Lambda-351]   0         3    1     1     1       486         0        0        0        0       6989     5394 0.236588129767475
+    	[Lambda-351]   0         2    1     1     1       486         0        0        0        0       6989     5394 0.236588129767475
+    	[Lambda-351]   0         1    1     1     1       486         0        0        0        0       6989     5394 0.236588129767475
+    	[Lambda-351]   0         0    1     1     1       486         0        0        0        0       6989     5394 0.236588129767475
+    	[Lambda-351] Phase 0, Id read: 351

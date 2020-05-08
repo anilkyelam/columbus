@@ -36,9 +36,9 @@ using namespace aws::lambda_runtime;
 
 #define MAX_BITS_IN_ID      10              // Max lambdas = 2^10
 #define BASELINE_SAMPLES    500
-#define BASELINE_INTERVAL   2000000         // 1 second to calibrate
+#define BASELINE_INTERVAL   1000000         // 1 second to calibrate
 #define SAMPLES_PER_BIT     500
-#define BIT_INTERVAL_MUS    2000000         // 1 second for communicating each bit
+#define BIT_INTERVAL_MUS    1000000         // 1 second for communicating each bit
 #define MAX_PHASES          15
 #define PVALUE_THRESHOLD    0.0005
 // #define PVALUE_THRESHOLD    0.0000001
@@ -232,9 +232,10 @@ inline sample_t prepare_sample(int64_t* data, int len, bool remove_outliers = tr
 bool save_samples;
 int64_t samples[SAMPLES_PER_BIT];
 int64_t saved_readings1[SAMPLES_PER_BIT];
-int saved_readings1_len;
+int saved_readings1_len = 0;
+int64_t saved_readings2[SAMPLES_PER_BIT];
+int saved_readings2_len = 0;
 
-// int64_t saved_sample2[SAMPLES_PER_BIT];
 sample_t base_sample;
 sample_t last_sample;
 int read_bit(uint32_t* addr, microseconds release_time_mus, bool calibrate, int id, int phase, int round, double* pvalue)
@@ -273,7 +274,8 @@ int read_bit(uint32_t* addr, microseconds release_time_mus, bool calibrate, int 
       base_sample = prepare_sample(samples, count, false);
       if (save_samples){
          memcpy(saved_readings1, samples, sizeof(samples));
-         saved_readings1_len = count;
+         // saved_readings1_len = count;
+         saved_readings1_len = base_sample.size;   // no outliers
       } 
 
       lprintf("Baseline sample: Size- %d, Mean- %lu\n", base_sample.size, base_sample.mean);
@@ -297,6 +299,15 @@ int read_bit(uint32_t* addr, microseconds release_time_mus, bool calibrate, int 
 
    *pvalue = welsch_ttest_pvalue(base_sample.mean, base_sample.variance, base_sample.size, 
                last_sample.mean, last_sample.variance, last_sample.size);
+
+   if(*pvalue > PVALUE_THRESHOLD) {
+      if (save_samples){
+         memcpy(saved_readings2, samples, sizeof(samples));
+         // saved_readings2_len = count;
+         saved_readings2_len = last_sample.size;
+      } 
+   }
+
    return *pvalue < PVALUE_THRESHOLD;        /* Need to figure out the threshold that works for current platform */
 }
 
@@ -588,7 +599,13 @@ invocation_response my_handler(invocation_request const& request)
       for (int i = 0; i < saved_readings1_len; i++) {
          arr += std::to_string(saved_readings1[i]) + ',';
       }
-      body["Samples"] = RSJresource(arr, true);
+      body["Base Sample"] = RSJresource(arr, true);
+      
+      arr = "";
+      for (int i = 0; i < saved_readings2_len; i++) {
+         arr += std::to_string(saved_readings2[i]) + ',';
+      }
+      body["Bit Sample"] = RSJresource(arr, true);
    }
 
    /* Save some system info */

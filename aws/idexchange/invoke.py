@@ -109,14 +109,25 @@ def main():
                     item_d["Logs"] = "-"
 
                 # If samples exist, put them in seperate file(s)
-                if "Samples" in item_d:
-                    sfilepath = os.path.join(resdir, "samples{0}".format(item_d["Id"]))
+                if "Base Sample" in item_d:
+                    sfilepath = os.path.join(resdir, "base_samples{0}".format(item_d["Id"]))
                     with open(sfilepath, "w") as sfile:
                         sfile.write("Latencies\n")
-                        sfile.write("\n".join(item_d["Samples"].split(",")))
-                    item_d["Samples"] = sfilepath
+                        sfile.write("\n".join(item_d["Base Sample"].split(",")))
+                        # print(item_d["Base Sample"])
+                    item_d["Base Sample"] = sfilepath
                 else:
-                    item_d["Samples"] = "-"
+                    item_d["Base Sample"] = "-"
+
+                if "Bit Sample" in item_d:
+                    sfilepath = os.path.join(resdir, "bit_samples{0}".format(item_d["Id"]))
+                    with open(sfilepath, "w") as sfile:
+                        sfile.write("Latencies\n")
+                        # print(item_d["Bit Sample"])
+                        sfile.write("\n".join(item_d["Bit Sample"].split(",")))
+                    item_d["Bit Sample"] = sfilepath
+                else:
+                    item_d["Bit Sample"] = "-"
 
                 # Write col headers
                 if first:
@@ -130,13 +141,13 @@ def main():
                 # Print stdout
                 cols = ["Success", "Phases", "Id"]
                 for i in range(phases): cols += ["Phase {0}".format(i+1)]
-                cols += ["Logs", "Samples", "Error"]
+                cols += ["Logs", "Base Sample", "Bit Sample", "Error"]
 
                 firstline = ""
                 line = ""
                 id = 0
                 for k in cols:
-                    format_str = " {:<25}" if k in ["Logs", "Samples", "Error"] else " {:<10}"
+                    format_str = " {:<25}" if k in ["Logs", "Base Sample", "Bit Sample", "Error"] else " {:<10}"
                     if k in item_d:
                         if first: 
                             # col headers
@@ -158,7 +169,7 @@ def main():
 
                 first = False
 
-        print("Full results at: %s", respath)
+        print("Full results at: ", respath)
 
 if __name__ == '__main__':
     main()

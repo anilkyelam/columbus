@@ -27,6 +27,10 @@ case $i in
     -n=*|--name=*)          # Function name, defaults to 'membusv21'
     lambdafn="${i#*=}"
     ;;
+    
+    -s=*|--size=*)          # Function size in MB. Multiples of 64MB, from 128-3008. Defaults to 128
+    SIZE="${i#*=}"
+    ;;
         
     -r=*|--region=*)        # Region name, defaults to cli region
     region="${i#*=}"
@@ -43,6 +47,7 @@ done
 
 # Defaults
 lambdafn=${lambdafn:-membusv21}    # Default lambda name
+SIZE=${SIZE:-128}
 
 # Get account id from aws cli if not set
 if [ -z ${accountid+x} ]; then
@@ -74,7 +79,7 @@ fi
 aws configure set region ${region}
 
 # Build code and create/update function on AWS
-bash deploy.sh --name=$lambdafn --account=$accountid
+bash deploy.sh --name=$lambdafn --account=$accountid --size=${SIZE}
 
 # Check if we already have a cached api trigger for this lambda
 cache_dir=.api_cache
