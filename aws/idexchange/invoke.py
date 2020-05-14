@@ -14,6 +14,8 @@ import csv
 import time
 import os
 from datetime import datetime
+import subprocess
+import re
 
 
 MAX_CONCURRENT = 1500
@@ -51,7 +53,7 @@ def worker():
             data = resp.read()
             data_q.put(data)
         else:
-            #print (resp.status)
+            print (resp.status)
             pass
         req_q.task_done()
 
@@ -59,10 +61,39 @@ def main():
     parser = argparse.ArgumentParser("Makes concurrent requests to lambda URLs")
     parser.add_argument('-c', '--count', action='store', type=int, help='number of requests to make (max:{0})'.format(MAX_CONCURRENT), default=5)
     parser.add_argument('-o', '--out', action='store', help='path to results file', default="results.csv")
-    parser.add_argument('-u', '--url', action='store', help='url to call', required=True) #default=defaulturl)
+    parser.add_argument('-u', '--url', action='store', help='url to invoke lambda. Looks in .api_cache by default.')
     parser.add_argument('-p', '--phases', action='store', type=int, help='number of phases to run', default=1)
     parser.add_argument('-d', '--delay', action='store', type=int, help='initial delay for lambdas to sync up (in seconds)', default=5)
+    parser.add_argument('-n', '--name', action='store', help='lambda name, if URL should be retrieved from cache', default="membusv2")
+    parser.add_argument('-od', '--outdir', action='store', help='name of output dir')
     args = parser.parse_args()
+
+    # Find URL in cache if not specified.
+    if not args.url:
+        if not args.name:
+            print("Provide --url or --name to get URL from cache.")
+            return -1
+
+        p = subprocess.run(["aws", "configure", "get", "region"], stdout=subprocess.PIPE)
+        if p.returncode != 0:
+            print("Failed to get default region from aws cli. Cannot get url from cache. Provide --url.")
+            return -1
+        region = re.sub('\s+','', p.stdout.decode("utf-8"))
+
+        p = subprocess.run(["aws", "sts", "get-caller-identity"], stdout=subprocess.PIPE)
+        if p.returncode != 0:
+            print("Failed to get account id from aws cli. Cannot get url from cache. Provide --url.")
+            return -1
+        accountid = json.loads(p.stdout.decode("utf-8"), strict=False)["Account"]
+
+        url_cache = os.path.join(".api_cache", "{0}_{1}_{2}".format(accountid, region, args.name))
+        if not os.path.exists(url_cache):
+            print("Cannot find url cache at: {0}. Provide actual url using --url.".format(url_cache))
+            return -1
+
+        with open(url_cache, 'r') as file:
+            args.url = re.sub('\s+','', file.read())
+            print("Found url in cache {0}: {1}".format(url_cache, args.url))
 
     # Lambda sync point
     sync_point = int(time.time()) + args.delay       # now + delay, assuming (api invoke + lambda create + lambda setup) happens within this delay for all lambdas
@@ -85,7 +116,8 @@ def main():
         sys.exit(1)
     
     # Pick a folder for logs
-    resdir = os.path.join("out", datetime.now().strftime("%m-%d-%H-%M"))
+    if not args.outdir:     args.outdir = datetime.now().strftime("%m-%d-%H-%M")
+    resdir = os.path.join("out", args.outdir)
     if not os.path.exists(resdir):
         os.makedirs(resdir)
     logpath = os.path.join(resdir, "log")

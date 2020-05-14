@@ -3,6 +3,7 @@
 
 resdir=$1
 desc=$2
+plotname=$3
 if ! [[ $resdir ]]; then
     # Pick latest under "out"
     resdir=$(find out/ -maxdepth 1 -name '[0-9][0-9]-[0-9][0-9]*' | sort | tail -n1)
@@ -33,7 +34,8 @@ while read -r i; do
 done <<< "$files"
 
 mkdir -p plots
-plot=plots/$(basename $resdir).png
+if [ -z "$plotname" ];  then    plotname=`basename $resdir`;    fi
+plot=plots/${plotname}.png
 python plot.py -z cdf $fileparam -t "$desc" -xl "Latency (Cycles)" -yc "Latencies" -o $plot -nm -nt 5 -ll none
 echo "Plot at: $plot"
 # gv $plot

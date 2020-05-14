@@ -300,7 +300,7 @@ int read_bit(uint32_t* addr, microseconds release_time_mus, bool calibrate, int 
    *pvalue = welsch_ttest_pvalue(base_sample.mean, base_sample.variance, base_sample.size, 
                last_sample.mean, last_sample.variance, last_sample.size);
 
-   if(*pvalue > PVALUE_THRESHOLD) {
+   if(*pvalue < PVALUE_THRESHOLD) {
       if (save_samples){
          memcpy(saved_readings2, samples, sizeof(samples));
          // saved_readings2_len = count;
