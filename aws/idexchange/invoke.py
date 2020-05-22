@@ -16,11 +16,29 @@ import os
 from datetime import datetime
 import subprocess
 import re
+import statistics
 
 
 MAX_CONCURRENT = 1500
 req_q = Queue(MAX_CONCURRENT * 2)
 data_q = Queue(MAX_CONCURRENT * 2)
+
+# Find majority elements in a list
+def find_majority(arr): 
+    maxCount = 0
+    maxVal = 0
+    for val in arr: 
+        count = 0
+        for val2 in arr: 
+            if(val == val2): 
+                count += 1
+        if count > maxCount:   
+            maxVal = val
+            maxCount = count
+        
+    if maxCount > len(arr)/2: 
+        return maxVal    
+    return None
 
 # Function to calculate hamming distance  
 def hammingDistance(n1, n2) : 
@@ -47,7 +65,7 @@ def worker():
     while True:
         (url, id, syncpt, phases) = req_q.get()
         
-        body = { "id": id, "stime": syncpt, "phases": phases, "log": True, "samples": True }
+        body = { "id": id, "stime": syncpt, "phases": phases, "log": True, "samples": False }
         resp = getResponse(url, json.dumps(body))
         if resp and resp.status == 200:
             data = resp.read()
@@ -63,7 +81,7 @@ def main():
     parser.add_argument('-o', '--out', action='store', help='path to results file', default="results.csv")
     parser.add_argument('-u', '--url', action='store', help='url to invoke lambda. Looks in .api_cache by default.')
     parser.add_argument('-p', '--phases', action='store', type=int, help='number of phases to run', default=1)
-    parser.add_argument('-d', '--delay', action='store', type=int, help='initial delay for lambdas to sync up (in seconds)', default=5)
+    parser.add_argument('-d', '--delay', action='store', type=int, help='initial delay for lambdas to sync up (in seconds)', default=4)
     parser.add_argument('-n', '--name', action='store', help='lambda name, if URL should be retrieved from cache', default="membusv2")
     parser.add_argument('-od', '--outdir', action='store', help='name of output dir')
     args = parser.parse_args()
@@ -107,7 +125,7 @@ def main():
     # Invoke lambdas
     phases=args.phases
     for i in range(args.count):
-        req_q.put((args.url, i*10+1, sync_point, phases))
+        req_q.put((args.url, i+1, sync_point, phases))
 
     # Wait for everything to finish 
     try:
@@ -122,8 +140,10 @@ def main():
         os.makedirs(resdir)
     logpath = os.path.join(resdir, "log")
     respath = os.path.join(resdir, args.out)
+    statspath = os.path.join(resdir, "stats.json")
 
     first = True
+    idstats = {}
     with open(respath, 'w') as csvfile:
         with open(logpath, "w") as logfile:
             while not data_q.empty():
@@ -187,11 +207,14 @@ def main():
 
                         # Preprocess each line
                         post_val = item_d[k]
-                        if k == "Id":   id = int(item_d[k])
+                        if k == "Id":   
+                            # FIXME: Assumes Id comes before "Phase *" cols
+                            id = int(item_d[k])
+                            idstats[id] = []
                         if "Phase " in k:
                             val = int(item_d[k])
-                            edit = hammingDistance(val, id)
-                            post_val = "{:<4}({})".format(val, edit)
+                            idstats[id].append(val)
+                            post_val = "{:<4}".format(val)
 
                         line += format_str.format(post_val)
 
@@ -202,6 +225,38 @@ def main():
                 first = False
 
         print("Full results at: ", respath)
+    
+    # Analyze id stats
+    if idstats:
+        # print(idstats)
+        errorsk = "errors"
+        clusters = {}
+        for id, vals in idstats.items():
+            print(id, vals)
+            maj = find_majority(vals)
+            key = maj if maj else errorsk
+            if key not in clusters.keys():
+                clusters[key] = []
+            clusters[key].append(id)
+
+        sizes = [len(v) for k,v in clusters.items() if k != errorsk]        
+        stats_ = {
+            "Region": region,
+            "Run":  args.outdir,
+            "Count": args.count,
+            "Clusters": len([k for k in clusters.keys() if k != errorsk]),
+            "Error Rate": len(clusters[errorsk])*100/args.count if errorsk in clusters else 0,
+            "Mean": statistics.mean(sizes),
+            "Median": statistics.median(sizes),
+            "Min": min(sizes),
+            "Max": max(sizes),
+            "Sizes": sizes
+        }
+
+        print(stats_)
+        with open(statspath, 'w', encoding='utf-8') as f:
+            json.dump(stats_, f, ensure_ascii=False, indent=4)
+
 
 if __name__ == '__main__':
     main()

@@ -34,7 +34,7 @@ using namespace aws::lambda_runtime;
  * 3. 
  */
 
-#define MAX_BITS_IN_ID      10              // Max lambdas = 2^10
+#define MAX_BITS_IN_ID      8              // Max lambdas = 2^10
 #define BASELINE_SAMPLES    500
 #define BASELINE_INTERVAL   1000000         // 1 second to calibrate
 #define SAMPLES_PER_BIT     500
