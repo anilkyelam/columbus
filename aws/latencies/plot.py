@@ -328,8 +328,8 @@ def main():
             return -1
     
 
-    xlabel = args.xlabel if args.xlabel else args.xcol
-    ylabel = args.ylabel if args.ylabel else dfile_ycol_map[0][1]
+    xlabel = args.xlabel if args.xlabel is not None else args.xcol
+    ylabel = args.ylabel if args.ylabel is not None else dfile_ycol_map[0][1]
 
     cidx = 0
     midx = 0
@@ -366,7 +366,7 @@ def main():
         if (plot_num + 1) == args.twin:
             # Switch to twin axis, reset Y-axis settings
             ax = axmain.twinx()
-            ylabel = args.tylabel if args.tylabel else ycol
+            ylabel = args.tylabel is not None if args.tylabel else ycol
             ymul = args.tymul
             twin = True
 
