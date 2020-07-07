@@ -1,2 +1,13 @@
-python plot.py -xc "Offset" -xl "Offset (Bytes)" -yc "Latencies" -yl "CPU Cycles" -z bar -d results/latencies -o results/membus_azure.eps
-gv results/membus_azure.eps
+
+python plot.py  -z bar -l "Azure" \
+    -xc "Offset" -xl "Offset (Bytes)" \
+    -yc "Latencies" -yl "" --ylim 8 --ymul 0.001 \
+    -d results/latencies -o results/membus_azure.pdf
+display results/membus_azure.pdf &
+
+# GCP Placeholder
+python plot.py  -z bar -l "GCP" \
+    -xc "Offset" -xl "Offset (Bytes)" \
+    -yc "Latencies" -yl "" --ylim 8 --ymul 0.001 \
+    -d results/temp_gcp -o results/membus_gcp.pdf
+display results/membus_gcp.pdf &

@@ -424,7 +424,7 @@ def main():
             yc = df[ycol]
             yc = [y * ymul for y in yc]
             ax.hist(yc, bins=np.arange(1,6)-0.5, label=label, color='b', #colors[cidx],
-                edgecolor='black', linewidth=1.0)
+                edgecolor='white', linewidth=2.0)
             ax.set_xticks(np.arange(1,6))
             ylabel = "Frequency"
 
@@ -480,10 +480,10 @@ def main():
             ax.set_ylim(top=args.ylim)
         ax.set_ylabel(ylabel)
     
-    axmain.set_xlabel(xlabel)
     if args.xlim:
         axmain.set_xlim(0, args.xlim)
-    ax.set_ylabel(ylabel)
+    axmain.set_xlabel(xlabel)
+    # axmain.set_ylabel(ylabel)
 
     # Set dashes if necessary
     if args.dashed:
@@ -494,8 +494,11 @@ def main():
         for idx, ls in enumerate(args.linestyle):
             lns[idx].set_linestyle(ls)
     
-    labels = [l.get_label() for l in lns]
-    if labels.__len__() > 0:
+    if args.ptype in [PlotType.bar, PlotType.hist]:
+        plt.legend()
+    else:
+        # TODO: Fix labels for bar plot
+        labels = [l.get_label() for l in lns]
         set_axes_legend_loc(axmain, lns, labels, args.lloc)
 
     # plt.savefig(args.output, format="eps")

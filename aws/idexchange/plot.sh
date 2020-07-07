@@ -15,9 +15,11 @@ for f in `ls out/05-21-15-*/stats.json`; do
     echo $region, $count, $clusters, $errors
     
     # Plot
-    # plot=${dir}/colocation-$region.pdf
-    # python plot.py -z hist -xl "Cluster Size" -yc "Size" --fontsize=25 \
-    #     -o $plot -d ${dir}/clusters
-    # echo "Plot at: $plot"
-    # display $plot &
+    plot=${dir}/colocation-$region.pdf
+    python plot.py -z hist -l $region --fontsize=25 \
+        -xl "Cluster Size" \
+        -yc "Size" --ylim 150 \
+        -o $plot -d ${dir}/clusters
+    echo "Plot at: $plot"
+    display $plot &
 done
