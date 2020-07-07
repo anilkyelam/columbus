@@ -38,6 +38,16 @@ class LegendLoc(Enum):
     rightout = "rightout"
     rightin = "rightin"
     center = "center"
+    topleft = "topleft"
+
+    def matplotlib_loc(self):
+        if self.value == "none":       return None
+        if self.value == "best":       return 'best'
+        if self.value == "rightin":    return 'right'
+        if self.value == "center":     return 'center'
+        if self.value == "topleft":    return 'upper left'
+        if self.value == "topout":     return 'upper center'
+        if self.value == "rightout":   return 'center left'
 
     def __str__(self):
         return self.value
@@ -45,16 +55,12 @@ class LegendLoc(Enum):
 def set_axes_legend_loc(ax, lns, labels, loc):
     if loc == LegendLoc.none:
         return
-    if loc == LegendLoc.best:
-        ax.legend(lns, labels, loc='best', ncol=1, fancybox=True, shadow=True)
-    if loc == LegendLoc.rightin:
-        ax.legend(lns, labels, loc='right', ncol=1, fancybox=True, shadow=True)
-    if loc == LegendLoc.center:
-        ax.legend(lns, labels, loc='center', ncol=1, fancybox=True, shadow=True)
+    if loc in (LegendLoc.best, LegendLoc.rightin, LegendLoc.center):
+        ax.legend(lns, labels, loc=loc.matplotlib_loc(), ncol=1, fancybox=True, shadow=True)
     if loc == LegendLoc.topout:
-        ax.legend(lns, labels, loc='upper center', bbox_to_anchor=(0.5, 1.05), ncol=3, fancybox=True, shadow=True)
+        ax.legend(lns, labels, loc=loc.matplotlib_loc(), bbox_to_anchor=(0.5, 1.05), ncol=3, fancybox=True, shadow=True)
     if loc == LegendLoc.rightout:
-        ax.legend(lns, labels, loc='center left', bbox_to_anchor=(1, 0.5), ncol=1, fancybox=True, shadow=True)
+        ax.legend(lns, labels, loc=loc.matplotlib_loc(), bbox_to_anchor=(1, 0.5), ncol=1, fancybox=True, shadow=True)
 
 
 class LineStyle(Enum):
@@ -258,7 +264,7 @@ def parse_args():
         type=LegendLoc, 
         choices=list(LegendLoc), 
         default=LegendLoc.best)
-    
+
     ## Twin Axis Settings
     parser.add_argument('--fontsize', 
         action='store', 
@@ -360,7 +366,7 @@ def main():
         if (plot_num + 1) == args.twin:
             # Switch to twin axis, reset Y-axis settings
             ax = axmain.twinx()
-            ylabel = args.tylabel if args.tylabel else ycol
+            ylabel = args.tylabel is not None if args.tylabel else ycol
             ymul = args.tymul
             twin = True
 
@@ -424,7 +430,7 @@ def main():
             yc = df[ycol]
             yc = [y * ymul for y in yc]
             ax.hist(yc, bins=np.arange(1,6)-0.5, label=label, color='b', #colors[cidx],
-                edgecolor='black', linewidth=1.0)
+                edgecolor='white', linewidth=2.0)
             ax.set_xticks(np.arange(1,6))
             ylabel = "Frequency"
 
@@ -495,7 +501,7 @@ def main():
             lns[idx].set_linestyle(ls)
     
     if args.ptype in [PlotType.bar, PlotType.hist]:
-        plt.legend()
+        plt.legend(loc=args.lloc.matplotlib_loc())
     else:
         # TODO: Fix labels for bar plot
         labels = [l.get_label() for l in lns]
@@ -503,7 +509,6 @@ def main():
 
     # plt.savefig(args.output, format="eps")
     plt.savefig(args.output, format="pdf")
-    # plt.savefig(args.output)
     if args.show:
         plt.show()
 
