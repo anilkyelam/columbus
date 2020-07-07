@@ -332,9 +332,9 @@ void write_bit(uint32_t* addr, microseconds release_time_mus)
 /* Finds an address on heap that falls on consecutive cache lines */
 uint32_t* get_cache_line_straddled_address()
 {
-   int *arr;
+   uint64_t *arr;
    int i, size;
-   uint32_t *addr;
+   uint64_t *addr;
 
    /* Figure out last-level cache line size of this system */
    long cacheline_sz = sysconf(_SC_LEVEL3_CACHE_LINESIZE);
@@ -349,14 +349,19 @@ uint32_t* get_cache_line_straddled_address()
    lprintf("Cache line size: %ld B\n", cacheline_sz);
 
    /* Allocate an array that spans multiple cache lines */
-   size = 10 * cacheline_sz / sizeof(int);
-   arr = (int*) malloc(size * sizeof(int));
+   size = 10 * cacheline_sz / sizeof(uint64_t);
+   arr = (uint64_t*) malloc(size * sizeof(uint64_t));
    for (i = 0; i < size; i++ ) arr[i] = 1; 
 
-   /* Find the first cacheline boundary */
+   /* Find the second cacheline boundary */
+   bool first = true;
    for (i = 1; i < size; i++) {
       long address = (long)(arr + i);
-      if (address % cacheline_sz == 0)  break;
+      if (address % cacheline_sz == 0) {
+         if (!first)
+            break;
+         first = false;
+      } 
    }
 
    if (i == size) {
@@ -364,11 +369,22 @@ uint32_t* get_cache_line_straddled_address()
       return NULL;
    }
    else {
-      addr = (uint32_t*)((uint8_t*)(arr+i-1) + 2);
+      addr = (uint64_t*)((uint8_t*)(arr+i-1) + 4);
       lprintf("Found an address that falls on two cache lines: %p\n", (void*) addr);
    }
 
-   return addr;
+   lprintf("Membus latencies with sliding address:\n");
+   for (int j = -8; j < 16; j++) {
+      uint64_t* cacheline = (uint64_t*)((uint8_t*)(arr+i-1) + j);
+      rdtsc();
+      __atomic_fetch_add(cacheline, 1, __ATOMIC_SEQ_CST);
+      rdtsc1();
+      uint64_t start = ( ((int64_t)cycles_high << 32) | cycles_low );
+      uint64_t end = ( ((int64_t)cycles_high1 << 32) | cycles_low1 );
+      lprintf("%d,%lu\n", j, (end - start));
+   }
+
+   return (uint32_t*)addr;
 }
 
 /* Execute the info exchange protocol where all participating lambdas on a same machine

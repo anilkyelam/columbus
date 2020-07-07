@@ -22,6 +22,7 @@ import statistics
 MAX_CONCURRENT = 1500
 req_q = Queue(MAX_CONCURRENT * 2)
 data_q = Queue(MAX_CONCURRENT * 2)
+samples = False
 
 # Find majority elements in a list
 def find_majority(arr): 
@@ -65,7 +66,7 @@ def worker():
     while True:
         (url, id, syncpt, phases) = req_q.get()
         
-        body = { "id": id, "stime": syncpt, "phases": phases, "log": True, "samples": False }
+        body = { "id": id, "stime": syncpt, "phases": phases, "log": True, "samples": samples }
         resp = getResponse(url, json.dumps(body))
         if resp and resp.status == 200:
             data = resp.read()
@@ -83,6 +84,7 @@ def main():
     parser.add_argument('-p', '--phases', action='store', type=int, help='number of phases to run', default=1)
     parser.add_argument('-d', '--delay', action='store', type=int, help='initial delay for lambdas to sync up (in seconds)', default=4)
     parser.add_argument('-n', '--name', action='store', help='lambda name, if URL should be retrieved from cache', default="membusv2")
+    parser.add_argument('-s', '--samples', action='store_true', help='save observed latency samples to log', default=False)
     parser.add_argument('-od', '--outdir', action='store', help='name of output dir')
     args = parser.parse_args()
 
@@ -117,6 +119,8 @@ def main():
     sync_point = int(time.time()) + args.delay       # now + delay, assuming (api invoke + lambda create + lambda setup) happens within this delay for all lambdas
 
     # Start enough threads
+    global samples
+    samples = args.samples
     for i in range(args.count):
         t = Thread(target=worker, args=())
         t.daemon = True
@@ -241,6 +245,7 @@ def main():
 
         sizes = [len(v) for k,v in clusters.items() if k != errorsk]        
         stats_ = {
+            "Name": args.name,
             "Region": region,
             "Run":  args.outdir,
             "Count": args.count,

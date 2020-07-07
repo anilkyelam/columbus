@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "*.srhtml": "html",
         "array": "cpp",
         "deque": "cpp",
         "string": "cpp",
@@ -43,6 +44,18 @@
         "sstream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
-        "typeinfo": "cpp"
-    }
+        "typeinfo": "cpp",
+        "cassert": "cpp",
+        "cerrno": "cpp",
+        "cinttypes": "cpp",
+        "climits": "cpp",
+        "map": "cpp",
+        "functional": "cpp",
+        "iterator": "cpp",
+        "ios": "cpp",
+        "locale": "cpp",
+        "queue": "cpp",
+        "random": "cpp"
+    },
+    "python.pythonPath": "/usr/bin/python2.7"
 }

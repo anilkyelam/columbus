@@ -140,7 +140,7 @@ fi
 # Test Lambda and API
 echo "Invoking function using API. Result:"
 secs_since_epoch=$(date +%s)
-secs_since_epoch=$((secs_since_epoch+2))    # now + 2 secs
+secs_since_epoch=$((secs_since_epoch+5))    # now + 5 secs
 echo ${secs_since_epoch}
 curl -X POST $url -d '{ "id": 11, "stime": '${secs_since_epoch}', "log": 1, "phases": 1, "samples": 1 }' > output.txt
 echo "$(cat output.txt)"

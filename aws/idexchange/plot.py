@@ -25,6 +25,7 @@ class PlotType(Enum):
     scatter = 'scatter'
     bar = 'bar'
     cdf = 'cdf'
+    hist = 'hist'
 
     def __str__(self):
         return self.value
@@ -156,6 +157,16 @@ def parse_args():
         help='Plot y-axis on log scale',
         default=False)
 
+    parser.add_argument('--xlim', 
+        action='store', 
+        type=float,
+        help='Custom x-axis upper limit')
+
+    parser.add_argument('--ylim', 
+        action='store', 
+        type=float,
+        help='Custom y-axis upper limit')
+
     parser.add_argument('-pg', '--pgroup', 
         action='append', 
         help='plot group, number, can provide one group id per ycol or datafile. Plots with same group id will get single plot attribtes like color, label, etc')
@@ -247,7 +258,14 @@ def parse_args():
         type=LegendLoc, 
         choices=list(LegendLoc), 
         default=LegendLoc.best)
-    
+
+    ## Twin Axis Settings
+    parser.add_argument('--fontsize', 
+        action='store', 
+        type=int,
+        help='Font size of plot labels, ticks, etc',
+        default=15)
+
     args = parser.parse_args()
     return args
 
@@ -314,7 +332,7 @@ def main():
     labelidx = 0
 
     font = {'family' : 'sans',
-            'size'   : 15}
+            'size'   : args.fontsize}
     matplotlib.rc('font', **font)
     matplotlib.rc('figure', autolayout=True)
 
@@ -392,20 +410,23 @@ def main():
             if args.nomarker:
                 lns += ax.scatter(xc, yc, label=label, color=colors[cidx])
             else:
-                lns += ax.scatter(xc, yc, label=label, color=colors[cidx], 
-                    marker=markers[midx])
+                lns += ax.scatter(xc, yc, label=label, color=colors[cidx], marker=markers[midx])
 
         elif args.ptype == PlotType.bar:
             xc = xcol
             yc = df[ycol]
             xc = [x * args.xmul for x in xc]
             yc = [y * ymul for y in yc]
+            ax.bar(xc, yc, label=label, color=colors[cidx])
+        
 
-            if args.nomarker:
-                lns += ax.bar(xc, yc, label=label, color=colors[cidx])
-            else:
-                lns += ax.bar(xc, yc, label=label, color=colors[cidx], 
-                    marker=markers[midx],markerfacecolor=colors[cidx])
+        elif args.ptype == PlotType.hist:
+            yc = df[ycol]
+            yc = [y * ymul for y in yc]
+            ax.hist(yc, bins=np.arange(1,6)-0.5, label=label, color='b', #colors[cidx],
+                edgecolor='black', linewidth=1.0)
+            ax.set_xticks(np.arange(1,6))
+            ylabel = "Frequency"
 
         elif args.ptype == PlotType.cdf:
             xc, yc = gen_cdf(df[ycol], 100000)
@@ -455,10 +476,13 @@ def main():
 
         plot_num += 1
 
-        # ax.set_ylim(0, 25)
+        if args.ylim:
+            ax.set_ylim(top=args.ylim)
         ax.set_ylabel(ylabel)
     
     axmain.set_xlabel(xlabel)
+    if args.xlim:
+        axmain.set_xlim(0, args.xlim)
     ax.set_ylabel(ylabel)
 
     # Set dashes if necessary
@@ -471,9 +495,11 @@ def main():
             lns[idx].set_linestyle(ls)
     
     labels = [l.get_label() for l in lns]
-    set_axes_legend_loc(axmain, lns, labels, args.lloc)
+    if labels.__len__() > 0:
+        set_axes_legend_loc(axmain, lns, labels, args.lloc)
 
     # plt.savefig(args.output, format="eps")
+    plt.savefig(args.output, format="pdf")
     plt.savefig(args.output)
     if args.show:
         plt.show()
