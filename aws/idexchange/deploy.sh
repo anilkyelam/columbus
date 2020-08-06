@@ -37,7 +37,7 @@ esac
 done
 
 NAME=${NAME:-membus}    # Default lambda name
-ROLE=membus-cpp         # Creates this role if not exists
+ROLE=membus-cpp-s3      # Creates this role if not exists
 SIZE=${SIZE:-128}
 
 # One-time setup
@@ -72,24 +72,29 @@ make aws-lambda-package-hello
 popd
 
 # Create role 
-aws iam get-role --role-name membus-cpp
+aws iam get-role --role-name ${ROLE}
 if [ $? -ne 0 ]; then
     # Does not exist
     aws iam create-role --role-name ${ROLE} --assume-role-policy-document file://$dir/cpp/trust-policy.json
     aws iam attach-role-policy --role-name ${ROLE} --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    aws iam attach-role-policy --role-name ${ROLE} --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
+    # aws iam attach-role-policy --role-name ${ROLE} --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+    # aws iam attach-role-policy --role-name ${ROLE} --policy-arn arn:aws:iam::aws:policy/service-role/AmazonElasticFileSystemClientReadWriteAccess
 fi
 
-# Create function
+# Create or update function
 aws lambda get-function --function-name ${NAME}
 if [ $? -ne 0 ]; then
     # Does not exist
     aws lambda create-function --function-name ${NAME} --role "arn:aws:iam::${ACCOUNTID}:role/${ROLE}" \
         --runtime provided --timeout 60 --memory-size ${SIZE} --handler hello --zip-file fileb://$dir/cpp/build/hello.zip
+elif
+    # Update function
+    echo "Updating function"
+    aws lambda update-function-configuration --function-name ${NAME} --memory-size ${SIZE}
+    aws lambda update-function-configuration --function-name ${NAME} --role "arn:aws:iam::${ACCOUNTID}:role/${ROLE}"
+    aws lambda update-function-code --function-name ${NAME} --zip-file fileb://$dir/cpp/build/hello.zip
 fi
-
-# Update function
-echo "Updating function"
-aws lambda update-function-code --function-name ${NAME} --zip-file fileb://$dir/cpp/build/hello.zip
 
 # Test by invoking it
 echo "Invoking function using CLI"

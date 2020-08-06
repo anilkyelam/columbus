@@ -142,6 +142,6 @@ echo "Invoking function using API. Result:"
 secs_since_epoch=$(date +%s)
 secs_since_epoch=$((secs_since_epoch+5))    # now + 5 secs
 echo ${secs_since_epoch}
-curl -X POST $url -d '{ "id": 11, "stime": '${secs_since_epoch}', "log": 1, "phases": 1, "samples": 1 }' > output.txt
+curl -X POST $url -d '{ "id": 11, "stime": '${secs_since_epoch}', "log": 1, "phases": 0, "samples": 1 }' > output.txt
 echo "$(cat output.txt)"
 rm output.txt
