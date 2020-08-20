@@ -1,6 +1,6 @@
 
 
-for reg in eu-west-3 eu-west-2 ap-south-1 us-west-2 us-east-2; do
+for reg in eu-west-3 eu-west-2 ap-south-1 us-west-2 us-east-2 me-south-1; do
     echo $reg
     aws configure set region $reg
     bash setup.sh -n=membus1536 -s=1536

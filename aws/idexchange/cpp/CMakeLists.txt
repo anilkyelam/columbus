@@ -5,7 +5,6 @@ project(hello LANGUAGES CXX)
 find_package(aws-lambda-runtime REQUIRED)
 find_package(AWSSDK COMPONENTS s3)
 
-include_directories(${PROJECT_SOURCE_DIR})
 add_executable(${PROJECT_NAME} "main.cpp" "util.cpp" "ttest.cpp" "RSJparser.tcc")
-target_link_libraries(${PROJECT_NAME} PUBLIC AWS::aws-lambda-runtime)
+target_link_libraries(${PROJECT_NAME} PUBLIC AWS::aws-lambda-runtime ${AWSSDK_LINK_LIBRARIES})
 aws_lambda_package_target(${PROJECT_NAME})

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e  # stop on error
+# set -e  # stop on error
 
 #
 # Sets up a lamnbda function and an API gateway to trigger it
@@ -48,6 +48,7 @@ done
 # Defaults
 lambdafn=${lambdafn:-membusv21}    # Default lambda name
 SIZE=${SIZE:-128}
+S3PREFIX=lambda-cpp-
 
 # Get account id from aws cli if not set
 if [ -z ${accountid+x} ]; then
@@ -71,7 +72,7 @@ fi
 
 # One-time setup
 if [[ $SETUP ]]; then
-    bash cpp/deploy.sh --setup
+    bash deploy.sh --setup
     exit 0
 fi
 
@@ -114,7 +115,8 @@ if [ -z "$url" ]; then
         --rest-api-id $apid \
         --resource-id $proxyid \
         --http-method ANY \
-        --type AWS_PROXY \
+        --type AWS \
+        --request-parameters '{ "integration.request.header.X-Amz-Invocation-Type": "'"'"'Event'"'"'" }' \
         --integration-http-method POST \
         --uri arn:aws:apigateway:$region:lambda:path/2015-03-31/functions/arn:aws:lambda:$region:$accountid:function:$lambdafn/invocations
 
@@ -137,11 +139,33 @@ if [ -z "$url" ]; then
     echo $url
 fi
 
+# Create S3 bucket if it does not exist
+s3bucket=${S3PREFIX}${region}
+exit_code=0
+aws s3 ls ${s3bucket} &> /dev/null || exit_code=$?      # This excepts the command from "stop -e" while also saving the exit code.
+if [ $exit_code -ne 0 ]; then
+    aws s3 mb s3://${s3bucket}
+fi
+
 # Test Lambda and API
-echo "Invoking function using API. Result:"
+echo "TESTING. Invoking function using API. Result:"
 secs_since_epoch=$(date +%s)
 secs_since_epoch=$((secs_since_epoch+5))    # now + 5 secs
-echo ${secs_since_epoch}
-curl -X POST $url -d '{ "id": 11, "stime": '${secs_since_epoch}', "log": 1, "phases": 0, "samples": 1 }' > output.txt
-echo "$(cat output.txt)"
-rm output.txt
+# echo ${secs_since_epoch}
+curl -X POST $url -d '{ "id": 11, "stime": '${secs_since_epoch}', "log": 1, "phases": 0, "samples": 1, "s3bucket": "'${s3bucket}'", "s3key":"'$secs_since_epoch'" }'
+echo "  <== IGNORE THIS."   # Ignore 500 error, which is expected now.
+
+# Wait for response
+WAIT_SECS=10            # now + 10 secs
+echo "Waiting for response... ($WAIT_SECS secs)"
+sleep $WAIT_SECS
+exit_code=0
+aws s3 ls ${s3bucket}/${secs_since_epoch} &> /dev/null || exit_code=$?
+if [ $exit_code -eq 0 ]; then
+    rm out/temp
+    aws s3 cp s3://${s3bucket}/${secs_since_epoch} out/temp
+    cat out/temp
+    echo ""
+else
+    echo "No output written to S3:///${s3bucket}/${secs_since_epoch}"
+fi

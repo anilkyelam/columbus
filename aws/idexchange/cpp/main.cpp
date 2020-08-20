@@ -40,6 +40,7 @@
 #include "RSJparser.tcc"
 
 using namespace aws::lambda_runtime;
+char const TAG[] = "MEMBUS";
 
 /****** Assumptions around clocks ********
  * 1. clocks have a precision of microseconds or lower.
@@ -47,13 +48,11 @@ using namespace aws::lambda_runtime;
  * 3. 
  */
 
-#define MAX_BITS_IN_ID      8              // Max lambdas = 2^10
-#define BASELINE_SAMPLES    500
-#define BASELINE_INTERVAL   1000000         // 1 second to calibrate
-#define SAMPLES_PER_BIT     500
-#define BIT_INTERVAL_MUS    1000000         // 1 second for communicating each bit
-#define MAX_PHASES          15
-#define PVALUE_THRESHOLD    0.0005
+#define SAMPLES_PER_SECOND    500
+#define MAX_BIT_DURATION_SECS 5
+#define MUS_IN_ONE_SEC        1000000         // 1 second for communicating each bit
+#define MAX_PHASES            15
+#define PVALUE_THRESHOLD      0.0005
 // #define PVALUE_THRESHOLD    0.0000001
 
 using Clock = std::chrono::high_resolution_clock;
@@ -66,14 +65,15 @@ using std::chrono::duration_cast;
 extern double welsch_ttest_pvalue(double fmean1, double variance1, int size1, double fmean2, double variance2, int size2);
 
 /* Logging */
-bool log_ = false;
+bool log_ = true;
 std::vector<std::string> logs;
 char lbuffer[1000];
-#define lprintf(...) {                 \
-   if (log_) {                          \
-      sprintf(lbuffer, __VA_ARGS__);   \
-      logs.push_back(lbuffer);          \
-   }                                   \
+#define lprintf(...) {                    \
+   if (log_) {                            \
+      sprintf(lbuffer, __VA_ARGS__);      \
+      logs.push_back(lbuffer);            \
+      AWS_LOGSTREAM_INFO(TAG, lbuffer);   \
+   }                                      \
 }
 
 /* Rdtsc blocks for time measurements */
@@ -243,23 +243,25 @@ inline sample_t prepare_sample(int64_t* data, int len, bool remove_outliers = tr
 
 /* Samples membus lock latencies periodically to infer contention. If calibrate is set, uses those readings as baseline. */
 bool save_samples;
-int64_t samples[SAMPLES_PER_BIT];
-int64_t saved_readings1[SAMPLES_PER_BIT];
+int64_t samples[MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND];
+int64_t saved_readings1[MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND];
 int saved_readings1_len = 0;
-int64_t saved_readings2[SAMPLES_PER_BIT];
+int64_t saved_readings2[MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND];
 int saved_readings2_len = 0;
 
 sample_t base_sample;
 sample_t last_sample;
-int read_bit(uint32_t* addr, microseconds release_time_mus, bool calibrate, int id, int phase, int round, double* pvalue)
+int read_bit(uint64_t* addr, microseconds release_time_mus, int bit_duration_secs, bool calibrate, int id, int phase, int round, double* pvalue)
 {
    int i;
    microseconds one_ms = microseconds(1000);
    microseconds ten_ms = microseconds(10000);
    microseconds next = duration_cast<microseconds>(Clock::now().time_since_epoch());
-   int num_samples = calibrate ? BASELINE_SAMPLES : SAMPLES_PER_BIT;
-   int interval_mus = calibrate ? BASELINE_INTERVAL : BIT_INTERVAL_MUS;
-   double sampling_rate_mus = num_samples * 1.0 / interval_mus;
+   // int num_samples = calibrate ? BASELINE_SAMPLES : SAMPLES_PER_BIT;
+   // int interval_mus = calibrate ? BASELINE_INTERVAL : BIT_INTERVAL_MUS;
+   int num_samples = bit_duration_secs * SAMPLES_PER_SECOND;
+   int interval_mus = bit_duration_secs * MUS_IN_ONE_SEC;
+   double sampling_rate_mus = SAMPLES_PER_SECOND * 1.0 / MUS_IN_ONE_SEC;
 
    /* Checking time takes order of micro-seconds, so do it sparesely to not affect contention-causing.
    * assuming each locking op costs few microseconds, check time every few hundred microseconds
@@ -267,7 +269,7 @@ int read_bit(uint32_t* addr, microseconds release_time_mus, bool calibrate, int 
    release_time_mus -= ten_ms;
    int64_t start, end, mean, count = 0;
    // lprintf("%ld, %ld,\n", next.count(), release_time_mus.count());      /** COMMENT OUT IN REAL RUNS **/
-   for (i = 0; i < SAMPLES_PER_BIT && within_time(release_time_mus); i++)
+   for (i = 0; i < num_samples && within_time(release_time_mus); i++)
    {   
       // Get a sample
       rdtsc();
@@ -325,7 +327,7 @@ int read_bit(uint32_t* addr, microseconds release_time_mus, bool calibrate, int 
 }
 
 /* Causes membus locking contention until a certain time */
-void write_bit(uint32_t* addr, microseconds release_time_mus)
+void write_bit(uint64_t* addr, microseconds release_time_mus)
 {
    int i;
    microseconds ten_ms = microseconds(10000);
@@ -343,7 +345,7 @@ void write_bit(uint32_t* addr, microseconds release_time_mus)
 }
 
 /* Finds an address on heap that falls on consecutive cache lines */
-uint32_t* get_cache_line_straddled_address()
+uint64_t* get_cache_line_straddled_address()
 {
    uint64_t *arr;
    int i, size;
@@ -374,7 +376,7 @@ uint32_t* get_cache_line_straddled_address()
          if (!first)
             break;
          first = false;
-      } 
+      }
    }
 
    if (i == size) {
@@ -386,18 +388,18 @@ uint32_t* get_cache_line_straddled_address()
       lprintf("Found an address that falls on two cache lines: %p\n", (void*) addr);
    }
 
-   lprintf("Membus latencies with sliding address:\n");
-   for (int j = -8; j < 16; j++) {
-      uint64_t* cacheline = (uint64_t*)((uint8_t*)(arr+i-1) + j);
-      rdtsc();
-      __atomic_fetch_add(cacheline, 1, __ATOMIC_SEQ_CST);
-      rdtsc1();
-      uint64_t start = ( ((int64_t)cycles_high << 32) | cycles_low );
-      uint64_t end = ( ((int64_t)cycles_high1 << 32) | cycles_low1 );
-      lprintf("%d,%lu\n", j, (end - start));
-   }
+   // lprintf("Membus latencies with sliding address:\n");
+   // for (int j = -8; j < 16; j++) {
+   //    uint64_t* cacheline = (uint64_t*)((uint8_t*)(arr+i-1) + j);
+   //    rdtsc();
+   //    __atomic_fetch_add(cacheline, 1, __ATOMIC_SEQ_CST);
+   //    rdtsc1();
+   //    uint64_t start = ( ((int64_t)cycles_high << 32) | cycles_low );
+   //    uint64_t end = ( ((int64_t)cycles_high1 << 32) | cycles_low1 );
+   //    lprintf("%d,%lu\n", j, (end - start));
+   // }
 
-   return (uint32_t*)addr;
+   return (uint64_t*)addr;
 }
 
 /* Execute the info exchange protocol where all participating lambdas on a same machine
@@ -405,26 +407,26 @@ uint32_t* get_cache_line_straddled_address()
 * other or for a specified number of phases
 * If repeat_phases is true, protocol repeats the first phase i.e., in every phase all 
 * lambdas try to agree on the same max lambda id  */
-result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_phases, uint32_t* cacheline_addr, bool repeat_phases)
+result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_phases, int max_bits_in_id, int bit_duration_secs, uint64_t* cacheline_addr, bool repeat_phases)
 {
    double pvalue;
-   microseconds bit_duration = microseconds(BIT_INTERVAL_MUS);
+   microseconds bit_duration = microseconds(bit_duration_secs * MUS_IN_ONE_SEC);
    microseconds five_ms = microseconds(5000);
    microseconds ten_ms = microseconds(10000);
-   microseconds phase_duration = bit_duration * MAX_BITS_IN_ID;
+   microseconds phase_duration = bit_duration * max_bits_in_id;
    result_t* result = (result_t*) malloc(sizeof(result_t));
    result->num_phases = 0;
 
-   // Sync with other lamdas a few milliseconds early
+   // Sync with other lambdas a few milliseconds early
    if (poll_wait(start_time_mus - ten_ms)){
       lprintf("ERROR! Already past the intitial sync point, bad run for current lambda.\n");
       return result;
    }
 
    // Calibrate baseline latencies (when no contention)
-   microseconds next_time_mus = start_time_mus + microseconds(BASELINE_INTERVAL);
+   microseconds next_time_mus = start_time_mus + bit_duration;
    if (my_id % 2)   next_time_mus += five_ms;
-   read_bit(cacheline_addr, next_time_mus - ten_ms, true, my_id, 0, 0, &pvalue);
+   read_bit(cacheline_addr, next_time_mus - ten_ms, bit_duration_secs, true, my_id, 0, 0, &pvalue);
 
    // Start protocol phases
    bool advertised = false;
@@ -433,7 +435,7 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
       bool advertising = !advertised;
       int id_read = 0;
 
-      for (int bit_pos = MAX_BITS_IN_ID - 1; bit_pos >= 0; bit_pos--) {
+      for (int bit_pos = max_bits_in_id - 1; bit_pos >= 0; bit_pos--) {
             bool my_bit = my_id & (1 << bit_pos);
             int bit_read;
 
@@ -446,7 +448,7 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
                bit_read = 1;                                           // When writing a bit, assume that bit read is one.
             }
             else {
-               bit_read = read_bit(cacheline_addr, next_time_mus - ten_ms, false, my_id, phase, bit_pos, &pvalue);
+               bit_read = read_bit(cacheline_addr, next_time_mus - ten_ms, bit_duration_secs, false, my_id, phase, bit_pos, &pvalue);
             }
 
             /* Stop advertising if my bit is 0 and bit read is 1 i.e., someone else has higher id than mine */
@@ -526,53 +528,68 @@ const std::string current_datetime() {
 }
 
 /* Write a string to S3 bucket */
-bool write_to_s3(Aws::S3::S3Client const& client, Aws::String const& bucket, Aws::String const& key, Aws::String data) {
+bool write_to_s3(Aws::S3::S3Client const& client, std::string const& bucket, std::string const& key, std::string data) {
    Aws::S3::Model::PutObjectRequest request;
-   request.SetBucket(bucketName);
-   request.SetKey(objectName);
+   request.SetBucket(bucket);
+   request.SetKey(key);
 
-   std::shared_ptr<Aws::IOStream> input_data = 
-      Aws::MakeShared<Aws::FStream>("SampleAllocationTag", 
-         objectName.c_str(), 
-         std::ios_base::in);
-
+   const std::shared_ptr<Aws::IOStream> input_data = Aws::MakeShared<Aws::StringStream>("");
+   *input_data << data.c_str();
    request.SetBody(input_data);
 
    // Write to S3 and return result
-   Aws::S3::Model::PutObjectOutcome outcome = s3_client.PutObject(request);
-   if (outcome.IsSuccess()) {   
-      lprintf("Added object %s to s3 bucket %s\n", objectName.c_str(), bucket.c_str());
-      return true;
+   try {
+      Aws::S3::Model::PutObjectOutcome outcome = client.PutObject(request);
+      if (outcome.IsSuccess()) {   
+         lprintf("Added object %s to s3 bucket %s\n", key.c_str(), bucket.c_str());
+         return true;
+      }
+      else {
+         lprintf("Error adding object %s to s3 bucket %s: %s\n", key.c_str(), bucket.c_str(), 
+            outcome.GetError().GetMessage().c_str());
+         return false;
+      }
    }
-   else {
-      lprintf("Error adding object %s to s3 bucket %s: %s\n", objectName.c_str(), bucket.c_str(), 
-         outcome.GetError().GetMessage().c_str());
+   catch (std::exception e){
+      lprintf("Exception saving to S3: %s", e.what());
       return false;
    }
+
+   return true;
 }
 
 /* Main entry point */
-invocation_response my_handler(invocation_request const& request)
+invocation_response my_handler(invocation_request const& request, const std::shared_ptr<Aws::Auth::AWSCredentialsProvider>& credentialsProvider, 
+   const Aws::Client::ClientConfiguration& config)
 {
    std::string start_time = current_datetime();
-   int id, max_phases;
+   int id, max_phases, max_bits, bit_duration_secs;
    long start_time_secs;
    bool success = true, sysinfo, return_data;
-   std::string error;
-   Aws::String bucket, key;
+   std::string error, s3bucket, s3key;
    result_t* res = NULL;
-   
+
+   AWS_LOGSTREAM_INFO(TAG, "Start");
+   lprintf("Starting lambda (group %ld) at %s", start_time_secs, start_time.c_str());
+
    /* Parse request body for arguments */
    try {     
-      RSJresource json(request.payload);
-      std::string escaped_body = json["body"].as<std::string>("");
-      RSJresource body = RSJresource(util::unescape_json(escaped_body));
+      RSJresource body(request.payload);
+      if (body["body"].exists()) {
+         // See if body is nested in payload
+         std::string escaped_body = body["body"].as<std::string>("");
+         body = RSJresource(util::unescape_json(escaped_body));
+      }
       id = body["id"].as<int>(0);
       start_time_secs = body["stime"].as<int>(0);
       log_ = body["log"].as<bool>(false);                   // include logs in response  
       save_samples = body["samples"].as<bool>(false);       // include a sample of latencies in response
       max_phases = body["phases"].as<int>(1);               // run 1 phase by default
+      max_bits = body["maxbits"].as<int>(8);                // Assume maximum of 8 bits in ID by default
+      bit_duration_secs = body["bitduration"].as<int>(1);          // takes 1 second for communicating each bit by default. phases*maxbits*bitduration gives total time
       return_data = body["return_data"].as<bool>(false);    // return data in API response. Stored to S3 by default.
+      s3bucket = body["s3bucket"].as<std::string>("");    // return data in API response. Stored to S3 by default.
+      s3key = body["s3key"].as<std::string>("");    // return data in API response. Stored to S3 by default.
    }
    catch(std::exception& e){
       success = false;
@@ -580,36 +597,22 @@ invocation_response my_handler(invocation_request const& request)
       lprintf("Could not parse request body\n");
    }
 
-   // Make sure S3 account is provided
-   if (success && !return_data) {
-      using namespace Aws::Utils::Json;      // another nicer way to parse json i guess (-_-)
-      JsonValue json(req.payload);
-      if (!json.WasParseSuccessful()) {
-         success = false;
-         error = "INVALID_BODY_2";
-         lprintf("Could not parse request body with AWS json\n");
-      }
-
-      if (success) {
-         auto v = json.View();
-         if (!v.ValueExists("s3bucket") || !v.ValueExists("s3key") 
-               || !v.GetObject("s3bucket").IsString() || !v.GetObject("s3key").IsString()) {
-            success = false;
-            error = "NO_S3_DETAILS";
-            lprintf("Missing input value s3bucket or s3key\n");
-         }
-
-         if (success) {
-            bucket = v.GetString("s3bucket");
-            auto key = v.GetString("s3key");
-         }
-      }
+   // Test availability of s3 bucket
+   if (success && !s3bucket.empty()) { 
+      Aws::S3::S3Client client(credentialsProvider, config);
+      write_to_s3(client, s3bucket, "temp", "Some data..");
    }
 
-   if (success && id <= 0 || id >= (1<<MAX_BITS_IN_ID)) {
+   if (success && id <= 0 || id >= (1<<max_bits)) {
       success = false;
       error = "INVALID_ID";
-      lprintf("Id is not provided or invalid (should be in [1, %d)\n", 1<<MAX_BITS_IN_ID);
+      lprintf("Id is not provided or invalid (should be in [1, %d)\n", 1<<max_bits);
+   }
+
+   if (success && (bit_duration_secs < 1  || bit_duration_secs > MAX_BIT_DURATION_SECS)) {
+      success = false;
+      error = "INVALID_BIT_DURATION";
+      lprintf("Bit duration is invalid (should be in [1, %d]\n", MAX_BIT_DURATION_SECS);
    }
    
    seconds now = duration_cast<seconds>(Clock::now().time_since_epoch());
@@ -617,20 +620,6 @@ invocation_response my_handler(invocation_request const& request)
       success = false;
       error = "INVALID_STIME";
       lprintf("Start time is not provided or is in the past");
-   }
-
-   try {
-      std::ofstream outfile ("/mnt1/efs/one.txt");
-      outfile << "my text here!" << std::endl;
-      outfile.close();
-      std::ifstream infile ("/mnt1/efs/one.txt");
-      std::string content( (std::istreambuf_iterator<char>(infile) ), (std::istreambuf_iterator<char>()) );
-      lprintf("EFS Output: %s\n", content.c_str());
-   }
-   catch(std::exception& e){
-      success = false;
-      error = "INVALID_EFS_MOUNT";
-      lprintf("EFS Mount Exception: %s\n", e.what());
    }
 
    /* Run membus protcol */
@@ -660,7 +649,7 @@ invocation_response my_handler(invocation_request const& request)
       lprintf("clock precision level: %d\n", prec);
 
       /* Get cacheline address */
-      uint32_t* addr = get_cache_line_straddled_address();
+      uint64_t* addr = get_cache_line_straddled_address();
       if (addr == NULL){
          lprintf("Cannot find cacheline straddled address");
          error = "NO_CACHELINE_ADDR";
@@ -669,8 +658,16 @@ invocation_response my_handler(invocation_request const& request)
 
       if (success) {
          /* Run id exchange protocol */
-         microseconds start_time_mus = duration_cast<microseconds>(std::chrono::seconds(start_time_secs));
-         res = run_membus_protocol(id, start_time_mus, max_phases, addr, true);
+         try {
+            AWS_LOGSTREAM_INFO(TAG, "Running");
+            microseconds start_time_mus = duration_cast<microseconds>(std::chrono::seconds(start_time_secs));
+            res = run_membus_protocol(id, start_time_mus, max_phases, max_bits, bit_duration_secs, addr, true);
+         }
+         catch (std::exception e){
+            lprintf("Exception in membus protocol execution: %s", e.what());
+            error = "MEMBUS_CRASH";
+            success = false;
+         }
       }
    }
 
@@ -724,91 +721,44 @@ invocation_response my_handler(invocation_request const& request)
       body["Logs"] = RSJresource(logarr, true);
    }
 
+   /* Save response to s3 */
+   if (!s3bucket.empty() && !s3key.empty()){
+      /* WARNING: Always initialize S3 client object close to its usage. It expires after a while (100 seconds?) */
+      lprintf("Writing result to S3 at s3://%s/%s", s3bucket.c_str(), s3key.c_str());
+      Aws::S3::S3Client client(credentialsProvider, config);
+      write_to_s3(client, s3bucket, s3key, body.as_str());
+   }
+
+   // WARNING: Do not log using lprintf after this point, corrupts logs array that is being written into S3
+   AWS_LOGSTREAM_INFO(TAG, "Wrote result to S3");
+   
    /* Prepare response with statuscode, headers and body
    * In the format required by Lambda Proxy Integration: 
    * https://aws.amazon.com/premiumsupport/knowledge-center/malformed-502-api-gateway/ */  
    RSJresource response("{}");
    response["statusCode"] = 200;
    response["headers"] = RSJresource("{}");
-   std::string escaped_body = util::escape_json(body.as_str());
-   response["body"] = RSJresource(escaped_body, true);  // don't parse escaped body as json object
+   response["body"] = RSJresource("");
+   if (return_data) {
+      std::string escaped_body = util::escape_json(body.as_str());
+      response["body"] = RSJresource(escaped_body, true);  // don't parse escaped body as json object
+   }
 
    /* send response */
    return invocation_response::success(response.as_str(), "application/json");
 }
 
-int main()
-{
-    using namespace Aws;
-    SDKOptions options;
-    options.loggingOptions.logLevel = Aws::Utils::Logging::LogLevel::Trace;
-    options.loggingOptions.logger_create_fn = GetConsoleLoggerFactory();
-    InitAPI(options);
-    {
-        Client::ClientConfiguration config;
-        config.region = Aws::Environment::GetEnv("AWS_REGION");
-        config.caFile = "/etc/pki/tls/certs/ca-bundle.crt";
 
-        auto credentialsProvider = Aws::MakeShared<Aws::Auth::EnvironmentAWSCredentialsProvider>(TAG);
-        S3::S3Client client(credentialsProvider, config);
-        auto handler_fn = [&client](aws::lambda_runtime::invocation_request const& req) {
-            return my_handler(req, client);
-        };
-        run_handler(handler_fn);
-    }
-    ShutdownAPI(options);
-    return 0;
-}
-
-std::string download_and_encode_file(
-    Aws::S3::S3Client const& client,
-    Aws::String const& bucket,
-    Aws::String const& key,
-    Aws::String& encoded_output);
-
-std::string encode(Aws::String const& filename, Aws::String& output);
-char const TAG[] = "LAMBDA_ALLOC";
-
-static invocation_response my_handler(invocation_request const& req, Aws::S3::S3Client const& client)
-{
-    using namespace Aws::Utils::Json;
-    JsonValue json(req.payload);
-    if (!json.WasParseSuccessful()) {
-        return invocation_response::failure("Failed to parse input JSON", "InvalidJSON");
-    }
-
-    auto v = json.View();
-
-    if (!v.ValueExists("s3bucket") || !v.ValueExists("s3key") || !v.GetObject("s3bucket").IsString() ||
-        !v.GetObject("s3key").IsString()) {
-        return invocation_response::failure("Missing input value s3bucket or s3key", "InvalidJSON");
-    }
-
-    auto bucket = v.GetString("s3bucket");
-    auto key = v.GetString("s3key");
-
-    AWS_LOGSTREAM_INFO(TAG, "Attempting to download file from s3://" << bucket << "/" << key);
-
-    Aws::String base64_encoded_file;
-    auto err = download_and_encode_file(client, bucket, key, base64_encoded_file);
-    if (!err.empty()) {
-        return invocation_response::failure(err, "DownloadFailure");
-    }
-
-    return invocation_response::success(base64_encoded_file, "application/base64");
-}
-
+/* AWS Console Logger. Logs at CloudWatch > Log Groups > Lambda Name on the AWS console */
 std::function<std::shared_ptr<Aws::Utils::Logging::LogSystemInterface>()> GetConsoleLoggerFactory()
 {
     return [] {
         return Aws::MakeShared<Aws::Utils::Logging::ConsoleLogSystem>(
-            "console_logger", Aws::Utils::Logging::LogLevel::Trace);
+            "console_logger", Aws::Utils::Logging::LogLevel::Info);        // Use LogLevel::Trace for more verbose log.
     };
 }
 
-
-// Main method from https://aws.amazon.com/blogs/compute/introducing-the-c-lambda-runtime/
-int main()
+int main()  
 {
     using namespace Aws;
     SDKOptions options;
@@ -821,55 +771,11 @@ int main()
         config.caFile = "/etc/pki/tls/certs/ca-bundle.crt";
 
         auto credentialsProvider = Aws::MakeShared<Aws::Auth::EnvironmentAWSCredentialsProvider>(TAG);
-        S3::S3Client client(credentialsProvider, config);
-        auto handler_fn = [&client](aws::lambda_runtime::invocation_request const& req) {
-            return my_handler(req, client);
+        auto handler_fn = [&credentialsProvider, &config](aws::lambda_runtime::invocation_request const& req) {
+            return my_handler(req, credentialsProvider, config);
         };
         run_handler(handler_fn);
     }
     ShutdownAPI(options);
     return 0;
-}
-
-std::string encode(Aws::IOStream& stream, Aws::String& output)
-{
-    Aws::Vector<unsigned char> bits;
-    bits.reserve(stream.tellp());
-    stream.seekg(0, stream.beg);
-
-    char streamBuffer[1024 * 4];
-    while (stream.good()) {
-        stream.read(streamBuffer, sizeof(streamBuffer));
-        auto bytesRead = stream.gcount();
-
-        if (bytesRead > 0) {
-            bits.insert(bits.end(), (unsigned char*)streamBuffer, (unsigned char*)streamBuffer + bytesRead);
-        }
-    }
-    Aws::Utils::ByteBuffer bb(bits.data(), bits.size());
-    output = Aws::Utils::HashingUtils::Base64Encode(bb);
-    return {};
-}
-
-std::string download_and_encode_file(
-    Aws::S3::S3Client const& client,
-    Aws::String const& bucket,
-    Aws::String const& key,
-    Aws::String& encoded_output)
-{
-    using namespace Aws;
-
-    S3::Model::GetObjectRequest request;
-    request.WithBucket(bucket).WithKey(key);
-
-    auto outcome = client.GetObject(request);
-    if (outcome.IsSuccess()) {
-        AWS_LOGSTREAM_INFO(TAG, "Download completed!");
-        auto& s = outcome.GetResult().GetBody();
-        return encode(s, encoded_output);
-    }
-    else {
-        AWS_LOGSTREAM_ERROR(TAG, "Failed with error: " << outcome.GetError());
-        return outcome.GetError().GetMessage();
-    }
 }
