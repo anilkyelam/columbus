@@ -1,7 +1,8 @@
 #
 # 1. bash setup.sh
-# 2. Get URL
-# 3. python3 invoke.py -u https://ockhe03c0i.execute-api.us-west-1.amazonaws.com/latest/membus -c 10
+# 2. Get URL or Lambda name
+# 3. python3 invoke.py -u https://ockhe03c0i.execute-api.us-west-1.amazonaws.com/latest/membus -c 10    or,
+# 3. python3 invoke.py -n membus1536 -c 10  
 #
 
 from urllib.parse import urlparse
@@ -65,14 +66,14 @@ def getResponse(ourl, body):
 # Invoker for each Lambda instance
 def worker():
     while True:
-        (url, id, syncpt, phases, bits_in_id, bit_duration, use_s3, s3bucket, s3file, tmpdir) = req_q.get()
+        (url, id, syncpt, phases, bits_in_id, bit_duration, start_delay, use_s3, s3bucket, s3file, tmpdir) = req_q.get()
         
         body = { "id": id, "stime": syncpt, "phases": phases, "log": True, 
                     "maxbits": bits_in_id, "bitduration": bit_duration,
                     "samples": samples, "s3bucket": s3bucket, "s3key": s3file }
         resp = getResponse(url, json.dumps(body))
         if use_s3:
-            wait_secs = phases*(bits_in_id+1)*bit_duration + 15
+            wait_secs = start_delay + phases*(bits_in_id+1)*bit_duration + 30
             start = time.time()
             timeout = time.time() + wait_secs
             found = False
@@ -128,9 +129,9 @@ def main():
     parser.add_argument('-o', '--out', action='store', help='path to results file', default="results.csv")
     parser.add_argument('-u', '--url', action='store', help='url to invoke lambda. Looks in .api_cache by default.')
     parser.add_argument('-p', '--phases', action='store', type=int, help='number of phases to run', default=1)
-    parser.add_argument('-i', '--idbits', action='store', type=int, help='number of bits in ID', default=8)
+    parser.add_argument('-i', '--idbits', action='store', type=int, help='number of bits in ID', default=10)
     parser.add_argument('-b', '--bitduration', action='store', type=int, help='time to communicate for each bit in seconds', default=1)
-    parser.add_argument('-d', '--delay', action='store', type=int, help='initial delay for lambdas to sync up (in seconds)', default=4)
+    parser.add_argument('-d', '--delay', action='store', type=int, help='initial delay for lambdas to sync up (in seconds)', default=30)
     parser.add_argument('-n', '--name', action='store', help='lambda name, if URL should be retrieved from cache', default="membusv2")
     parser.add_argument('-s', '--samples', action='store_true', help='save observed latency samples to log', default=False)
     parser.add_argument('--useapi', action='store_true', help='Use response returned by API for data rather than writing to storage account', default=False)
@@ -192,7 +193,8 @@ def main():
     phases = args.phases
     s3file = unique_id
     for i in range(args.count):
-        req_q.put((args.url, i+1, sync_point, phases, args.idbits, args.bitduration, not args.useapi,
+        req_q.put((args.url, i+1, sync_point, phases, args.idbits, args.bitduration, args.delay,
+            not args.useapi,
             s3bucket if not args.useapi else "", 
             s3file+"-"+str(i) if not args.useapi else "",
             tmpdir))
@@ -255,15 +257,33 @@ def main():
                 else:
                     item_d["Base Sample"] = "-"
 
-                if "Bit Sample" in item_d:
-                    sfilepath = os.path.join(resdir, "bit_samples{0}".format(item_d["Id"]))
+                if "Bit-1 Sample" in item_d:
+                    sfilepath = os.path.join(resdir, "bit1_samples{0}".format(item_d["Id"]))
                     with open(sfilepath, "w") as sfile:
                         sfile.write("Latencies\n")
                         # print(item_d["Bit Sample"])
-                        sfile.write("\n".join(item_d["Bit Sample"].split(",")))
-                    item_d["Bit Sample"] = sfilepath
+                        sfile.write("\n".join(item_d["Bit-1 Sample"].split(",")))
+                    item_d["Bit-1 Sample"] = sfilepath
                 else:
-                    item_d["Bit Sample"] = "-"
+                    item_d["Bit-1 Sample"] = "-"
+                
+                if "Bit-0 Sample" in item_d:
+                    sfilepath = os.path.join(resdir, "bit0_samples{0}".format(item_d["Id"]))
+                    with open(sfilepath, "w") as sfile:
+                        sfile.write("Latencies\n")
+                        # print(item_d["Bit Sample"])
+                        sfile.write("\n".join(item_d["Bit-0 Sample"].split(",")))
+                    item_d["Bit-0 Sample"] = sfilepath
+                else:
+                    item_d["Bit-0 Sample"] = "-"
+
+                # if "Bit-1 Pvalue" in item_d:
+                #     val = item_d["Bit-1 Pvalue"]
+                #     item_d["Bit-1 Pvalue"] = float(val)
+                
+                # if "Bit-0 Pvalue" in item_d:
+                #     val = item_d["Bit-0 Pvalue"]
+                #     item_d["Bit-0 Pvalue"] = float(val)
 
                 # Write col headers
                 if first:
@@ -277,13 +297,13 @@ def main():
                 # Print stdout
                 cols = ["Success", "Phases", "Id"]
                 for i in range(phases): cols += ["Phase {0}".format(i+1)]
-                cols += ["Logs", "Base Sample", "Bit Sample", "Error"]
+                cols += ["Logs", "Base Sample", "Bit-0 Pvalue", "Bit-1 Pvalue", "Error"]
 
                 firstline = ""
                 line = ""
                 id = 0
                 for k in cols:
-                    format_str = " {:<25}" if k in ["Logs", "Base Sample", "Bit Sample", "Error"] else " {:<10}"
+                    format_str = " {:<25}" if k in ["Logs", "Base Sample", "Bit-0 Pvalue", "Bit-1 Pvalue", "Error"] else " {:<10}"
                     if k in item_d:
                         if first: 
                             # col headers

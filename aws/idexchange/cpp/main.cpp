@@ -48,11 +48,12 @@ char const TAG[] = "MEMBUS";
  * 3. 
  */
 
-#define SAMPLES_PER_SECOND    500
+#define SAMPLES_PER_SECOND    1000
 #define MAX_BIT_DURATION_SECS 5
-#define MUS_IN_ONE_SEC        1000000         // 1 second for communicating each bit
+#define MUS_IN_ONE_SEC        1000000
 #define MAX_PHASES            15
-#define PVALUE_THRESHOLD      0.0005
+#define PVALUE_THRESHOLD      0.0
+// #define PVALUE_THRESHOLD      0.0005
 // #define PVALUE_THRESHOLD    0.0000001
 
 using Clock = std::chrono::high_resolution_clock;
@@ -241,16 +242,21 @@ inline sample_t prepare_sample(int64_t* data, int len, bool remove_outliers = tr
    };
 }
 
-/* Samples membus lock latencies periodically to infer contention. If calibrate is set, uses those readings as baseline. */
+/* Buffers to save samples of latencies for post-experiment analysis */
 bool save_samples;
 int64_t samples[MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND];
-int64_t saved_readings1[MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND];
-int saved_readings1_len = 0;
-int64_t saved_readings2[MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND];
-int saved_readings2_len = 0;
+int64_t base_readings[MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND];
+int base_readings_len = 0;
+int64_t bit1_readings[MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND];
+int bit1_readings_len = 0;
+double bit1_pvalue;
+int64_t bit0_readings[MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND];
+int bit0_readings_len = 0;
+double bit0_pvalue;
 
 sample_t base_sample;
 sample_t last_sample;
+/* Samples membus lock latencies periodically to infer contention. If calibrate is set, uses those readings as baseline. */
 int read_bit(uint64_t* addr, microseconds release_time_mus, int bit_duration_secs, bool calibrate, int id, int phase, int round, double* pvalue)
 {
    int i;
@@ -287,10 +293,10 @@ int read_bit(uint64_t* addr, microseconds release_time_mus, int bit_duration_sec
 
    if (calibrate) {
       base_sample = prepare_sample(samples, count, false);
-      if (save_samples){
-         memcpy(saved_readings1, samples, sizeof(samples));
-         // saved_readings1_len = count;
-         saved_readings1_len = base_sample.size;   // no outliers
+      if (save_samples && base_readings_len == 0){
+         memcpy(base_readings, samples, sizeof(samples));
+         // base_readings_len = count;
+         base_readings_len = base_sample.size;   // no outliers
       } 
 
       lprintf("Baseline sample: Size- %d, Mean- %lu\n", base_sample.size, base_sample.mean);
@@ -315,15 +321,22 @@ int read_bit(uint64_t* addr, microseconds release_time_mus, int bit_duration_sec
    *pvalue = welsch_ttest_pvalue(base_sample.mean, base_sample.variance, base_sample.size, 
                last_sample.mean, last_sample.variance, last_sample.size);
 
-   if(*pvalue < PVALUE_THRESHOLD) {
-      if (save_samples){
-         memcpy(saved_readings2, samples, sizeof(samples));
-         // saved_readings2_len = count;
-         saved_readings2_len = last_sample.size;
+   if(*pvalue <= PVALUE_THRESHOLD) {
+      if (save_samples && bit1_readings_len == 0){
+         memcpy(bit1_readings, samples, sizeof(samples));
+         bit1_readings_len = last_sample.size;
+         bit1_pvalue = *pvalue;
+      } 
+   }
+   else {
+      if (save_samples && bit0_readings_len == 0){
+         memcpy(bit0_readings, samples, sizeof(samples));
+         bit0_readings_len = last_sample.size;
+         bit0_pvalue = *pvalue;
       } 
    }
 
-   return *pvalue < PVALUE_THRESHOLD;        /* Need to figure out the threshold that works for current platform */
+   return *pvalue <= PVALUE_THRESHOLD;        /* Need to figure out the threshold that works for current platform */
 }
 
 /* Causes membus locking contention until a certain time */
@@ -690,16 +703,28 @@ invocation_response my_handler(invocation_request const& request, const std::sha
    /* Save samples if specified */
    if (success && save_samples) {
       std::string arr;
-      for (int i = 0; i < saved_readings1_len; i++) {
-         arr += std::to_string(saved_readings1[i]) + ',';
+      std::stringstream ss1, ss2;
+
+      for (int i = 0; i < base_readings_len; i++) {
+         arr += std::to_string(base_readings[i]) + ',';
       }
       body["Base Sample"] = RSJresource(arr, true);
       
       arr = "";
-      for (int i = 0; i < saved_readings2_len; i++) {
-         arr += std::to_string(saved_readings2[i]) + ',';
+      for (int i = 0; i < bit1_readings_len; i++) {
+         arr += std::to_string(bit1_readings[i]) + ',';
       }
-      body["Bit Sample"] = RSJresource(arr, true);
+      body["Bit-1 Sample"] = RSJresource(arr, true);
+      ss1 << std::setprecision(15) << bit1_pvalue;
+      body["Bit-1 Pvalue"] = ss1.str();
+      
+      arr = "";
+      for (int i = 0; i < bit0_readings_len; i++) {
+         arr += std::to_string(bit0_readings[i]) + ',';
+      }
+      body["Bit-0 Sample"] = RSJresource(arr, true);
+      ss2 << std::setprecision(15) << bit0_pvalue;
+      body["Bit-0 Pvalue"] = ss2.str();   //ss.str to preserve precision
    }
 
    /* Save some system info */

@@ -95,7 +95,7 @@ else
 fi
 
 # We don't want lambdas to be re-triggered if they failed for some reason
-aws lambda update-function-event-invoke-config --function-name ${NAME} --maximum-retry-attempts 0
+aws lambda put-function-event-invoke-config --function-name ${NAME} --maximum-retry-attempts 0
 
 # Test by invoking it
 echo "Skip invoking function using CLI"
