@@ -341,6 +341,7 @@ def main():
             'size'   : args.fontsize}
     matplotlib.rc('font', **font)
     matplotlib.rc('figure', autolayout=True)
+    matplotlib.rcParams['pdf.fonttype'] = 42        # required for latex embedded figures
 
     fig, axmain = plt.subplots(1, 1, figsize=(8,5))
     fig.suptitle(args.ptitle if args.ptitle else '')

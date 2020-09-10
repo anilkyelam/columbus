@@ -18,7 +18,17 @@ function plot_each() {
     done <<< "$files"
 
     labelincr=1
-    files=$(find $outdir -name 'bit_samples*')
+    files=$(find $outdir -name 'bit0_samples*')
+    while read -r i; do
+        base=$(basename $i)
+        label=${base/#"samples"} 
+        fileparam="$fileparam -d $i -l $label -cmi $labelincr -li $labelincr"
+        labelincr=0
+        # echo "$i $base"
+    done <<< "$files"
+
+    labelincr=1
+    files=$(find $outdir -name 'bit1_samples*')
     while read -r i; do
         base=$(basename $i)
         label=${base/#"samples"} 
@@ -61,43 +71,48 @@ function combine() {
     display $plot &
 }
 
-# Main
-region=me-south-1
-for size in 128 512 1024 1536 3008; do
-# for size in 3008; do
+# Main()
+# region=me-south-1
+# for size in 128 512 1024 1536 3008; do
+# # for size in 3008; do
 
-    # Setup & run lambdas
-    # echo Region: $region, Lambda Size: ${size}MB
-    # outdir=latrun-$(date +%m-%d-%H-%M)-${size}
-    # aws configure set region $region
-    # bash setup.sh -n=membus${size} -s=${size}
-    # python3 invoke.py --name=membus${size} --count=100 --phases=1 --outdir=${outdir} --samples
-    # echo "Lat samples 1-bit, ${size} MB, $region" > out/$outdir/desc
+#     # Setup & run lambdas
+#     # echo Region: $region, Lambda Size: ${size}MB
+#     # outdir=latrun-$(date +%m-%d-%H-%M)-${size}
+#     # aws configure set region $region
+#     # bash setup.sh -n=membus${size} -s=${size}
+#     # python3 invoke.py --name=membus${size} --count=100 --phases=1 --outdir=${outdir} --samples
+#     # echo "Lat samples 1-bit, ${size} MB, $region" > out/$outdir/desc
 
-    # Or just use previous results
-    outdir=$(basename out/latrun-07-06-*-${size})
+#     # # Or just use previous results
+#     # outdir=$(basename out/latrun-07-06-*-${size})
 
-    # Plot each sample separately
-    # plot_each "out/$outdir" "$outdir"
+#     # # Plot each sample separately
+#     # plot_each "out/$outdir" "$outdir"
 
-    # Plot one
-    # plot_one "out/$outdir" "$outdir"
-done
+#     # Plot one
+#     # plot_one "out/$outdir" "$outdir"
+# done
+
+# Find 
+outdir=$1
+if [ -z "$outdir" ];  then  outdir=$(ls -t out/ | head -n1);    fi
+plot_each "out/$outdir" "$outdir"
 
 
-# Final plot for context switching
-plot=plots/lambda_sched_effect.pdf
-prefix="latrun-07-06-*-"
-bit128=$(ls out/latrun-07-06-*-128/all_bit_samples)
-bit512=$(ls out/latrun-07-06-*-512/all_bit_samples)
-bit1024=$(ls out/latrun-07-06-*-1024/all_bit_samples)
-bit1536=$(ls out/latrun-07-06-*-1536/all_bit_samples)
-bit3008=$(ls out/latrun-07-06-*-3008/all_bit_samples)
-base3008=$(ls out/latrun-07-06-*-3008/all_base_samples)
-python plot.py -z cdf -xl "Latency (Cycles)" -yc "Latencies" -o $plot -nm --xlim 30000 \
-    -d ${bit128}    -l "128 MB"     -ls solid   \
-    -d ${bit1024}   -l "1 GB"       -ls solid   \
-    -d ${bit3008}   -l "3 GB"       -ls solid   \
-    -d ${base3008}  -l "No contention"   -ls dashed  
-echo "Plot at: $plot"
-display $plot &
+# # Final plot for context switching
+# plot=plots/lambda_sched_effect.pdf
+# prefix="latrun-07-06-*-"
+# bit128=$(ls out/latrun-07-06-*-128/all_bit_samples)
+# bit512=$(ls out/latrun-07-06-*-512/all_bit_samples)
+# bit1024=$(ls out/latrun-07-06-*-1024/all_bit_samples)
+# bit1536=$(ls out/latrun-07-06-*-1536/all_bit_samples)
+# bit3008=$(ls out/latrun-07-06-*-3008/all_bit_samples)
+# base3008=$(ls out/latrun-07-06-*-3008/all_base_samples)
+# python plot.py -z cdf -xl "Latency (Cycles)" -yc "Latencies" -o $plot -nm --xlim 30000 \
+#     -d ${bit128}    -l "128 MB"     -ls solid   \
+#     -d ${bit1024}   -l "1 GB"       -ls solid   \
+#     -d ${bit3008}   -l "3 GB"       -ls solid   \
+#     -d ${base3008}  -l "No contention"   -ls dashed  
+# echo "Plot at: $plot"
+# display $plot &

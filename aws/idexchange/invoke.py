@@ -1,7 +1,8 @@
 #
 # 1. bash setup.sh
-# 2. Get URL
-# 3. python3 invoke.py -u https://ockhe03c0i.execute-api.us-west-1.amazonaws.com/latest/membus -c 10
+# 2. Get URL or Lambda name
+# 3. python3 invoke.py -u https://ockhe03c0i.execute-api.us-west-1.amazonaws.com/latest/membus -c 10    or,
+# 3. python3 invoke.py -n membus1536 -c 10  
 #
 
 from urllib.parse import urlparse
@@ -50,6 +51,7 @@ def hammingDistance(n1, n2) :
         x >>= 1
     return setBits 
 
+# Call URL
 def getResponse(ourl, body):
     try:
         url = urlparse(ourl)
@@ -61,19 +63,64 @@ def getResponse(ourl, body):
         print(e)
         return None
 
-
+# Invoker for each Lambda instance
 def worker():
     while True:
-        (url, id, syncpt, phases) = req_q.get()
+        (url, id, syncpt, phases, bits_in_id, bit_duration, start_delay, use_s3, s3bucket, s3file, tmpdir) = req_q.get()
         
-        body = { "id": id, "stime": syncpt, "phases": phases, "log": True, "samples": samples }
+        body = { "id": id, "stime": syncpt, "phases": phases, "log": True, 
+                    "maxbits": bits_in_id, "bitduration": bit_duration,
+                    "samples": samples, "s3bucket": s3bucket, "s3key": s3file }
         resp = getResponse(url, json.dumps(body))
-        if resp and resp.status == 200:
+        if use_s3:
+            wait_secs = start_delay + phases*(bits_in_id+1)*bit_duration + 30
+            start = time.time()
+            timeout = time.time() + wait_secs
+            found = False
+
+            # Check for S3 file no matter how the API returns. Asychronous calls to API currently 
+            # return 500 status (which needs to be fixed) but the lambdas still continue to run.
+            # if resp:
+            #     if resp.status in (200, 504):
+            #         # Returned or timed out, wait for the S3 file
+            #         print("Lambda {0} status: ".format(id), resp.status, resp.read())
+            #         pass
+            #     else:
+            #         print("Lambda {0}: Failed. ".format(id), resp.read())
+            #         req_q.task_done()
+            #         return
+
+            while time.time() < timeout:
+                # Set shell to true and pass entire command as a single string for usual shell like environment
+                # which is required to enable default aws credentials
+                p = subprocess.run(["aws s3 ls {0}/{1}".format(s3bucket, s3file)], stdout=subprocess.PIPE, shell=True)
+                if p.returncode == 0:
+                    found = True
+                    break
+
+                # WARNING: This print stdout seems necessary for the control to move forward
+                progress = int((time.time() - start) * 50 / wait_secs)
+                sys.stdout.write("\rLambda {0}: Waiting [{1}{2}]".format(id, '#'*progress, '.'*(50-progress), p.stdout))
+                time.sleep(1)
+                
+            if found:
+                tmppath = os.path.join(tmpdir, str(id))
+                p = subprocess.run(["aws s3 cp s3://{0}/{1} {2}".format(s3bucket, s3file, tmppath)], stdout=subprocess.PIPE, shell=True)
+                if p.returncode != 0:
+                    print("Lambda {0} failed: Failed to copy file from S3 {1}/{2}".format(id, s3bucket, s3file))
+                    req_q.task_done()
+                    return
+                with open(tmppath, 'r') as f:
+                    data_q.put(f.read())
+            else:
+                print("Lambda {0} failed: Fetching S3 file timed out".format(id, s3bucket, s3file))
+                req_q.task_done()
+                return
+        elif resp and resp.status == 200:
             data = resp.read()
             data_q.put(data)
         else:
             print (resp.status)
-            pass
         req_q.task_done()
 
 def main():
@@ -82,23 +129,30 @@ def main():
     parser.add_argument('-o', '--out', action='store', help='path to results file', default="results.csv")
     parser.add_argument('-u', '--url', action='store', help='url to invoke lambda. Looks in .api_cache by default.')
     parser.add_argument('-p', '--phases', action='store', type=int, help='number of phases to run', default=1)
-    parser.add_argument('-d', '--delay', action='store', type=int, help='initial delay for lambdas to sync up (in seconds)', default=4)
+    parser.add_argument('-i', '--idbits', action='store', type=int, help='number of bits in ID', default=10)
+    parser.add_argument('-b', '--bitduration', action='store', type=int, help='time to communicate for each bit in seconds', default=1)
+    parser.add_argument('-d', '--delay', action='store', type=int, help='initial delay for lambdas to sync up (in seconds)', default=30)
     parser.add_argument('-n', '--name', action='store', help='lambda name, if URL should be retrieved from cache', default="membusv2")
     parser.add_argument('-s', '--samples', action='store_true', help='save observed latency samples to log', default=False)
+    parser.add_argument('--useapi', action='store_true', help='Use response returned by API for data rather than writing to storage account', default=False)
     parser.add_argument('-od', '--outdir', action='store', help='name of output dir')
+    parser.add_argument('-en', '--expname', action='store', help='Custom name for this experiment, defaults to datetime')
+    parser.add_argument('-ed', '--expdesc', action='store', help='Description/comments for this run', default="")
     args = parser.parse_args()
+
+    # Prerequisite: AWS CLI configured to access the account
+    p = subprocess.run(["aws", "configure", "get", "region"], stdout=subprocess.PIPE)
+    if p.returncode != 0:
+        print("Failed to get default region from aws cli. Cannot get url from cache. Provide --url.")
+        return -1
+    region = re.sub('\s+','', p.stdout.decode("utf-8"))
+    s3bucket = "lambda-cpp-" + region
 
     # Find URL in cache if not specified.
     if not args.url:
         if not args.name:
             print("Provide --url or --name to get URL from cache.")
             return -1
-
-        p = subprocess.run(["aws", "configure", "get", "region"], stdout=subprocess.PIPE)
-        if p.returncode != 0:
-            print("Failed to get default region from aws cli. Cannot get url from cache. Provide --url.")
-            return -1
-        region = re.sub('\s+','', p.stdout.decode("utf-8"))
 
         p = subprocess.run(["aws", "sts", "get-caller-identity"], stdout=subprocess.PIPE)
         if p.returncode != 0:
@@ -115,8 +169,17 @@ def main():
             args.url = re.sub('\s+','', file.read())
             print("Found url in cache {0}: {1}".format(url_cache, args.url))
 
+    # Make output dir
+    if not args.outdir:     args.outdir = datetime.now().strftime("%m-%d-%H-%M")
+    resdir = os.path.join("out", args.outdir)
+    tmpdir = os.path.join(resdir, "tmp")
+    if not os.path.exists(resdir):
+        os.makedirs(resdir)
+        os.makedirs(tmpdir)
+
     # Lambda sync point
     sync_point = int(time.time()) + args.delay       # now + delay, assuming (api invoke + lambda create + lambda setup) happens within this delay for all lambdas
+    unique_id = datetime.now().strftime("%m-%d-%H-%M")
 
     # Start enough threads
     global samples
@@ -127,9 +190,14 @@ def main():
         t.start()
 
     # Invoke lambdas
-    phases=args.phases
+    phases = args.phases
+    s3file = unique_id
     for i in range(args.count):
-        req_q.put((args.url, i+1, sync_point, phases))
+        req_q.put((args.url, i+1, sync_point, phases, args.idbits, args.bitduration, args.delay,
+            not args.useapi,
+            s3bucket if not args.useapi else "", 
+            s3file+"-"+str(i) if not args.useapi else "",
+            tmpdir))
 
     # Wait for everything to finish 
     try:
@@ -137,15 +205,29 @@ def main():
     except KeyboardInterrupt:
         sys.exit(1)
     
-    # Pick a folder for logs
-    if not args.outdir:     args.outdir = datetime.now().strftime("%m-%d-%H-%M")
-    resdir = os.path.join("out", args.outdir)
-    if not os.path.exists(resdir):
-        os.makedirs(resdir)
+    # Paths for output files
     logpath = os.path.join(resdir, "log")
     respath = os.path.join(resdir, args.out)
     statspath = os.path.join(resdir, "stats.json")
+    configpath = os.path.join(resdir, "config.json")
 
+    # Save configuration        
+    config = {
+        "Name": args.expname if args.expname else args.outdir,
+        "Comments": args.expdesc,
+        "Lambda Name":  args.name,
+        "Lambda URL": args.url,
+        "Lambda Count": args.count,
+        "Phases": args.phases,
+        "Bit Duration (secs)": args.bitduration,
+        "Num bits": args.idbits,
+        "Outdir": resdir,
+        "Region": region,
+    }
+    with open(configpath, 'w', encoding='utf-8') as f:
+        json.dump(config, f, ensure_ascii=False, indent=4)
+
+    # Parse responses and organize results into files
     first = True
     idstats = {}
     with open(respath, 'w') as csvfile:
@@ -155,7 +237,7 @@ def main():
                 # get response
                 item = data_q.get()
                 # print(item)   #raw
-                item_d = json.loads(item.decode("utf-8"), strict=False)
+                item_d = json.loads(item.decode("utf-8") if isinstance(item, bytes) else item , strict=False)
 
                 # If logs exist, put them in seperate file
                 if "Logs" in item_d:
@@ -175,15 +257,33 @@ def main():
                 else:
                     item_d["Base Sample"] = "-"
 
-                if "Bit Sample" in item_d:
-                    sfilepath = os.path.join(resdir, "bit_samples{0}".format(item_d["Id"]))
+                if "Bit-1 Sample" in item_d:
+                    sfilepath = os.path.join(resdir, "bit1_samples{0}".format(item_d["Id"]))
                     with open(sfilepath, "w") as sfile:
                         sfile.write("Latencies\n")
                         # print(item_d["Bit Sample"])
-                        sfile.write("\n".join(item_d["Bit Sample"].split(",")))
-                    item_d["Bit Sample"] = sfilepath
+                        sfile.write("\n".join(item_d["Bit-1 Sample"].split(",")))
+                    item_d["Bit-1 Sample"] = sfilepath
                 else:
-                    item_d["Bit Sample"] = "-"
+                    item_d["Bit-1 Sample"] = "-"
+                
+                if "Bit-0 Sample" in item_d:
+                    sfilepath = os.path.join(resdir, "bit0_samples{0}".format(item_d["Id"]))
+                    with open(sfilepath, "w") as sfile:
+                        sfile.write("Latencies\n")
+                        # print(item_d["Bit Sample"])
+                        sfile.write("\n".join(item_d["Bit-0 Sample"].split(",")))
+                    item_d["Bit-0 Sample"] = sfilepath
+                else:
+                    item_d["Bit-0 Sample"] = "-"
+
+                # if "Bit-1 Pvalue" in item_d:
+                #     val = item_d["Bit-1 Pvalue"]
+                #     item_d["Bit-1 Pvalue"] = float(val)
+                
+                # if "Bit-0 Pvalue" in item_d:
+                #     val = item_d["Bit-0 Pvalue"]
+                #     item_d["Bit-0 Pvalue"] = float(val)
 
                 # Write col headers
                 if first:
@@ -197,13 +297,13 @@ def main():
                 # Print stdout
                 cols = ["Success", "Phases", "Id"]
                 for i in range(phases): cols += ["Phase {0}".format(i+1)]
-                cols += ["Logs", "Base Sample", "Bit Sample", "Error"]
+                cols += ["Logs", "Base Sample", "Bit-0 Pvalue", "Bit-1 Pvalue", "Error"]
 
                 firstline = ""
                 line = ""
                 id = 0
                 for k in cols:
-                    format_str = " {:<25}" if k in ["Logs", "Base Sample", "Bit Sample", "Error"] else " {:<10}"
+                    format_str = " {:<25}" if k in ["Logs", "Base Sample", "Bit-0 Pvalue", "Bit-1 Pvalue", "Error"] else " {:<10}"
                     if k in item_d:
                         if first: 
                             # col headers
@@ -223,6 +323,7 @@ def main():
                         line += format_str.format(post_val)
 
                 if first:
+                    print("")
                     print(firstline)
                 print(line)
 
@@ -236,7 +337,7 @@ def main():
         errorsk = "errors"
         clusters = {}
         for id, vals in idstats.items():
-            print(id, vals)
+            # print(id, vals)
             maj = find_majority(vals)
             key = maj if maj else errorsk
             if key not in clusters.keys():
@@ -245,7 +346,7 @@ def main():
 
         sizes = [len(v) for k,v in clusters.items() if k != errorsk]        
         stats_ = {
-            "Name": args.name,
+            "Name": args.expname if args.expname else args.outdir,
             "Region": region,
             "Run":  args.outdir,
             "Count": args.count,

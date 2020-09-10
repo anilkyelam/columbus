@@ -16,7 +16,7 @@ from enum import Enum
 import scipy.stats as scstats
 
 
-colors = ['r','b','g','brown', 'c','k', 'orange', 'm','orangered']
+colors = ['r','b','g','brown', 'c','k', 'orange', 'm','orangered','y']
 linetypes = ['g-','g--','g-+']
 markers = ['x','+','o','s','+', '|', '^']
 
@@ -172,6 +172,16 @@ def parse_args():
         action='store', 
         type=float,
         help='Custom y-axis upper limit')
+
+    parser.add_argument('-hl', '--hline', 
+        action='store', 
+        type=float,
+        help='Add a horizantal line at specified y-value')
+
+    parser.add_argument('-vl', '--vline', 
+        action='store', 
+        type=float,
+        help='Add a vertical line at specified x-value')
 
     parser.add_argument('-pg', '--pgroup', 
         action='append', 
@@ -341,6 +351,8 @@ def main():
             'size'   : args.fontsize}
     matplotlib.rc('font', **font)
     matplotlib.rc('figure', autolayout=True)
+    matplotlib.rc('figure', autolayout=True)
+    matplotlib.rcParams['pdf.fonttype'] = 42        # required for latex embedded figures
 
     fig, axmain = plt.subplots(1, 1, figsize=(8,5))
     fig.suptitle(args.ptitle if args.ptitle else '')
@@ -410,13 +422,14 @@ def main():
         elif args.ptype == PlotType.scatter:
             xc = xcol
             yc = df[ycol]
+            print(xc, yc)
             xc = [x * args.xmul for x in xc]
             yc = [y * ymul for y in yc]
 
             if args.nomarker:
-                lns += ax.scatter(xc, yc, label=label, color=colors[cidx])
+                ax.scatter(xc, yc, label=label, color=colors[cidx])
             else:
-                lns += ax.scatter(xc, yc, label=label, color=colors[cidx], marker=markers[midx])
+                ax.scatter(xc, yc, label=label, color=colors[cidx], marker=markers[midx])
 
         elif args.ptype == PlotType.bar:
             xc = xcol
@@ -507,9 +520,17 @@ def main():
         labels = [l.get_label() for l in lns]
         set_axes_legend_loc(axmain, lns, labels, args.lloc)
 
+    # Add horizantal and/or vertical lines
+    if args.hline:
+        plt.axhline(x=args.hline)
+        plt.text(args.hline, 0, str(args.hline))
+    if args.vline:
+        plt.axvline(x=args.vline)
+        plt.text(args.vline, 0, str(args.vline))
+
     # plt.savefig(args.output, format="eps")
     plt.savefig(args.output, format="pdf")
-    plt.savefig(args.output)
+    # plt.savefig(args.output)
     if args.show:
         plt.show()
 

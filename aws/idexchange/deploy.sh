@@ -37,7 +37,7 @@ esac
 done
 
 NAME=${NAME:-membus}    # Default lambda name
-ROLE=membus-cpp         # Creates this role if not exists
+ROLE=membus-cpp-s3      # Creates this role if not exists
 SIZE=${SIZE:-128}
 
 # One-time setup
@@ -72,27 +72,33 @@ make aws-lambda-package-hello
 popd
 
 # Create role 
-aws iam get-role --role-name membus-cpp
+aws iam get-role --role-name ${ROLE}
 if [ $? -ne 0 ]; then
     # Does not exist
     aws iam create-role --role-name ${ROLE} --assume-role-policy-document file://$dir/cpp/trust-policy.json
     aws iam attach-role-policy --role-name ${ROLE} --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    aws iam attach-role-policy --role-name ${ROLE} --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess      # To write responses to S3 
 fi
 
-# Create function
-aws lambda get-function --function-name ${NAME}
+# Create or update function
+aws lambda get-function --function-name ${NAME} 1>/dev/null
 if [ $? -ne 0 ]; then
     # Does not exist
     aws lambda create-function --function-name ${NAME} --role "arn:aws:iam::${ACCOUNTID}:role/${ROLE}" \
-        --runtime provided --timeout 60 --memory-size ${SIZE} --handler hello --zip-file fileb://$dir/cpp/build/hello.zip
+        --runtime provided --timeout 900 --memory-size ${SIZE} --handler hello --zip-file fileb://$dir/cpp/build/hello.zip
+else
+    # Update function
+    echo "Updating function"
+    aws lambda update-function-configuration --function-name ${NAME} --memory-size ${SIZE} --timeout 900
+    aws lambda update-function-configuration --function-name ${NAME} --role "arn:aws:iam::${ACCOUNTID}:role/${ROLE}"
+    aws lambda update-function-code --function-name ${NAME} --zip-file fileb://$dir/cpp/build/hello.zip
 fi
 
-# Update function
-echo "Updating function"
-aws lambda update-function-code --function-name ${NAME} --zip-file fileb://$dir/cpp/build/hello.zip
+# We don't want lambdas to be re-triggered if they failed for some reason
+aws lambda put-function-event-invoke-config --function-name ${NAME} --maximum-retry-attempts 0
 
 # Test by invoking it
-echo "Invoking function using CLI"
-aws lambda invoke --function-name ${NAME} output.txt 
-echo "$(cat output.txt)"
-rm output.txt
+echo "Skip invoking function using CLI"
+# aws lambda invoke --function-name ${NAME} output.txt 
+# echo "$(cat output.txt)"
+# rm output.txt
