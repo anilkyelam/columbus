@@ -1,0 +1,204 @@
+Starting lambda (group 0) at 2020-09-10 21:20:58	Added object temp to s3 bucket lambda-cpp-ap-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556e6bcbc
+    	Baseline sample: Size- 1000, Mean- 7533
+    	[Lambda-  9] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  9]   0         9    0     0     0       905      7703     6627    49998     5096       7533     6565 0.574463702193960
+    	[Lambda-  9]   0         8    0     0     0      1000      7390     5955    41964     5112       7533     6565 0.610001415807151
+    	[Lambda-  9]   0         7    0     0     0       984      7296     5918    48934     5110       7533     6565 0.398309256104956
+    	[Lambda-  9]   0         6    0     0     0      1000     17123   319681 10114664     5056       7533     6565 0.343135050612658
+    	[Lambda-  9]   0         5    0     0     0       979      7673     6394    69700     5106       7533     6565 0.630871013474263
+    	[Lambda-  9]   0         4    0     0     0       983      7520     6477    51534     5096       7533     6565 0.964602274405771
+    	[Lambda-  9]   0         3    1     1     1       983         0        0        0        0       7533     6565 0.964602274405771
+    	[Lambda-  9]   0         2    0     0     0       990      7259     9828   268050     5082       7533     6565 0.465162090308939
+    	[Lambda-  9]   0         1    0     0     0       999      7395     6160    63020     5122       7533     6565 0.628001388459451
+    	[Lambda-  9]   0         0    1     1     1       999         0        0        0        0       7533     6565 0.628001388459451
+    	[Lambda-9] Phase 0, Id read: 9
+Starting lambda (group 0) at 2020-09-10 21:20:58	Added object temp to s3 bucket lambda-cpp-ap-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555634bcbc
+    	Baseline sample: Size- 1000, Mean- 7390
+    	[Lambda-  6] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  6]   0         9    0     0     0       986      7954     6803    52128     5120       7390     6070 0.051507197228596
+    	[Lambda-  6]   0         8    0     0     0       907      7323     5665    44884     5140       7390     6070 0.803161507441112
+    	[Lambda-  6]   0         7    0     0     0      1000      7348     5687    42918     5144       7390     6070 0.873153938637525
+    	[Lambda-  6]   0         6    0     0     0      1000      7310     5658    41056     5088       7390     6070 0.760499174144750
+    	[Lambda-  6]   0         5    0     0     0       993      7040     5354    52772     5090       7390     6070 0.172320952890098
+    	[Lambda-  6]   0         4    0     0     0       957      7533     6368    80526     5062       7390     6070 0.611464849977439
+    	[Lambda-  6]   0         3    0     0     0       999     17275   319886 10116412     5090       7390     6070 0.329038590869057
+    	[Lambda-  6]   0         2    1     1     1       999         0        0        0        0       7390     6070 0.329038590869057
+    	[Lambda-  6]   0         1    1     1     1       999         0        0        0        0       7390     6070 0.329038590869057
+    	[Lambda-  6]   0         0    0     0     0      1000      7190     5406    42400     5124       7390     6070 0.436634248348816
+    	[Lambda-6] Phase 0, Id read: 6
+Starting lambda (group 0) at 2020-09-10 21:20:58	Added object temp to s3 bucket lambda-cpp-ap-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556f74cbc
+    	Baseline sample: Size- 962, Mean- 7081
+    	[Lambda-  2] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  2]   0         9    0     0     0       951      6853     4966    52972     4986       7081     5875 0.359271482844644
+    	[Lambda-  2]   0         8    0     0     0       998      7949    12213   317870     4980       7081     5875 0.043976840246757
+    	[Lambda-  2]   0         7    0     0     0       957      6818     5022    50978     4988       7081     5875 0.291966561295207
+    	[Lambda-  2]   0         6    0     0     0       985      7340     6132    52334     4976       7081     5875 0.341398439978612
+    	[Lambda-  2]   0         5    0     0     0      1000      7300     6249    72510     5000       7081     5875 0.423822846384127
+    	[Lambda-  2]   0         4    0     0     0      1000      6967     5544    78972     4982       7081     5875 0.658808604717549
+    	[Lambda-  2]   0         3    0     0     0       995      7207     6077    74478     4990       7081     5875 0.641043106482681
+    	[Lambda-  2]   0         2    0     0     0       977     17157   324159 10137844     4950       7081     5875 0.331582419976403
+    	[Lambda-  2]   0         1    1     1     1       977         0        0        0        0       7081     5875 0.331582419976403
+    	[Lambda-  2]   0         0    0     0     0       934      6745     5440    85848     5000       7081     5875 0.196337044866849
+    	[Lambda-2] Phase 0, Id read: 2
+Starting lambda (group 0) at 2020-09-10 21:20:58	Added object temp to s3 bucket lambda-cpp-ap-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555927cbc
+    	Baseline sample: Size- 1000, Mean- 7240
+    	[Lambda-  5] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  5]   0         9    0     0     0       919     17814   329260  9987202     5068       7240     6179 0.330614848642713
+    	[Lambda-  5]   0         8    0     0     0       989      6851     4634    38934     5120       7240     6179 0.112148316623541
+    	[Lambda-  5]   0         7    0     0     0      1000      7466     8404   184366     5076       7240     6179 0.493372805611191
+    	[Lambda-  5]   0         6    0     0     0      1000      7047     5310    43680     5120       7240     6179 0.453938844665499
+    	[Lambda-  5]   0         5    0     0     0       962      6894     4794    39000     5064       7240     6179 0.165111810995170
+    	[Lambda-  5]   0         4    0     0     0       928      6907     5097    44154     5104       7240     6179 0.195720470040187
+    	[Lambda-  5]   0         3    0     0     0      1000      7228     5679    51270     5118       7240     6179 0.963941588089120
+    	[Lambda-  5]   0         2    1     1     1      1000         0        0        0        0       7240     6179 0.963941588089120
+    	[Lambda-  5]   0         1    0     0     0       985      6844     4753    43208     5078       7240     6179 0.109404621408177
+    	[Lambda-  5]   0         0    1     1     1       985         0        0        0        0       7240     6179 0.109404621408177
+    	[Lambda-5] Phase 0, Id read: 5
+Starting lambda (group 0) at 2020-09-10 21:20:58	Added object temp to s3 bucket lambda-cpp-ap-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556d5bcbc
+    	Baseline sample: Size- 994, Mean- 7799
+    	[Lambda-  1] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  1]   0         9    0     0     0       992      7419     6429    61924     5058       7799    12132 0.383149936340638
+    	[Lambda-  1]   0         8    0     0     0       970      7435     6214    51086     5090       7799    12132 0.401187915062685
+    	[Lambda-  1]   0         7    0     0     0       995      7783     6377    53008     5092       7799    12132 0.970642734790343
+    	[Lambda-  1]   0         6    0     0     0       945      7148     5299    42098     5100       7799    12132 0.122842903578221
+    	[Lambda-  1]   0         5    0     0     0       996      7451     5859    46176     5110       7799    12132 0.415500681470108
+    	[Lambda-  1]   0         4    0     0     0       996      7295    10646   302536     5068       7799    12132 0.324803595849336
+    	[Lambda-  1]   0         3    0     0     0       973      7383     5845    62552     5110       7799    12132 0.331250419615341
+    	[Lambda-  1]   0         2    0     0     0       992      7232     5904    60098     5062       7799    12132 0.185499132878777
+    	[Lambda-  1]   0         1    0     0     0       958      7314     5951    85478     5096       7799    12132 0.259741637984763
+    	[Lambda-  1]   0         0    1     1     1       958         0        0        0        0       7799    12132 0.259741637984763
+    	[Lambda-1] Phase 0, Id read: 1
+Starting lambda (group 0) at 2020-09-10 21:20:58	Added object temp to s3 bucket lambda-cpp-ap-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555f1ecbc
+    	Baseline sample: Size- 990, Mean- 6918
+    	[Lambda-  8] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  8]   0         9    0     0     0       980     17841   321285 10063146     4994       6918     5645 0.287529228343979
+    	[Lambda-  8]   0         8    0     0     0       959      7642     6701    62240     5012       6918     5645 0.010086252492900
+    	[Lambda-  8]   0         7    0     0     0      1000      7243     6117    72694     4972       6918     5645 0.218177223050987
+    	[Lambda-  8]   0         6    0     0     0      1000      7202     6356    67966     4966       6918     5645 0.291996814880809
+    	[Lambda-  8]   0         5    0     0     0       927      7505     6527    60112     4960       6918     5645 0.035880862044329
+    	[Lambda-  8]   0         4    0     0     0       999      7490     6449    53206     4992       6918     5645 0.035410666613437
+    	[Lambda-  8]   0         3    1     1     1       999         0        0        0        0       6918     5645 0.035410666613437
+    	[Lambda-  8]   0         2    0     0     0       966      7073     8924   242124     5056       6918     5645 0.647158175062344
+    	[Lambda-  8]   0         1    0     0     0      1000      6770     5176    52208     4990       6918     5645 0.542356709848479
+    	[Lambda-  8]   0         0    0     0     0       953      7339     9294   208018     4994       6918     5645 0.229854199514049
+    	[Lambda-8] Phase 0, Id read: 8
+Starting lambda (group 0) at 2020-09-10 21:20:58	Added object temp to s3 bucket lambda-cpp-ap-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555558e8cbc
+    	Baseline sample: Size- 985, Mean- 28480
+    	[Lambda-  3] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  3]   0         9    0     0     0       969      7028     5289    52522     5120      28480   472011 0.154103638180484
+    	[Lambda-  3]   0         8    0     0     0       979      7204     5698    49382     5104      28480   472011 0.157511357346623
+    	[Lambda-  3]   0         7    0     0     0       994     17053   318108 10034892     5134      28480   472011 0.528151046572332
+    	[Lambda-  3]   0         6    0     0     0       983      7212     5756    62486     5114      28480   472011 0.157667924766987
+    	[Lambda-  3]   0         5    0     0     0       991      7711     6685    53102     5132      28480   472011 0.167646738564045
+    	[Lambda-  3]   0         4    0     0     0       994      7318     5766    53100     5146      28480   472011 0.159746634546022
+    	[Lambda-  3]   0         3    0     0     0       946     18531   341475 10508642     5134      28480   472011 0.594642815964879
+    	[Lambda-  3]   0         2    0     0     0       986      7236     5687    48686     5130      28480   472011 0.158135993988378
+    	[Lambda-  3]   0         1    1     1     1       986         0        0        0        0      28480   472011 0.158135993988378
+    	[Lambda-  3]   0         0    1     1     1       986         0        0        0        0      28480   472011 0.158135993988378
+    	[Lambda-3] Phase 0, Id read: 3
+Starting lambda (group 0) at 2020-09-10 21:20:58	Added object temp to s3 bucket lambda-cpp-ap-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555a04cbc
+    	Baseline sample: Size- 1000, Mean- 7144
+    	[Lambda-  4] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  4]   0         9    0     0     0       979     17512   323253 10119752     4966       7144     6041 0.315921733843155
+    	[Lambda-  4]   0         8    0     0     0      1000      7082     5705    48822     4962       7144     6041 0.813510344226066
+    	[Lambda-  4]   0         7    0     0     0       933      7268     6472    75408     4936       7144     6041 0.663886002039767
+    	[Lambda-  4]   0         6    0     0     0      1000      7744    15201   434486     4940       7144     6041 0.246301682735056
+    	[Lambda-  4]   0         5    0     0     0       961     14857   241316  7485790     4956       7144     6041 0.322165529232294
+    	[Lambda-  4]   0         4    0     0     0       971      7456     6108    52882     4956       7144     6041 0.254496881932889
+    	[Lambda-  4]   0         3    0     0     0       990      7243     5926    52658     4922       7144     6041 0.712174131161170
+    	[Lambda-  4]   0         2    1     1     1       990         0        0        0        0       7144     6041 0.712174131161170
+    	[Lambda-  4]   0         1    0     0     0       928      6704     4657    41326     4948       7144     6041 0.072315964510004
+    	[Lambda-  4]   0         0    0     0     0       940      7532     7519   100648     4952       7144     6041 0.212196345645348
+    	[Lambda-4] Phase 0, Id read: 4
+Starting lambda (group 0) at 2020-09-10 21:20:58	Added object temp to s3 bucket lambda-cpp-ap-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555562decbc
+    	Baseline sample: Size- 964, Mean- 7192
+    	[Lambda-  7] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  7]   0         9    0     0     0       967      7278     6004    53632     5146       7192     5618 0.745216104928348
+    	[Lambda-  7]   0         8    0     0     0       971      7053     5199    53342     5156       7192     5618 0.572325369228187
+    	[Lambda-  7]   0         7    0     0     0       970      7134     5270    42918     5122       7192     5618 0.814917378302330
+    	[Lambda-  7]   0         6    0     0     0       967      7170     5645    58852     5168       7192     5618 0.931610799294503
+    	[Lambda-  7]   0         5    0     0     0      1000      7181     5682    58872     5116       7192     5618 0.965596992003071
+    	[Lambda-  7]   0         4    0     0     0      1000      7192     5832    73764     5162       7192     5618 1.000000000000000
+    	[Lambda-  7]   0         3    0     0     0       961      7028     5298    62204     5118       7192     5618 0.510058703058165
+    	[Lambda-  7]   0         2    1     1     1       961         0        0        0        0       7192     5618 0.510058703058165
+    	[Lambda-  7]   0         1    1     1     1       961         0        0        0        0       7192     5618 0.510058703058165
+    	[Lambda-  7]   0         0    1     1     1       961         0        0        0        0       7192     5618 0.510058703058165
+    	[Lambda-7] Phase 0, Id read: 7
+Starting lambda (group 0) at 2020-09-10 21:18:26	Added object temp to s3 bucket lambda-cpp-ap-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556829b7c
+    	Baseline sample: Size- 1000, Mean- 7312
+    	[Lambda- 11] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda- 11]   0         7    0     0     0      1000      7153     6223    71036     5012       7312     6732 0.583471773550428
+    	[Lambda- 11]   0         6    0     0     0       932      7571     6491    43670     4968       7312     6732 0.389488451270761
+    	[Lambda- 11]   0         5    0     0     0      1000      7486     9267   236986     4992       7312     6732 0.631042927749311
+    	[Lambda- 11]   0         4    0     0     0      1000      7285     6583    86526     5024       7312     6732 0.927765381612778
+    	[Lambda- 11]   0         3    1     1     1      1000         0        0        0        0       7312     6732 0.927765381612778
+    	[Lambda- 11]   0         2    0     0     0       989      7115     8118   196808     5054       7312     6732 0.556103533941093
+    	[Lambda- 11]   0         1    1     1     1       989         0        0        0        0       7312     6732 0.556103533941093
+    	[Lambda- 11]   0         0    1     1     1       989         0        0        0        0       7312     6732 0.556103533941093
+    	[Lambda-11] Phase 0, Id read: 11
+    	Writing result to S3 at s3://lambda-cpp-ap-south-1/1599772709	Added object 1599772709 to s3 bucket lambda-cpp-ap-south-1
+    	Starting lambda (group 0) at 2020-09-10 21:19:42	Added object temp to s3 bucket lambda-cpp-ap-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555568892bc
+    	Baseline sample: Size- 1000, Mean- 7500
+    	[Lambda-  1] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  1]   0         9    0     0     0       934      7465     6387    52466     4980       7500    12982 0.939448829545212
+    	[Lambda-  1]   0         8    0     0     0      1000      7143     5935    73838     5000       7500    12982 0.429155022714274
+    	[Lambda-  1]   0         7    0     0     0       976      7794    10830   279836     5030       7500    12982 0.584330388584569
+    	[Lambda-  1]   0         6    0     0     0       994      7281     6095    50370     4996       7500    12982 0.629439006306456
+    	[Lambda-  1]   0         5    0     0     0      1000      7740    12340   336946     4982       7500    12982 0.671810446330630
+    	[Lambda-  1]   0         4    0     0     0       999     18319   329127 10408038     5012       7500    12982 0.299441451725969
+    	[Lambda-  1]   0         3    0     0     0       964      7418     6149    53016     4990       7500    12982 0.857258715497055
+    	[Lambda-  1]   0         2    0     0     0       990      6982     5805    65148     4994       7500    12982 0.249981473001344
+    	[Lambda-  1]   0         1    0     0     0      1000      7300     5870    68116     4960       7500    12982 0.657180198383477
+    	[Lambda-  1]   0         0    1     1     1      1000         0        0        0        0       7500    12982 0.657180198383477
+    	[Lambda-1] Phase 0, Id read: 1
+    	Writing result to S3 at s3://lambda-cpp-ap-south-1/09-10-14-19-0	Added object 09-10-14-19-0 to s3 bucket lambda-cpp-ap-south-1
+    	Starting lambda (group 0) at 2020-09-10 21:20:58	Added object temp to s3 bucket lambda-cpp-ap-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555680acfc
+    	Baseline sample: Size- 1000, Mean- 7283
+    	[Lambda- 10] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda- 10]   0         9    0     0     0       944      7643     6621    50612     4960       7283     5881 0.206147571146621
+    	[Lambda- 10]   0         8    0     0     0       992     18087   326368 10282922     4946       7283     5881 0.297449023374740
+    	[Lambda- 10]   0         7    0     0     0      1000      7687    12157   330574     4976       7283     5881 0.344330863615298
+    	[Lambda- 10]   0         6    0     0     0       965      7503     7048    77990     5022       7283     5881 0.453441338751935
+    	[Lambda- 10]   0         5    0     0     0       950      7161     5912    54454     4978       7283     5881 0.648002637781817
+    	[Lambda- 10]   0         4    0     0     0       946      7026     5471    50406     5018       7283     5881 0.318099868092752
+    	[Lambda- 10]   0         3    1     1     1       946         0        0        0        0       7283     5881 0.318099868092752
+    	[Lambda- 10]   0         2    0     0     0       956      7186     6196    80132     5034       7283     5881 0.722784856831799
+    	[Lambda- 10]   0         1    1     1     1       956         0        0        0        0       7283     5881 0.722784856831799
+    	[Lambda- 10]   0         0    0     0     0       972      6974     5514    55866     5010       7283     5881 0.228762567075167
+    	[Lambda-10] Phase 0, Id read: 10

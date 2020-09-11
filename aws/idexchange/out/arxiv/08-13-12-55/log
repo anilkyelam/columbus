@@ -1,0 +1,81 @@
+Added object temp to s3 bucket lambda-cpp-us-west-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556e4dafc
+    	Membus latencies with sliding address:
+    	-8,154
+    	-7,54
+    	-6,54
+    	-5,64
+    	-4,54
+    	-3,56
+    	-2,64
+    	-1,62
+    	0,58
+    	1,5142
+    	2,5490
+    	3,5544
+    	4,5224
+    	5,5416
+    	6,5512
+    	7,5262
+    	8,286
+    	9,56
+    	10,308
+    	11,64
+    	12,68
+    	13,62
+    	14,306
+    	15,60
+    	Baseline sample: Size- 467, Mean- 160
+    	[Lambda-  1] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  1]   0         7    0     0     0       496       153      465     3610       58        160      478 0.818308110713333
+    	[Lambda-  1]   0         6    0     0     0       483       141      422     3070       56        160      478 0.517289906244496
+    	[Lambda-  1]   0         5    0     0     0       500       153      481     3334       58        160      478 0.820690736956830
+    	[Lambda-  1]   0         4    0     0     0       462       160      485     4042       56        160      478 1.000000000000000
+    	[Lambda-  1]   0         3    0     0     0       475       154      459     3160       58        160      478 0.844517323888300
+    	[Lambda-  1]   0         2    0     0     0       500       150      463     3320       54        160      478 0.741818089412070
+    	[Lambda-  1]   0         1    0     0     0       493       145      430     3256       56        160      478 0.610643686787468
+    	[Lambda-  1]   0         0    1     1     1       493         0        0        0        0        160      478 0.610643686787468
+    	[Lambda-1] Phase 0, Id read: 1
+    	Added object 08-13-12-54-0 to s3 bucket lambda-cpp-us-west-2
+    	Added object temp to s3 bucket lambda-cpp-us-west-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556e980bc
+    	Membus latencies with sliding address:
+    	-8,514
+    	-7,54
+    	-6,298
+    	-5,60
+    	-4,312
+    	-3,62
+    	-2,356
+    	-1,62
+    	0,310
+    	1,5228
+    	2,6694
+    	3,5708
+    	4,6146
+    	5,5766
+    	6,5560
+    	7,5486
+    	8,304
+    	9,52
+    	10,64
+    	11,54
+    	12,58
+    	13,52
+    	14,58
+    	15,62
+    	Baseline sample: Size- 462, Mean- 156
+    	[Lambda-  1] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  1]   0         7    0     0     0       409       166      491     2964       58        156      443 0.753974464680123
+    	[Lambda-  1]   0         6    0     0     0       500       158      481     3324       54        156      443 0.946521071208611
+    	[Lambda-  1]   0         5    0     0     0       464       160      483     3326       56        156      443 0.895691981888406
+    	[Lambda-  1]   0         4    0     0     0       478       156      483     4568       54        156      443 1.000000000000000
+    	[Lambda-  1]   0         3    0     0     0       449       153      456     3104       56        156      443 0.919877551953831
+    	[Lambda-  1]   0         2    0     0     0       438       168      493     3670       58        156      443 0.701987210371127
+    	[Lambda-  1]   0         1    0     0     0       450       161      479     3382       58        156      443 0.870338154734857
+    	[Lambda-  1]   0         0    1     1     1       450         0        0        0        0        156      443 0.870338154734857
+    	[Lambda-1] Phase 0, Id read: 1

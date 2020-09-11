@@ -1,0 +1,81 @@
+{    "Logs": "Added object temp to s3 bucket lambda-cpp-us-west-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556470fbc
+    	Membus latencies with sliding address:
+    	-8,766
+    	-7,224
+    	-6,54
+    	-5,54
+    	-4,54
+    	-3,54
+    	-2,66
+    	-1,60
+    	0,66
+    	1,5250
+    	2,6146
+    	3,5604
+    	4,6120
+    	5,5710
+    	6,5728
+    	7,5592
+    	8,998
+    	9,306
+    	10,62
+    	11,50
+    	12,60
+    	13,302
+    	14,60
+    	15,58
+    	Baseline sample: Size- 442, Mean- 154
+    	[Lambda-  6] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  6]   0         7    0     0     0       500       168      587     8200       54        154      437 0.676222387660385
+    	[Lambda-  6]   0         6    0     0     0       481       214      935    17416       54        154      437 0.206655274209841
+    	[Lambda-  6]   0         5    0     0     0       472       182      926    18144       58        154      437 0.555566963745255
+    	[Lambda-  6]   0         4    0     0     0       436       163      480     3160       50        154      437 0.771962091378363
+    	[Lambda-  6]   0         3    0     0     0       425       174      516     3354       54        154      437 0.539528769838834
+    	[Lambda-  6]   0         2    1     1     1       425         0        0        0        0        154      437 0.539528769838834
+    	[Lambda-  6]   0         1    1     1     1       425         0        0        0        0        154      437 0.539528769838834
+    	[Lambda-  6]   0         0    0     0     0       459       174      516     3690       56        154      437 0.530198308078787
+    	[Lambda-6] Phase 0, Id read: 6
+    	Added object 08-13-13-16-5 to s3 bucket lambda-cpp-us-west-2
+    	Added object temp to s3 bucket lambda-cpp-us-west-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555565557bc
+    	Membus latencies with sliding address:
+    	-8,56
+    	-7,56
+    	-6,284
+    	-5,54
+    	-4,306
+    	-3,64
+    	-2,392
+    	-1,58
+    	0,324
+    	1,5138
+    	2,5656
+    	3,5370
+    	4,5944
+    	5,6038
+    	6,6872
+    	7,5364
+    	8,476
+    	9,62
+    	10,68
+    	11,86
+    	12,54
+    	13,316
+    	14,52
+    	15,334
+    	Baseline sample: Size- 491, Mean- 160
+    	[Lambda-  5] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  5]   0         7    0     0     0       454       204      933    17304       56        160      441 0.361008930196403
+    	[Lambda-  5]   0         6    0     0     0       453       164      500     4052       58        160      441 0.896779047940148
+    	[Lambda-  5]   0         5    0     0     0       473       158      467     3344       56        160      441 0.945591171537099
+    	[Lambda-  5]   0         4    0     0     0       431       159      446     3052       58        160      441 0.972788489932292
+    	[Lambda-  5]   0         3    0     0     0       460       153      450     3256       58        160      441 0.808952827392263
+    	[Lambda-  5]   0         2    1     1     1       460         0        0        0        0        160      441 0.808952827392263
+    	[Lambda-  5]   0         1    0     0     0       456       161      502     3712       58        160      441 0.974142710267673
+    	[Lambda-  5]   0         0    1     1     1       456         0        0        0        0        160      441 0.974142710267673
+    	[Lambda-5] Phase 0, Id read: 5",    "Boot ID": "49133541-3724-4149-a0cc-de02091951c3",    "MAC Address": "D6:59:CA:FC:91:B9",    "Phase 1": "5",    "Phases": "1",    "Start Time": "2020-08-13 20:16:43",    "End Time": "2020-08-13 20:16:56",    "Id": "5",    "Request ID": "b3e42e5c-370a-4cf8-b52c-e03953d21049",    "Success": "1",    "Error": ""}

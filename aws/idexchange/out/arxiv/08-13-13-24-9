@@ -1,0 +1,40 @@
+{    "Logs": "Added object temp to s3 bucket lambda-cpp-us-west-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555557270b7c
+    	Membus latencies with sliding address:
+    	-8,158
+    	-7,260
+    	-6,54
+    	-5,52
+    	-4,52
+    	-3,52
+    	-2,58
+    	-1,66
+    	0,58
+    	1,5308
+    	2,5790
+    	3,5512
+    	4,5964
+    	5,6824
+    	6,5464
+    	7,6478
+    	8,278
+    	9,50
+    	10,96
+    	11,318
+    	12,98
+    	13,94
+    	14,108
+    	15,346
+    	Baseline sample: Size- 500, Mean- 705
+    	[Lambda- 10] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda- 10]   0         7    0     0     0       484       162      479     4262       56        705    12443 0.330045144424837
+    	[Lambda- 10]   0         6    0     0     0       494       157      473     3534       56        705    12443 0.325598953063298
+    	[Lambda- 10]   0         5    0     0     0       476       157      456     3844       56        705    12443 0.325587037302034
+    	[Lambda- 10]   0         4    0     0     0       500       149      449     3972       56        705    12443 0.318554051893454
+    	[Lambda- 10]   0         3    1     1     1       500         0        0        0        0        705    12443 0.318554051893454
+    	[Lambda- 10]   0         2    0     0     0       433       158      460     2952       56        705    12443 0.326509302425594
+    	[Lambda- 10]   0         1    1     1     1       433         0        0        0        0        705    12443 0.326509302425594
+    	[Lambda- 10]   0         0    0     0     0       453       160      475     3384       56        705    12443 0.328287607176082
+    	[Lambda-10] Phase 0, Id read: 10",    "Boot ID": "796d0a99-726a-4652-b945-d50be09a147b",    "MAC Address": "D6:59:CA:FC:91:B9",    "Phase 1": "10",    "Phases": "1",    "Start Time": "2020-08-13 20:24:27",    "End Time": "2020-08-13 20:24:40",    "Id": "10",    "Request ID": "63a191d2-d9a4-4331-a4cd-b194f30b9deb",    "Success": "1",    "Error": ""}
