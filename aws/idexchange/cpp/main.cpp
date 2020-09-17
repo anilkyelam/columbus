@@ -43,19 +43,19 @@ using namespace aws::lambda_runtime;
 char const TAG[] = "MEMBUS";
 
 /****** Assumptions around clocks ********
- * 1. clocks have a precision of microseconds or lower.
+ * 1. Clocks have a precision of microseconds or lower.
  * 2. Context switching/core switching would not affect the monotonicity or steadiness of the clock on millisecond scales
- * 3. 
  */
 
-#define SAMPLES_PER_SECOND    1000
-#define MAX_BIT_DURATION_SECS 5
-#define MUS_IN_ONE_SEC        1000000
-#define MAX_PHASES            15
-#define PVALUE_THRESHOLD      0.0
+#define SAMPLES_PER_SECOND       1000           /* Sampling rate: This is limited by 1) noise under too much sampling            */
+                                                /* and 2) post-processing computation (KS test) done for each sample at every bit*/
+#define MAX_BIT_DURATION_SECS    5
+#define MUS_IN_ONE_SEC           1000000
+#define MAX_PHASES               15
+#define PVALUE_THRESHOLD         0.0
 // #define PVALUE_THRESHOLD      0.0005
-// #define PVALUE_THRESHOLD    0.0000001
-#define KS_TEST_MAX_VALUE     100000         // Latencies above this value are not 
+// #define PVALUE_THRESHOLD      0.0000001
+#define DEFAULT_KS_MEAN_CUTOFF   3.0            /* KS Statistic more than this would indicate enough contention to infer 1-bit   */
 
 using Clock = std::chrono::high_resolution_clock;
 using microseconds = std::chrono::microseconds;
@@ -63,8 +63,10 @@ using seconds = std::chrono::seconds;
 using std::chrono::duration;
 using std::chrono::duration_cast;
 
-/* Defined in ttest.cpp */
-extern double welsch_ttest_pvalue(double fmean1, double variance1, int size1, double fmean2, double variance2, int size2);
+/* Defined in timsort.cpp (Bad practice using extern!) */
+extern void timSort(int64_t arr[], int n);
+/* Defined in kstest.cpp */
+extern double kstest_mean(int64_t* sample1, int size1, bool is_sorted1, int64_t* sample2, int size2, bool is_sorted2);
 
 /* Save all lambdas invoked in this container. */
 std::vector<std::string> lambdas;
@@ -79,10 +81,8 @@ char lbuffer[1000];
       logs.push_back(lbuffer);            \
    }                                      \
 }
-// AWS_LOGSTREAM_INFO(TAG, lbuffer);   \     # Logs everything to AWS, include it in log_ loop only when debugging
+// AWS_LOGSTREAM_INFO(TAG, lbuffer);   \        /* Directs every print statement to AWS Cloudwatch, include it in log_ loop only when debugging */
 
-/* Rdtsc blocks for time measurements */
-unsigned cycles_low, cycles_high, cycles_low1, cycles_high1;
 
 typedef struct {
    int size;
@@ -96,6 +96,9 @@ typedef struct {
    int num_phases;
    int ids[MAX_PHASES];
 } result_t;
+
+/* Rdtsc blocks for time measurements */
+unsigned cycles_low, cycles_high, cycles_low1, cycles_high1;
 
 static __inline__ unsigned long long rdtsc(void)
 {
@@ -173,6 +176,7 @@ inline int poll_wait(microseconds release_time)
    }
 }
 
+
 /* Removes outliers beyond 3 standard deviations, returns sample params */
 inline sample_t prepare_sample(int64_t* data, int len, bool remove_outliers = true)
 {
@@ -239,6 +243,7 @@ inline sample_t prepare_sample(int64_t* data, int len, bool remove_outliers = tr
    };
 }
 
+
 /* Buffers to save samples of latencies for post-experiment analysis */
 bool save_samples;
 int64_t samples[MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND];
@@ -253,8 +258,10 @@ double bit0_pvalue;
 
 sample_t base_sample;
 sample_t last_sample;
-/* Samples membus lock latencies periodically to infer contention. If calibrate is set, uses those readings as baseline. */
-int read_bit(uint64_t* addr, microseconds release_time_mus, int bit_duration_secs, bool calibrate, int id, int phase, int round, double* pvalue)
+
+/* Samples membus lock latencies periodically to infer contention. If calibrate is set, uses these readings as baseline. */
+int read_bit(uint64_t* addr, microseconds release_time_mus, int bit_duration_secs, 
+   bool calibrate, int id, int phase, int round, double* ksvalue)
 {
    int i;
    microseconds one_ms = microseconds(1000);
@@ -266,10 +273,9 @@ int read_bit(uint64_t* addr, microseconds release_time_mus, int bit_duration_sec
    int interval_mus = bit_duration_secs * MUS_IN_ONE_SEC;
    double sampling_rate_mus = SAMPLES_PER_SECOND * 1.0 / MUS_IN_ONE_SEC;
 
-   /* Checking time takes order of micro-seconds, so do it sparesely to not affect contention-causing.
-   * assuming each locking op costs few microseconds, check time every few hundred microseconds
-   * Release a bit early to avoid overruns */
+   /* Release a bit early to avoid overruns (and allow for post-processing) */
    release_time_mus -= ten_ms;
+
    int64_t start, end, mean, count = 0;
    // lprintf("%ld, %ld,\n", next.count(), release_time_mus.count());      /** COMMENT OUT IN REAL RUNS **/
    for (i = 0; i < num_samples && within_time(release_time_mus); i++)
@@ -290,50 +296,33 @@ int read_bit(uint64_t* addr, microseconds release_time_mus, int bit_duration_sec
 
    if (calibrate) {
       base_sample = prepare_sample(samples, count, false);
-      if (save_samples && base_readings_len == 0){
-         memcpy(base_readings, samples, sizeof(samples));
-         // base_readings_len = count;
-         base_readings_len = base_sample.size;   // no outliers
-      } 
+      memcpy(base_readings, samples, count * sizeof(samples[0]));
+      base_readings_len = count;
 
-      lprintf("Baseline sample: Size- %d, Mean- %lu\n", base_sample.size, base_sample.mean);
+      /* Sort the base sample so we don't have to do it every time */
+      timSort(base_readings, base_readings_len);
       return 0;   //not used
    }
-   else {
-      last_sample = prepare_sample(samples, count, false);
-   }
 
-   //  bool write_to_file = false;                                   /** COMMENT OUT IN REAL RUNS **/       
-   //  if (write_to_file) {
-   //      char name[100];
-   //      sprintf(name, calibrate ? "data/results_base_%d_%d_%d" : "data/results_%d_%d_%d", id, phase, round);
-   //      FILE *fp = fopen(name, "w");
-   //          fprintf(fp, "Cycles\n");
-   //      for (i = 0; i < count; i++) {
-   //          fprintf(fp, "%lu\n", samples[i]);
-   //      }
-   //      fclose(fp);
-   //  }
+   *ksvalue = kstest_mean(base_readings, base_readings_len, true, samples, count, false);
 
-   *pvalue = welsch_ttest_pvalue(base_sample.mean, base_sample.variance, base_sample.size, 
-               last_sample.mean, last_sample.variance, last_sample.size);
-
-   if(*pvalue <= PVALUE_THRESHOLD) {
+   last_sample = prepare_sample(samples, count, false);
+   if(*ksvalue >= DEFAULT_KS_MEAN_CUTOFF) {
       if (save_samples && bit1_readings_len == 0){
-         memcpy(bit1_readings, samples, sizeof(samples));
-         bit1_readings_len = last_sample.size;
-         bit1_pvalue = *pvalue;
+         memcpy(bit1_readings, samples, count * sizeof(samples[0]));
+         bit1_readings_len = count;
+         bit1_pvalue = *ksvalue;
       } 
    }
    else {
       if (save_samples && bit0_readings_len == 0){
-         memcpy(bit0_readings, samples, sizeof(samples));
-         bit0_readings_len = last_sample.size;
-         bit0_pvalue = *pvalue;
+         memcpy(bit0_readings, samples, count * sizeof(samples[0]));
+         bit0_readings_len = count;
+         bit0_pvalue = *ksvalue;
       } 
    }
 
-   return *pvalue <= PVALUE_THRESHOLD;        /* Need to figure out the threshold that works for current platform */
+   return *ksvalue >= DEFAULT_KS_MEAN_CUTOFF;        /* Need to figure out the threshold that works for current platform */
 }
 
 /* Causes membus locking contention until a certain time */
@@ -441,7 +430,7 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
    // Start protocol phases
    bool advertised = false;
 
-   lprintf("[Lambda-%3d] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, PValue\n", my_id);
+   lprintf("[Lambda-%3d] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue\n", my_id);
 
    for (int phase = 0; phase < max_phases; phase++) {
       bool advertising = !advertised;

@@ -27,20 +27,18 @@ samples = False
 
 # Find majority elements in a list
 def find_majority(arr): 
-    maxCount = 0
-    maxVal = 0
+    max_count = 0
+    max_val = 0
     for val in arr: 
         count = 0
         for val2 in arr: 
             if(val == val2): 
                 count += 1
-        if count > maxCount:   
-            maxVal = val
-            maxCount = count
+        if count > max_count:   
+            max_val = val
+            max_count = count
         
-    if maxCount > len(arr)/2: 
-        return maxVal    
-    return None
+    return max_val if max_count > len(arr)/2 else None
 
 # Function to calculate hamming distance  
 def hammingDistance(n1, n2) : 

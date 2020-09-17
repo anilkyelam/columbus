@@ -34,9 +34,14 @@ class PhaseInfo:
     base_sample = None
     bits = None
 
+class Predecessor:
+    exp_name=None
+    id=None
+
 class Entry:
     id = 0
-    id_read = None
+    id_read = None          # List of ids read in phases
+    maj_id = None           # Majority, if any
     success = False
     cluster_dist = 0.0
     ref_dist = 0.0
@@ -46,6 +51,7 @@ class Entry:
     bit1_samples = None
     bit0_ks_metric = None
     bit1_ks_metric = None
+    predecessors = None
 
 
 # Gets hamming distance between two integers
@@ -72,6 +78,21 @@ def avg_ref_distance(array, ref_pt):
         sum += hamming_distance(pt, ref_pt)
         count += 1
     return sum * 1.0 / count
+
+# Find majority elements in a list
+def find_majority(arr): 
+    max_count = 0
+    max_val = 0
+    for val in arr: 
+        count = 0
+        for val2 in arr: 
+            if(val == val2): 
+                count += 1
+        if count > max_count:   
+            max_val = val
+            max_count = count
+        
+    return max_val if max_count > len(arr)/2 else None
 
 
 # Looks at how close results from the phases are (for each lambda) 
@@ -249,7 +270,8 @@ def kstest_thresh_analysis(expname, entries):
     # Calculate KS-test values for all samples
     ks_values = []
     cvm_values = []
-    for e in entries.values():
+    for k in sorted(entries):
+        e = entries[k]
         if e.success:
             base_path = os.path.join(expdir, "base_samples{0}".format(e.id))
             bit0_path = os.path.join(expdir, "bit0_samples{0}".format(e.id))
@@ -389,42 +411,88 @@ def cvm_statistic(sample1, sample2):
     return (n * sum1 + m * sum2) * 1.0 / (n*m*(n+m))
 
 
+# Compares colocated clusters across different runs related by warm starts.
+def cluster_correlation(exp_name, base_expname, entries, base_entries):
+    
+    # Figure out clusters
+    clusters = {}
+    for e in entries.values():
+        if e.maj_id:
+            if e.maj_id not in clusters:    clusters[e.maj_id] = []
+            clusters[e.maj_id].append(e.id)
+
+    # print(len(clusters))
+    for cluster in clusters.values():
+        # Is this also a cluster in base exp?
+        for id in cluster:
+            for pred in e[id].predecessors:
+                if pred.exp_name == base_expname:
+                    base_id = pred.id               # This is the previous lambda that ran in the same container as "id"
+                    
+
+# Parse results.csv into Entry() objects
+def parse_results_file(exp_name):
+    datafile = "results.csv"
+    infile = os.path.join("out", exp_name, datafile)
+    if not os.path.exists(infile):
+        print("ERROR. Results file not found at {0}".format(infile))
+        return
+
+    # Read each line into Entry()
+    entries = {}
+    with open(infile) as csvfile:
+        reader = csv.DictReader(csvfile, delimiter=',')
+        for row in reader:
+            e = Entry()
+            e.id_read = []  
+            e.predecessors = []   
+            for column, value in row.items():
+                if column == "Id":                  e.id = int(value)
+                if column.startswith("Phase "):     e.id_read.append(int(value))
+                if column == "Success":             e.success = bool(int(value))
+                if column == "Predecessors":   
+                    for p in filter(None, value.split(",")):
+                        p = p.rsplit('-', 1)
+                        pred = Predecessor()
+                        pred.exp_name = p[0]
+                        pred.id = int(p[1])
+                        e.predecessors.append(pred)
+                    
+            e.maj_id = find_majority(e.id_read)
+            entries[e.id] = e
+    return entries
+
+
 def main():
     # Parse and validate args
     parser = argparse.ArgumentParser("Analyze Lambda runs")
     parser.add_argument('-i', '--expname', action='store', help='Name of the experiment run, used to look for data under out/<expname>', required=True)
     parser.add_argument('-ea', '--erroraz', action='store_true', help='do error analysis on the usual results', default=False)
     parser.add_argument('-pt', '--pthreshaz', action='store_true', help='do pvalue threshold analysis from the logs to find the optimum pvalue threshold', default=False)
-    parser.add_argument('-ks', '--kstestz', action='store_true', help='do KS test threshold analysis from the logs to find the optimum threshold', default=True)
+    parser.add_argument('-ks', '--kstestz', action='store_true', help='do KS test threshold analysis from the logs to find the optimum threshold', default=False)
+    parser.add_argument('-cc', '--cluster_correlation', action='store_true', help='do cluster correlation between two different runs taking warm start into account', default=False)
+    parser.add_argument('-cci', '--cc_expname', action='store', help='second run to perform cluster correlation against')
     args = parser.parse_args()
     
-    datafile = "results.csv"
-    infile = os.path.join("out", args.expname, datafile)
-    if not os.path.exists(infile):
-        print("ERROR. Results file not found at {0}".format(infile))
-        return
-
-    # Get original results
-    orig_results = {}
-    with open(infile) as csvfile:
-        reader = csv.DictReader(csvfile, delimiter=',')
-        for row in reader:
-            e = Entry()
-            e.id_read = []
-            for column, value in row.items():
-                if column == "Id":                  e.id = int(value)
-                if column.startswith("Phase "):     e.id_read.append(int(value))
-                if column == "Success":             e.success = bool(int(value))
-            orig_results[e.id] = e
+    entries = parse_results_file(args.expname)
 
     if args.erroraz:
-        error_analysis(args.expname, orig_results)
+        error_analysis(args.expname, entries)
 
     if args.pthreshaz:
-        pvalue_thresh_analysis(args.expname, orig_results)
+        pvalue_thresh_analysis(args.expname, entries)
 
     if args.kstestz:
-        kstest_thresh_analysis(args.expname, orig_results)
+        kstest_thresh_analysis(args.expname, entries)
+
+    if args.cluster_correlation:
+        warm_start_count = len([e for e in entries.values() if e.success and len(e.predecessors) > 0])
+        total_count = len([e for e in entries.values() if e.success])
+        print("Warm start percentage for {0}: {1} %".format(args.expname, warm_start_count * 100 / total_count))
+
+        assert args.cc_expname, "Provide baseline experiment run for cluster corelation!"
+        base_entries = parse_results_file(args.cc_expname)
+        cluster_correlation(args.expname, args.cc_expname, entries, base_entries)
 
 
 if __name__ == "__main__":
