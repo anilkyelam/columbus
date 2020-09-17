@@ -27,20 +27,18 @@ samples = False
 
 # Find majority elements in a list
 def find_majority(arr): 
-    maxCount = 0
-    maxVal = 0
+    max_count = 0
+    max_val = 0
     for val in arr: 
         count = 0
         for val2 in arr: 
             if(val == val2): 
                 count += 1
-        if count > maxCount:   
-            maxVal = val
-            maxCount = count
+        if count > max_count:   
+            max_val = val
+            max_count = count
         
-    if maxCount > len(arr)/2: 
-        return maxVal    
-    return None
+    return max_val if max_count > len(arr)/2 else None
 
 # Function to calculate hamming distance  
 def hammingDistance(n1, n2) : 
@@ -66,11 +64,22 @@ def getResponse(ourl, body):
 # Invoker for each Lambda instance
 def worker():
     while True:
-        (url, id, syncpt, phases, bits_in_id, bit_duration, start_delay, use_s3, s3bucket, s3file, tmpdir) = req_q.get()
-        
-        body = { "id": id, "stime": syncpt, "phases": phases, "log": True, 
-                    "maxbits": bits_in_id, "bitduration": bit_duration,
-                    "samples": samples, "s3bucket": s3bucket, "s3key": s3file }
+        (url, id, guid, syncpt, phases, bits_in_id, bit_duration, start_delay, use_s3, s3bucket, tmpdir) = req_q.get()
+        s3file = guid
+
+        body = { 
+            "id": id, 
+            "stime": syncpt, 
+            "phases": phases, 
+            "log": True,   
+            "maxbits": bits_in_id, 
+            "bitduration": bit_duration,
+            "samples": samples, 
+            "s3bucket": s3bucket if use_s3 else "", 
+            "s3key": s3file if use_s3 else "",
+            "guid": guid
+        }
+
         resp = getResponse(url, json.dumps(body))
         if use_s3:
             wait_secs = start_delay + phases*(bits_in_id+1)*bit_duration + 30
@@ -122,6 +131,7 @@ def worker():
         else:
             print (resp.status)
         req_q.task_done()
+
 
 def main():
     parser = argparse.ArgumentParser("Makes concurrent requests to lambda URLs")
@@ -191,13 +201,11 @@ def main():
 
     # Invoke lambdas
     phases = args.phases
-    s3file = unique_id
     for i in range(args.count):
-        req_q.put((args.url, i+1, sync_point, phases, args.idbits, args.bitduration, args.delay,
-            not args.useapi,
-            s3bucket if not args.useapi else "", 
-            s3file+"-"+str(i) if not args.useapi else "",
-            tmpdir))
+        id = i+1
+        guid = unique_id + "-" + str(id)     # globally unique lambda id
+        req_q.put((args.url, id, guid, sync_point, phases, args.idbits, args.bitduration, args.delay,
+            not args.useapi, s3bucket, tmpdir))
 
     # Wait for everything to finish 
     try:
@@ -277,19 +285,14 @@ def main():
                 else:
                     item_d["Bit-0 Sample"] = "-"
 
-                # if "Bit-1 Pvalue" in item_d:
-                #     val = item_d["Bit-1 Pvalue"]
-                #     item_d["Bit-1 Pvalue"] = float(val)
-                
-                # if "Bit-0 Pvalue" in item_d:
-                #     val = item_d["Bit-0 Pvalue"]
-                #     item_d["Bit-0 Pvalue"] = float(val)
+                if "Predecessors" in item_d:
+                    item_d["Warm Start"] = "Yes" if len([s for s in item_d["Predecessors"].split(",") if s]) > 0 else "No"
 
                 # Write col headers
                 if first:
                     writer = csv.DictWriter(csvfile, fieldnames=list(item_d.keys()))
                     writer.writeheader()
-                    #first = False
+                    #first = False  
 
                 # append row to results
                 writer.writerow(item_d)
@@ -297,7 +300,7 @@ def main():
                 # Print stdout
                 cols = ["Success", "Phases", "Id"]
                 for i in range(phases): cols += ["Phase {0}".format(i+1)]
-                cols += ["Logs", "Base Sample", "Bit-0 Pvalue", "Bit-1 Pvalue", "Error"]
+                cols += ["Warm Start", "Logs", "Base Sample", "Bit-0 Pvalue", "Bit-1 Pvalue", "Error"]
 
                 firstline = ""
                 line = ""

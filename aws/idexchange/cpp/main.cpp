@@ -43,18 +43,19 @@ using namespace aws::lambda_runtime;
 char const TAG[] = "MEMBUS";
 
 /****** Assumptions around clocks ********
- * 1. clocks have a precision of microseconds or lower.
+ * 1. Clocks have a precision of microseconds or lower.
  * 2. Context switching/core switching would not affect the monotonicity or steadiness of the clock on millisecond scales
- * 3. 
  */
 
-#define SAMPLES_PER_SECOND    1000
-#define MAX_BIT_DURATION_SECS 5
-#define MUS_IN_ONE_SEC        1000000
-#define MAX_PHASES            15
-#define PVALUE_THRESHOLD      0.0
+#define SAMPLES_PER_SECOND       1000           /* Sampling rate: This is limited by 1) noise under too much sampling            */
+                                                /* and 2) post-processing computation (KS test) done for each sample at every bit*/
+#define MAX_BIT_DURATION_SECS    5
+#define MUS_IN_ONE_SEC           1000000
+#define MAX_PHASES               15
+#define PVALUE_THRESHOLD         0.0
 // #define PVALUE_THRESHOLD      0.0005
-// #define PVALUE_THRESHOLD    0.0000001
+// #define PVALUE_THRESHOLD      0.0000001
+#define DEFAULT_KS_MEAN_CUTOFF   3.0            /* KS Statistic more than this would indicate enough contention to infer 1-bit   */
 
 using Clock = std::chrono::high_resolution_clock;
 using microseconds = std::chrono::microseconds;
@@ -62,8 +63,13 @@ using seconds = std::chrono::seconds;
 using std::chrono::duration;
 using std::chrono::duration_cast;
 
-/* Defined in ttest.cpp */
-extern double welsch_ttest_pvalue(double fmean1, double variance1, int size1, double fmean2, double variance2, int size2);
+/* Defined in timsort.cpp (Bad practice using extern!) */
+extern void timSort(int64_t arr[], int n);
+/* Defined in kstest.cpp */
+extern double kstest_mean(int64_t* sample1, int size1, bool is_sorted1, int64_t* sample2, int size2, bool is_sorted2);
+
+/* Save all lambdas invoked in this container. */
+std::vector<std::string> lambdas;
 
 /* Logging */
 bool log_ = true;
@@ -73,12 +79,10 @@ char lbuffer[1000];
    if (log_) {                            \
       sprintf(lbuffer, __VA_ARGS__);      \
       logs.push_back(lbuffer);            \
-      AWS_LOGSTREAM_INFO(TAG, lbuffer);   \
    }                                      \
 }
+// AWS_LOGSTREAM_INFO(TAG, lbuffer);   \        /* Directs every print statement to AWS Cloudwatch, include it in log_ loop only when debugging */
 
-/* Rdtsc blocks for time measurements */
-unsigned cycles_low, cycles_high, cycles_low1, cycles_high1;
 
 typedef struct {
    int size;
@@ -92,6 +96,9 @@ typedef struct {
    int num_phases;
    int ids[MAX_PHASES];
 } result_t;
+
+/* Rdtsc blocks for time measurements */
+unsigned cycles_low, cycles_high, cycles_low1, cycles_high1;
 
 static __inline__ unsigned long long rdtsc(void)
 {
@@ -169,12 +176,6 @@ inline int poll_wait(microseconds release_time)
    }
 }
 
-inline int64_t get_mean(int64_t* data, int len) 
-{
-   // Skipped checks
-   int64_t sum = 0;
-   return sum / len;   
-}
 
 /* Removes outliers beyond 3 standard deviations, returns sample params */
 inline sample_t prepare_sample(int64_t* data, int len, bool remove_outliers = true)
@@ -242,6 +243,7 @@ inline sample_t prepare_sample(int64_t* data, int len, bool remove_outliers = tr
    };
 }
 
+
 /* Buffers to save samples of latencies for post-experiment analysis */
 bool save_samples;
 int64_t samples[MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND];
@@ -256,8 +258,10 @@ double bit0_pvalue;
 
 sample_t base_sample;
 sample_t last_sample;
-/* Samples membus lock latencies periodically to infer contention. If calibrate is set, uses those readings as baseline. */
-int read_bit(uint64_t* addr, microseconds release_time_mus, int bit_duration_secs, bool calibrate, int id, int phase, int round, double* pvalue)
+
+/* Samples membus lock latencies periodically to infer contention. If calibrate is set, uses these readings as baseline. */
+int read_bit(uint64_t* addr, microseconds release_time_mus, int bit_duration_secs, 
+   bool calibrate, int id, int phase, int round, double* ksvalue)
 {
    int i;
    microseconds one_ms = microseconds(1000);
@@ -269,10 +273,9 @@ int read_bit(uint64_t* addr, microseconds release_time_mus, int bit_duration_sec
    int interval_mus = bit_duration_secs * MUS_IN_ONE_SEC;
    double sampling_rate_mus = SAMPLES_PER_SECOND * 1.0 / MUS_IN_ONE_SEC;
 
-   /* Checking time takes order of micro-seconds, so do it sparesely to not affect contention-causing.
-   * assuming each locking op costs few microseconds, check time every few hundred microseconds
-   * Release a bit early to avoid overruns */
+   /* Release a bit early to avoid overruns (and allow for post-processing) */
    release_time_mus -= ten_ms;
+
    int64_t start, end, mean, count = 0;
    // lprintf("%ld, %ld,\n", next.count(), release_time_mus.count());      /** COMMENT OUT IN REAL RUNS **/
    for (i = 0; i < num_samples && within_time(release_time_mus); i++)
@@ -293,50 +296,33 @@ int read_bit(uint64_t* addr, microseconds release_time_mus, int bit_duration_sec
 
    if (calibrate) {
       base_sample = prepare_sample(samples, count, false);
-      if (save_samples && base_readings_len == 0){
-         memcpy(base_readings, samples, sizeof(samples));
-         // base_readings_len = count;
-         base_readings_len = base_sample.size;   // no outliers
-      } 
+      memcpy(base_readings, samples, count * sizeof(samples[0]));
+      base_readings_len = count;
 
-      lprintf("Baseline sample: Size- %d, Mean- %lu\n", base_sample.size, base_sample.mean);
+      /* Sort the base sample so we don't have to do it every time */
+      timSort(base_readings, base_readings_len);
       return 0;   //not used
    }
-   else {
-      last_sample = prepare_sample(samples, count, false);
-   }
 
-   //  bool write_to_file = false;                                   /** COMMENT OUT IN REAL RUNS **/       
-   //  if (write_to_file) {
-   //      char name[100];
-   //      sprintf(name, calibrate ? "data/results_base_%d_%d_%d" : "data/results_%d_%d_%d", id, phase, round);
-   //      FILE *fp = fopen(name, "w");
-   //          fprintf(fp, "Cycles\n");
-   //      for (i = 0; i < count; i++) {
-   //          fprintf(fp, "%lu\n", samples[i]);
-   //      }
-   //      fclose(fp);
-   //  }
+   *ksvalue = kstest_mean(base_readings, base_readings_len, true, samples, count, false);
 
-   *pvalue = welsch_ttest_pvalue(base_sample.mean, base_sample.variance, base_sample.size, 
-               last_sample.mean, last_sample.variance, last_sample.size);
-
-   if(*pvalue <= PVALUE_THRESHOLD) {
+   last_sample = prepare_sample(samples, count, false);
+   if(*ksvalue >= DEFAULT_KS_MEAN_CUTOFF) {
       if (save_samples && bit1_readings_len == 0){
-         memcpy(bit1_readings, samples, sizeof(samples));
-         bit1_readings_len = last_sample.size;
-         bit1_pvalue = *pvalue;
+         memcpy(bit1_readings, samples, count * sizeof(samples[0]));
+         bit1_readings_len = count;
+         bit1_pvalue = *ksvalue;
       } 
    }
    else {
       if (save_samples && bit0_readings_len == 0){
-         memcpy(bit0_readings, samples, sizeof(samples));
-         bit0_readings_len = last_sample.size;
-         bit0_pvalue = *pvalue;
+         memcpy(bit0_readings, samples, count * sizeof(samples[0]));
+         bit0_readings_len = count;
+         bit0_pvalue = *ksvalue;
       } 
    }
 
-   return *pvalue <= PVALUE_THRESHOLD;        /* Need to figure out the threshold that works for current platform */
+   return *ksvalue >= DEFAULT_KS_MEAN_CUTOFF;        /* Need to figure out the threshold that works for current platform */
 }
 
 /* Causes membus locking contention until a certain time */
@@ -438,12 +424,14 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
 
    // Calibrate baseline latencies (when no contention)
    microseconds next_time_mus = start_time_mus + bit_duration;
-   if (my_id % 2)   next_time_mus += five_ms;
+   // if (my_id % 2)   next_time_mus += five_ms;
    read_bit(cacheline_addr, next_time_mus - ten_ms, bit_duration_secs, true, my_id, 0, 0, &pvalue);
 
    // Start protocol phases
    bool advertised = false;
-   lprintf("[Lambda-%3d] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue\n", my_id);
+
+   lprintf("[Lambda-%3d] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue\n", my_id);
+
    for (int phase = 0; phase < max_phases; phase++) {
       bool advertising = !advertised;
       int id_read = 0;
@@ -454,7 +442,7 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
 
             poll_wait(next_time_mus);
             next_time_mus += bit_duration;
-            if (my_id % 2)   next_time_mus += five_ms;
+            // if (my_id % 2)   next_time_mus += five_ms;
 
             if (advertising && my_bit) {
                write_bit(cacheline_addr, next_time_mus - ten_ms);      // Write until 10ms before next interval
@@ -470,14 +458,15 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
 
             id_read = (2 * id_read) + bit_read;     // We get bits in most to least significant order
 
-            lprintf("[Lambda-%3d] %3d %9d %4d %5d %5d %9d %9lu %8lu %8lu %8lu %10lu %8lu %2.15f\n", 
+            /* CAUTION: Below print statement is used in log analysis, changing format may break post-experiment analysis scripts */
+            lprintf("[Lambda-%3d] %3d %9d %4d %5d %5d %9d %9lu %8lu %8lu %8lu %10d %10lu %9lu %2.15f\n", 
                my_id, phase, bit_pos, my_bit, advertising && my_bit, bit_read, 
                last_sample.size,
                advertising && my_bit ? 0 : last_sample.mean, 
                advertising && my_bit ? 0 : (long) sqrt(last_sample.variance), 
                advertising && my_bit ? 0 : last_sample.max, 
                advertising && my_bit ? 0 : last_sample.min, 
-               base_sample.mean, (long) sqrt(base_sample.variance), pvalue);                          /** COMMENT OUT IN REAL RUNS **/
+               base_sample.size, base_sample.mean, (long) sqrt(base_sample.variance), pvalue);              /** COMMENT OUT IN REAL RUNS **/
       }
 
       lprintf("[Lambda-%d] Phase %d, Id read: %d\n", my_id, phase, id_read);      /** COMMENT OUT IN REAL RUNS **/
@@ -579,11 +568,15 @@ invocation_response my_handler(invocation_request const& request, const std::sha
    int id, max_phases, max_bits, bit_duration_secs;
    long start_time_secs;
    bool success = true, sysinfo, return_data;
-   std::string error, s3bucket, s3key;
+   std::string error, s3bucket, s3key, guid;
    result_t* res = NULL;
 
    AWS_LOGSTREAM_INFO(TAG, "Start");
-   lprintf("Starting lambda (group %ld) at %s", start_time_secs, start_time.c_str());
+
+   /* Clear any global arrays before using. I don't know how but these arrays persist 
+    * information across lambda invocations. AMAZING, isn't it?
+    * We could use this to detect if a lambda underwent a warm start or a cold start */
+   logs.clear();
 
    /* Parse request body for arguments */
    try {     
@@ -599,16 +592,20 @@ invocation_response my_handler(invocation_request const& request, const std::sha
       save_samples = body["samples"].as<bool>(false);       // include a sample of latencies in response
       max_phases = body["phases"].as<int>(1);               // run 1 phase by default
       max_bits = body["maxbits"].as<int>(8);                // Assume maximum of 8 bits in ID by default
-      bit_duration_secs = body["bitduration"].as<int>(1);          // takes 1 second for communicating each bit by default. phases*maxbits*bitduration gives total time
+      bit_duration_secs = body["bitduration"].as<int>(1);   // takes 1 second for communicating each bit by default. phases*maxbits*bitduration gives total time
       return_data = body["return_data"].as<bool>(false);    // return data in API response. Stored to S3 by default.
-      s3bucket = body["s3bucket"].as<std::string>("");    // return data in API response. Stored to S3 by default.
-      s3key = body["s3key"].as<std::string>("");    // return data in API response. Stored to S3 by default.
+      s3bucket = body["s3bucket"].as<std::string>("");      // return data in API response. Stored to S3 by default.
+      s3key = body["s3key"].as<std::string>("");            // return data in API response. Stored to S3 by default.
+      guid = body["guid"].as<std::string>("");              // globally unique id for this lambda (across experiments)
    }
    catch(std::exception& e){
       success = false;
       error = "INVALID_BODY";
       lprintf("Could not parse request body\n");
    }
+
+   lprintf("Starting lambda %d (GUID: %s) at %s", id, guid.c_str(), start_time.c_str());
+   lambdas.push_back(guid);
 
    // Test availability of s3 bucket
    if (success && !s3bucket.empty()) { 
@@ -736,6 +733,15 @@ invocation_response my_handler(invocation_request const& request, const std::sha
    std::ifstream ifs("/proc/sys/kernel/random/boot_id");
    std::string boot_id ( (std::istreambuf_iterator<char>(ifs) ), (std::istreambuf_iterator<char>()) );
    body["Boot ID"] = boot_id;
+
+   /* Save all the lambas that previously used the current container */
+   std::string arr;
+   for (int i = 0; i < lambdas.size()-1 ; i++) {
+      if (i == lambdas.size()-2)    arr += lambdas[i];
+      else                          arr += lambdas[i] + ',';
+   }
+   body["Predecessors"] = RSJresource(arr, true);
+   body["GUID"] = guid;
 
    /* Save logs to response */
    if (log_) {

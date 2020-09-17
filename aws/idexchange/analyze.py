@@ -7,21 +7,51 @@ import csv
 import os
 from itertools import combinations 
 import re
+import operator
+import glob
+import math 
+from shutil import copyfile
 
 
 # Constants
-PATTERN = r'^\s+\[Lambda-\s*([0-9]+)\]\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+).+\s+([\-0-9]+\.[0-9]+)$'
-NOT_APPLICABLE = -10000
+BASELINE_SAMPLE_PATTERN=r'^\s+Baseline sample: Size- ([0-9]+), Mean-\s+([0-9]+)$'
+BIT_STATS_PATTERN = r'^\s+\[Lambda-\s*([0-9]+)\]\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([\-0-9]+\.[0-9]+)$'
 DEFAULT_PVALUE_THRESHOLD = 0.0005
 
 
+# Structs
+class Sample:
+    def __init__(self, size, mean, std):
+        self.size = size
+        self.mean = mean
+        self.std = std
+
+class BitInfo:
+    pvalue = None
+    sample = None
+
+class PhaseInfo:
+    base_sample = None
+    bits = None
+
+class Predecessor:
+    exp_name=None
+    id=None
+
 class Entry:
-    Id = 0
-    Idread = []
-    Success = False
-    ClusterDist = 0.0
-    RefDist = 0.0
-    Pvalues = {}
+    id = 0
+    id_read = None          # List of ids read in phases
+    maj_id = None           # Majority, if any
+    success = False
+    cluster_dist = 0.0
+    ref_dist = 0.0
+    phases = None           # Pvalue analysis
+    base_samples = None     # KS-test analysis
+    bit0_samples = None
+    bit1_samples = None
+    bit0_ks_metric = None
+    bit1_ks_metric = None
+    predecessors = None
 
 
 # Gets hamming distance between two integers
@@ -49,6 +79,21 @@ def avg_ref_distance(array, ref_pt):
         count += 1
     return sum * 1.0 / count
 
+# Find majority elements in a list
+def find_majority(arr): 
+    max_count = 0
+    max_val = 0
+    for val in arr: 
+        count = 0
+        for val2 in arr: 
+            if(val == val2): 
+                count += 1
+        if count > max_count:   
+            max_val = val
+            max_count = count
+        
+    return max_val if max_count > len(arr)/2 else None
+
 
 # Looks at how close results from the phases are (for each lambda) 
 # and how close the phases are from the actual id to see correlation 
@@ -58,10 +103,10 @@ def error_analysis(expname, entries):
 
     # Calculate distance metrics
     for _, e in entries.items():
-        if e.Success:
-            # print(e.Id, e.Success, e.Idread)
-            e.ClusterDist = avg_pairwise_distance(e.Idread)
-            e.RefDist = avg_ref_distance(e.Idread, e.Id)
+        if e.success:
+            # print(e.id, e.success, e.id_read)
+            e.cluster_dist = avg_pairwise_distance(e.id_read)
+            e.ref_dist = avg_ref_distance(e.id_read, e.id)
             entries.append(e)
 
     # Save them for plotting
@@ -69,11 +114,11 @@ def error_analysis(expname, entries):
         first = True
         for _, e in entries.items():
             if first:
-                fieldnames = ["Id", "RefDist", "ClusterDist"]
+                fieldnames = ["Id", "ref_dist", "cluster_dist"]
                 writer = csv.writer(csvfile)
                 writer.writerow(fieldnames)
                 first = False
-            writer.writerow([e.Id, round(e.RefDist, 2), round(e.ClusterDist, 2)])
+            writer.writerow([e.id, round(e.ref_dist, 2), round(e.cluster_dist, 2)])
 
 
 # Pvalue threshold is an arbitrary value we picked beforehand but it does not need to be.
@@ -91,64 +136,105 @@ def pvalue_thresh_analysis(expname, orig_entries):
 
     # Read Log
     entries = {}
+    ignored_lambdas = []
+    base_size = None
     with open(infile) as lines:
         for line in lines:
-            matches = re.match(PATTERN, line)
+            # First, get baseline size (requires special handling! 0_0)
+            # Don't need this anymore.
+            # matches = re.match(BASELINE_SAMPLE_PATTERN, line)
+            # if matches:
+            #     base_size = int(matches.group(1))
+            #     continue
+
+            matches = re.match(BIT_STATS_PATTERN, line)
             if matches:
                 id = int(matches.group(1))
                 phase = int(matches.group(2))
                 position = int(matches.group(3))
                 bit = int(matches.group(4))
                 sent = int(matches.group(5))
-                pvalue = float(matches.group(7))
-                # print(id, phase, position, bit, sent, pvalue)
+                bit_size = int(matches.group(7))
+                bit_mean = int(matches.group(8))
+                bit_std = int(matches.group(9))
+                base_size = int(matches.group(12))
+                base_mean = int(matches.group(13))
+                base_std = int(matches.group(14))
+                pvalue = float(matches.group(15))
+                # print(id, phase, position, bit, sent, pvalue, base_mean, base_std, base_size, bit_mean, bit_size, bit_std)
+
+                if id in ignored_lambdas:
+                    continue
 
                 if id not in entries:
                     entries[id] = Entry()
                     entries[id].Id = id
-                    entries[id].Success = True
-                    entries[id].Pvalues = {}
-                if phase not in entries[id].Pvalues:    entries[id].Pvalues[phase] = {}
-                entries[id].Pvalues[phase][position] = NOT_APPLICABLE if sent == 1 else pvalue
-
+                    entries[id].success = True
+                    entries[id].phases = {}
+                if phase not in entries[id].phases:    
+                    entries[id].phases[phase] = PhaseInfo()
+                    entries[id].phases[phase].bits = {}
+                    entries[id].phases[phase].base_sample = Sample(base_size, base_mean, base_std)
+                if position not in entries[id].phases[phase].bits:
+                    if sent == 0:
+                        entries[id].phases[phase].bits[position] = BitInfo()
+                        entries[id].phases[phase].bits[position].pvalue = None if sent == 1 else pvalue
+                        entries[id].phases[phase].bits[position].sample = Sample(bit_size, bit_mean, bit_std)
+                    else:
+                        entries[id].phases[phase].bits[position] = None
+                else:
+                    # Duplicate logs found for a lambda, ignore this lambda altogether as a safe-side
+                    print("Ignoring lambda {0}. Found duplicate log entries.".format(id))
+                    ignored_lambdas.append(id)
+                    del entries[id]
+                
     # Sanity check: We've read everything (no holes in data from the log)
     first = None
     for _, e in entries.items():
         if not first:
             first = e
             continue
-        # print(e.Id, len(e.Pvalues), len(e.Pvalues[0]))
-        assert len(e.Pvalues) == len(first.Pvalues), "ERROR! Not all lambda entries from log have same number of phases."
-        for p, phase in e.Pvalues.items():
-            if len(phase) != len(first.Pvalues[0]):
-                print(e.Id, p, len(phase), len(first.Pvalues[0]))
-            assert len(phase) == len(first.Pvalues[0]), "ERROR! Not all lambda entries from log have same number of bits."
+        # print(e.id, len(e.Pvalues), len(e.Pvalues[0]))
+        assert len(e.phases) == len(first.phases), "ERROR! Not all lambda entries from log have same number of phases."
+        for p, phase in e.phases.items():
+            if len(phase.bits) != len(first.phases[0].bits):
+                print(e.id, p, len(phase.bits), len(first.phases[0].bits))
+            assert len(phase.bits) == len(first.phases[0].bits), "ERROR! Not all lambda entries from log have same number of bits."
 
     # Sanity check: With regular pvalue threshold, we get same result as original runs
     # new_entries = apply_pvalue_threshold(entries, DEFAULT_PVALUE_THRESHOLD)
     # for e in orig_entries.values():
-    #     if e.Success:
-    #         assert e.Id in new_entries, "ERROR! Missing (succesful) lambda entry in the log: " + str(e.Id)
-    #         # print(e.Id, e.Idread, new_entries[e.Id].Idread)
-    #         assert set(e.Idread) == set(new_entries[e.Id].Idread), "ERROR! Evaluated results from log with default " + \
-    #             "pvalue threshold do not match with original ones. ID: " + str(e.Id)
+    #     if e.success:
+    #         assert e.id in new_entries, "ERROR! Missing (succesful) lambda entry in the log: " + str(e.id)
+    #         # print(e.id, e.id_read, new_entries[e.id].id_read)
+    #         assert set(e.id_read) == set(new_entries[e.id].id_read), "ERROR! Evaluated results from log with default " + \
+    #             "pvalue threshold do not match with original ones. ID: " + str(e.id)
 
-    # Save the p-values for plotting
+    # Save all the stats for plotting
     with open(os.path.join("out", expname, outfile), 'w') as csvfile:
-        first = True
+        # Write header
+        fieldnames = ["Id", "Lambda", "Phase", "Bit", "Base Size", "Base Mean", "Base Std", "Size", "Mean", "Std", "Pvalue", "Mean Diff"]
+        writer = csv.writer(csvfile)
+        writer.writerow(fieldnames)
+        
+        idx = 1
+        lines = []
         for _, e in entries.items():
-            for phase in e.Pvalues.values():
-                for pvalue in phase.values():
-                    if first:
-                        fieldnames = ["Pvalues"]
-                        writer = csv.writer(csvfile)
-                        writer.writerow(fieldnames)
-                        first = False
-                    if pvalue >= 0:
-                        writer.writerow([pvalue])
+            for pid, phase in e.phases.items():
+                for bid, bit in phase.bits.items():
+                    if bit is not None and -10 < bit.pvalue < 10:
+                        lines.append([idx, e.id, pid, bid, 
+                            phase.base_sample.size, phase.base_sample.mean, phase.base_sample.std, 
+                            bit.sample.size, bit.sample.mean, bit.sample.std, 
+                            bit.pvalue, bit.sample.mean - phase.base_sample.mean])
+                        idx += 1
+        
+        lines = sorted(lines, key=operator.itemgetter(11))
+        for line in lines:
+            writer.writerow(line)
 
     # Try out different PValue Thresholds
-    # Oh! This is not gonna work.. Pvaluethresh is not a free variable after all: 
+    # Oh! That's not gonna work.. Pvaluethresh is not a free variable after all: 
     # it is used to determine next action in each Lambda. Such a waste of time... :(
 
     
@@ -157,16 +243,224 @@ def apply_pvalue_threshold(entries, threshold):
     new_entries = {}
     for e in entries.values():
         ne = Entry()
-        ne.Id = e.Id
-        ne.Idread = []
+        ne.id = e.id
+        ne.id_read = []
         for pvalues in e.Pvalues.values():      # for each phase
             id_read = 0
             for bit in reversed(range(len(pvalues))):
                 bit_read = 1 if (pvalues[bit] < threshold or pvalues[bit] == NOT_APPLICABLE) else 0
                 id_read = 2 * id_read + bit_read
-            ne.Idread.append(id_read)
-        new_entries[ne.Id] = ne
+            ne.id_read.append(id_read)
+        new_entries[ne.id] = ne
     return new_entries
+
+
+# Analyze collected latency samples and apply KS (Kolmogorov-Smirinov) and other similar 
+# tests for find a threshold for classifying samples
+def kstest_thresh_analysis(expname, entries):
+    datafile = "log"
+    expdir = os.path.join("out", expname)
+    outfile = "ksvalues.csv"
+
+    base_files = glob.glob("{0}/base_samples*".format(expdir))
+    if len(base_files) == 0:
+        print("ERROR. Cannot find samples for this experiment: {0}.".format(expname))
+        return
+    
+    # Calculate KS-test values for all samples
+    ks_values = []
+    cvm_values = []
+    for k in sorted(entries):
+        e = entries[k]
+        if e.success:
+            base_path = os.path.join(expdir, "base_samples{0}".format(e.id))
+            bit0_path = os.path.join(expdir, "bit0_samples{0}".format(e.id))
+            bit1_path = os.path.join(expdir, "bit1_samples{0}".format(e.id))
+            if os.path.exists(base_path):   e.base_samples = [int(l) for l in open(base_path).readlines()[1:]]
+            if os.path.exists(bit0_path):   e.bit0_samples = [int(l) for l in open(bit0_path).readlines()[1:]]
+            if os.path.exists(bit1_path):   e.bit1_samples = [int(l) for l in open(bit1_path).readlines()[1:]]
+            # print(len(e.base_samples), len(e.bit0_samples), len(e.bit1_samples))
+
+            # Perform KS-test
+            if e.bit0_samples:  
+                x = ks_statistic(e.base_samples, e.bit0_samples)
+                ks_values.append(x)
+                e.bit0_ks_metric = x[1]    # Taking Shallow mean as KS-Metric for now 
+            if e.bit1_samples:  
+                x = ks_statistic(e.base_samples, e.bit1_samples)
+                ks_values.append(x)
+                e.bit1_ks_metric = x[1]    # Taking Shallow mean as KS_Metric for now 
+
+            # Perform CVM-test
+            # CVM Test did not really show promising results
+            if e.bit0_samples:  cvm_values.append(cvm_statistic(e.base_samples, e.bit0_samples))
+            if e.bit1_samples:  cvm_values.append(cvm_statistic(e.base_samples, e.bit1_samples))
+
+    # Save all the stats for plotting
+    with open(os.path.join("out", expname, outfile), 'w') as csvfile:
+        fieldnames = ["KS Max", "KS SMean", "KS DMean", "CVM"]
+        writer = csv.writer(csvfile)
+        writer.writerow(fieldnames)     # Write header
+        for i, val in enumerate(ks_values):
+            writer.writerow([val[0], val[1], val[2], cvm_values[i]])
+
+    # Sort the samples based on new KS Statistic and threshold
+    KS_METRIC_THRESHOLD = 3.0       # Picked for Shallow mean based on 09-10 runs
+    outdir = os.path.join(expdir, "ksmetric")
+    if not os.path.exists(outdir):      os.makedirs(outdir)
+    for e in entries.values():
+        if e.success:
+            if e.bit0_samples is not None:
+                outfile_name = "bit{1}_samples{0}_0".format(e.id, 0 if e.bit0_ks_metric < KS_METRIC_THRESHOLD else 1)
+                copyfile(os.path.join(expdir, "bit0_samples{0}".format(e.id)), os.path.join(outdir, outfile_name))
+            if e.bit1_samples is not None:
+                outfile_name = "bit{1}_samples{0}_1".format(e.id, 0 if e.bit1_ks_metric < KS_METRIC_THRESHOLD else 1)
+                copyfile(os.path.join(expdir, "bit1_samples{0}".format(e.id)), os.path.join(outdir, outfile_name))
+
+
+# Estimates Kolmogoroc-Smirnov statistic as a measure of difference between two samples
+# Assumes that number of samples ~ O(1000) and values are all between MIN_VALUE and MAX_VALUE.
+# https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test
+def ks_statistic(sample1, sample2):
+    BIG_INTEGER = 1e9       # Some big number as numerator to keep computations in integer space (limits samples ~ O(1000))
+    MIN_VALUE = 0
+    MAX_VALUE = 100000      # Ignores values outside of this range
+
+    sample1 = sorted([s for s in sample1 if MIN_VALUE <= s <= MAX_VALUE])
+    sample2 = sorted([s for s in sample2 if MIN_VALUE <= s <= MAX_VALUE])
+    m = len(sample1)
+    n = len(sample2)
+    s1_incr = BIG_INTEGER / m   
+    s2_incr = BIG_INTEGER / n
+
+    i = j = 0
+    s1_accum = s2_accum = s1_accum_prev = s2_accum_prev = 0
+    val_now = val_prev = MIN_VALUE
+    max_depth = deep_sum = shallow_sum = 0 
+    while i < m or j < n:
+        # save previous values
+        s1_accum_prev = s1_accum
+        s2_accum_prev = s2_accum
+        val_prev = val_now
+
+        s1_val = sample1[i] if i < m else None
+        s2_val = sample2[j] if j < n else None
+
+        if i < m and (s2_val is None or sample1[i] <= s2_val):
+            val_now = sample1[i]
+            s1_accum += s1_incr
+            i += 1
+            # continue if there are duplicates
+            while i < m and sample1[i] == sample1[i-1]:
+                s1_accum += s1_incr
+                i += 1
+
+        if j < n and (s1_val is None or sample2[j] <= s1_val):
+            val_now = sample2[j]
+            s2_accum += s2_incr
+            j += 1
+            # continue if there are duplicates
+            while j < n and sample2[j] == sample2[j-1]:
+                s2_accum += s2_incr
+                j += 1
+
+        # print(s1_accum, s2_accum)
+        depth = s1_accum - s2_accum
+        deep_sum += abs(s1_accum_prev - s2_accum_prev) * (val_now - val_prev)
+        shallow_sum += abs(depth) if s1_val != s2_val else abs(2 * depth)
+        if abs(max_depth) < abs(depth):     max_depth = depth               # Take absolute max, but preserve the sign
+
+    # Return max and mean KS statistics
+    ks_max = max_depth * 1.0 / BIG_INTEGER
+    ks_shallow_mean = shallow_sum * math.sqrt(m*n) * 1.0 / (BIG_INTEGER * (m+n) * math.sqrt(m+n))
+    ks_deep_mean = deep_sum * 1.0 / (BIG_INTEGER * (MAX_VALUE - MIN_VALUE))
+    return ks_max, ks_shallow_mean, ks_deep_mean
+
+
+# Estimates Cramer-Von Mises statistic as a measure of difference between two samples
+# https://en.wikipedia.org/wiki/Cram%C3%A9r%E2%80%93von_Mises_criterion
+def cvm_statistic(sample1, sample2):
+    # Get ranks of each element in the combined sample
+    combined = [ (1, i, v) for i, v in enumerate(sample1) ] + [ (2, i, v) for i, v in enumerate(sample2) ]
+    combined = sorted(combined, key=operator.itemgetter(2))
+    
+    n = len(sample1)
+    m = len(sample2)
+    rank1 = [None] * n
+    rank2 = [None] * m
+    dup_start = dup_end = 0
+    for i, e in enumerate(combined):
+        if i > 0 and e[2] == combined[i-1][2]:
+            # A duplicate, all the work would have been done at the first occurrence
+            if e[0] == 1:   rank1[e[1]] = (dup_start + dup_end) / 2
+            else:           rank2[e[1]] = (dup_start + dup_end) / 2
+        else:
+            if (i+1) < len(combined) and e[2] == combined[i+1][2]:
+                # duplicate coming up, find out how many more
+                dup_start = (i+1)
+                j = i
+                while j+1 < len(combined) and e[2] == combined[j+1][2]:     j += 1
+                dup_end = (j+1)
+
+            if e[0] == 1:   rank1[e[1]] = (i+1)
+            else:           rank2[e[1]] = (i+1)
+    # print(rank1, rank2)
+
+    sum1 = sum([ (rank - (i+1)) * (rank - (i+1)) for i, rank in enumerate(rank1) ])
+    sum2 = sum([ (rank - (i+1)) * (rank - (i+1)) for i, rank in enumerate(rank2) ])
+    return (n * sum1 + m * sum2) * 1.0 / (n*m*(n+m))
+
+
+# Compares colocated clusters across different runs related by warm starts.
+def cluster_correlation(exp_name, base_expname, entries, base_entries):
+    
+    # Figure out clusters
+    clusters = {}
+    for e in entries.values():
+        if e.maj_id:
+            if e.maj_id not in clusters:    clusters[e.maj_id] = []
+            clusters[e.maj_id].append(e.id)
+
+    # print(len(clusters))
+    for cluster in clusters.values():
+        # Is this also a cluster in base exp?
+        for id in cluster:
+            for pred in e[id].predecessors:
+                if pred.exp_name == base_expname:
+                    base_id = pred.id               # This is the previous lambda that ran in the same container as "id"
+                    
+
+# Parse results.csv into Entry() objects
+def parse_results_file(exp_name):
+    datafile = "results.csv"
+    infile = os.path.join("out", exp_name, datafile)
+    if not os.path.exists(infile):
+        print("ERROR. Results file not found at {0}".format(infile))
+        return
+
+    # Read each line into Entry()
+    entries = {}
+    with open(infile) as csvfile:
+        reader = csv.DictReader(csvfile, delimiter=',')
+        for row in reader:
+            e = Entry()
+            e.id_read = []  
+            e.predecessors = []   
+            for column, value in row.items():
+                if column == "Id":                  e.id = int(value)
+                if column.startswith("Phase "):     e.id_read.append(int(value))
+                if column == "Success":             e.success = bool(int(value))
+                if column == "Predecessors":   
+                    for p in filter(None, value.split(",")):
+                        p = p.rsplit('-', 1)
+                        pred = Predecessor()
+                        pred.exp_name = p[0]
+                        pred.id = int(p[1])
+                        e.predecessors.append(pred)
+                    
+            e.maj_id = find_majority(e.id_read)
+            entries[e.id] = e
+    return entries
 
 
 def main():
@@ -174,33 +468,31 @@ def main():
     parser = argparse.ArgumentParser("Analyze Lambda runs")
     parser.add_argument('-i', '--expname', action='store', help='Name of the experiment run, used to look for data under out/<expname>', required=True)
     parser.add_argument('-ea', '--erroraz', action='store_true', help='do error analysis on the usual results', default=False)
-    parser.add_argument('-pt', '--pthreshaz', action='store_true', help='do pvalue threshold analysis from the logs to find the optimum pvalue threshold', default=True)
+    parser.add_argument('-pt', '--pthreshaz', action='store_true', help='do pvalue threshold analysis from the logs to find the optimum pvalue threshold', default=False)
+    parser.add_argument('-ks', '--kstestz', action='store_true', help='do KS test threshold analysis from the logs to find the optimum threshold', default=False)
+    parser.add_argument('-cc', '--cluster_correlation', action='store_true', help='do cluster correlation between two different runs taking warm start into account', default=False)
+    parser.add_argument('-cci', '--cc_expname', action='store', help='second run to perform cluster correlation against')
     args = parser.parse_args()
     
-    datafile = "results.csv"
-    infile = os.path.join("out", args.expname, datafile)
-    if not os.path.exists(infile):
-        print("ERROR. Results file not found at {0}".format(infile))
-        return
-
-    # Get original results
-    orig_results = {}
-    with open(infile) as csvfile:
-        reader = csv.DictReader(csvfile, delimiter=',')
-        for row in reader:
-            e = Entry()
-            e.Idread = []
-            for column, value in row.items():
-                if column == "Id":                  e.Id = int(value)
-                if column.startswith("Phase "):     e.Idread.append(int(value))
-                if column == "Success":             e.Success = bool(int(value))
-            orig_results[e.Id] = e
+    entries = parse_results_file(args.expname)
 
     if args.erroraz:
-        error_analysis(args.expname, orig_results)
+        error_analysis(args.expname, entries)
 
     if args.pthreshaz:
-        pvalue_thresh_analysis(args.expname, orig_results)
+        pvalue_thresh_analysis(args.expname, entries)
+
+    if args.kstestz:
+        kstest_thresh_analysis(args.expname, entries)
+
+    if args.cluster_correlation:
+        warm_start_count = len([e for e in entries.values() if e.success and len(e.predecessors) > 0])
+        total_count = len([e for e in entries.values() if e.success])
+        print("Warm start percentage for {0}: {1} %".format(args.expname, warm_start_count * 100 / total_count))
+
+        assert args.cc_expname, "Provide baseline experiment run for cluster corelation!"
+        base_entries = parse_results_file(args.cc_expname)
+        cluster_correlation(args.expname, args.cc_expname, entries, base_entries)
 
 
 if __name__ == "__main__":

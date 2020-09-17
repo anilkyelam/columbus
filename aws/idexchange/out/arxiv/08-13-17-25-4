@@ -1,0 +1,15 @@
+{    "Logs": "Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555567390fc
+    	Baseline sample: Size- 1500, Mean- 6631
+    	[Lambda-  5] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  5]   0         7    0     0     0      1500      6533     4787    53562     4926       6631     5614 1.000330982793865
+    	[Lambda-  5]   0         6    0     0     0      1453      6420     4533    50338     4940       6631     5614 1.001457691638542
+    	[Lambda-  5]   0         5    0     0     0      1500     33288  1035697 40118480     4950       6631     5614 1.002430036409777
+    	[Lambda-  5]   0         4    0     0     0      1500      6254     3871    40220     4946       6631     5614 1.006338516604612
+    	[Lambda-  5]   0         3    0     0     0      1467     33729  1046389 40084278     4966       6631     5614 1.001860551875519
+    	[Lambda-  5]   0         2    1     1     1      1467         0        0        0        0       6631     5614 1.001860551875519
+    	[Lambda-  5]   0         1    0     0     0      1468      6697     5215    78066     4994       6631     5614 1.000121886554281
+    	[Lambda-  5]   0         0    1     1     1      1468         0        0        0        0       6631     5614 1.000121886554281
+    	[Lambda-5] Phase 0, Id read: 5",    "Boot ID": "2e67ce60-5d92-40eb-993c-7c19a919d693",    "MAC Address": "F2:64:1A:02:45:53",    "Phase 1": "5",    "Phases": "1",    "Start Time": "2020-08-14 00:25:55",    "End Time": "2020-08-14 00:26:25",    "Id": "5",    "Request ID": "ecbef033-d093-48c6-b498-867fc04b7fb9",    "Success": "1",    "Error": ""}
