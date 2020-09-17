@@ -52,7 +52,7 @@ S3PREFIX=lambda-cpp-
 
 # Get account id from aws cli if not set
 if [ -z ${accountid+x} ]; then
-    accountid=$(aws sts get-caller-identity | jq -r ".Ac`count")
+    accountid=$(aws sts get-caller-identity | jq -r ".Account")
     if [ -z "${accountid}" ]; then
         # Still not set
         echo "ERROR! Cannot figure out account id"

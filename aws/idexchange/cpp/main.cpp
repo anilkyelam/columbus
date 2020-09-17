@@ -55,6 +55,7 @@ char const TAG[] = "MEMBUS";
 #define PVALUE_THRESHOLD      0.0
 // #define PVALUE_THRESHOLD      0.0005
 // #define PVALUE_THRESHOLD    0.0000001
+#define KS_TEST_MAX_VALUE     100000         // Latencies above this value are not 
 
 using Clock = std::chrono::high_resolution_clock;
 using microseconds = std::chrono::microseconds;
@@ -65,6 +66,9 @@ using std::chrono::duration_cast;
 /* Defined in ttest.cpp */
 extern double welsch_ttest_pvalue(double fmean1, double variance1, int size1, double fmean2, double variance2, int size2);
 
+/* Save all lambdas invoked in this container. */
+std::vector<std::string> lambdas;
+
 /* Logging */
 bool log_ = true;
 std::vector<std::string> logs;
@@ -73,9 +77,9 @@ char lbuffer[1000];
    if (log_) {                            \
       sprintf(lbuffer, __VA_ARGS__);      \
       logs.push_back(lbuffer);            \
-      AWS_LOGSTREAM_INFO(TAG, lbuffer);   \
    }                                      \
 }
+// AWS_LOGSTREAM_INFO(TAG, lbuffer);   \     # Logs everything to AWS, include it in log_ loop only when debugging
 
 /* Rdtsc blocks for time measurements */
 unsigned cycles_low, cycles_high, cycles_low1, cycles_high1;
@@ -167,13 +171,6 @@ inline int poll_wait(microseconds release_time)
       if (now.count() >= release_time.count())
             return 0;
    }
-}
-
-inline int64_t get_mean(int64_t* data, int len) 
-{
-   // Skipped checks
-   int64_t sum = 0;
-   return sum / len;   
 }
 
 /* Removes outliers beyond 3 standard deviations, returns sample params */
@@ -438,12 +435,14 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
 
    // Calibrate baseline latencies (when no contention)
    microseconds next_time_mus = start_time_mus + bit_duration;
-   if (my_id % 2)   next_time_mus += five_ms;
+   // if (my_id % 2)   next_time_mus += five_ms;
    read_bit(cacheline_addr, next_time_mus - ten_ms, bit_duration_secs, true, my_id, 0, 0, &pvalue);
 
    // Start protocol phases
    bool advertised = false;
-   lprintf("[Lambda-%3d] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue\n", my_id);
+
+   lprintf("[Lambda-%3d] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, PValue\n", my_id);
+
    for (int phase = 0; phase < max_phases; phase++) {
       bool advertising = !advertised;
       int id_read = 0;
@@ -454,7 +453,7 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
 
             poll_wait(next_time_mus);
             next_time_mus += bit_duration;
-            if (my_id % 2)   next_time_mus += five_ms;
+            // if (my_id % 2)   next_time_mus += five_ms;
 
             if (advertising && my_bit) {
                write_bit(cacheline_addr, next_time_mus - ten_ms);      // Write until 10ms before next interval
@@ -470,14 +469,15 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
 
             id_read = (2 * id_read) + bit_read;     // We get bits in most to least significant order
 
-            lprintf("[Lambda-%3d] %3d %9d %4d %5d %5d %9d %9lu %8lu %8lu %8lu %10lu %8lu %2.15f\n", 
+            /* CAUTION: Below print statement is used in log analysis, changing format may break post-experiment analysis scripts */
+            lprintf("[Lambda-%3d] %3d %9d %4d %5d %5d %9d %9lu %8lu %8lu %8lu %10d %10lu %9lu %2.15f\n", 
                my_id, phase, bit_pos, my_bit, advertising && my_bit, bit_read, 
                last_sample.size,
                advertising && my_bit ? 0 : last_sample.mean, 
                advertising && my_bit ? 0 : (long) sqrt(last_sample.variance), 
                advertising && my_bit ? 0 : last_sample.max, 
                advertising && my_bit ? 0 : last_sample.min, 
-               base_sample.mean, (long) sqrt(base_sample.variance), pvalue);                          /** COMMENT OUT IN REAL RUNS **/
+               base_sample.size, base_sample.mean, (long) sqrt(base_sample.variance), pvalue);              /** COMMENT OUT IN REAL RUNS **/
       }
 
       lprintf("[Lambda-%d] Phase %d, Id read: %d\n", my_id, phase, id_read);      /** COMMENT OUT IN REAL RUNS **/
@@ -579,11 +579,15 @@ invocation_response my_handler(invocation_request const& request, const std::sha
    int id, max_phases, max_bits, bit_duration_secs;
    long start_time_secs;
    bool success = true, sysinfo, return_data;
-   std::string error, s3bucket, s3key;
+   std::string error, s3bucket, s3key, guid;
    result_t* res = NULL;
 
    AWS_LOGSTREAM_INFO(TAG, "Start");
-   lprintf("Starting lambda (group %ld) at %s", start_time_secs, start_time.c_str());
+
+   /* Clear any global arrays before using. I don't know how but these arrays persist 
+    * information across lambda invocations. AMAZING, isn't it?
+    * We could use this to detect if a lambda underwent a warm start or a cold start */
+   logs.clear();
 
    /* Parse request body for arguments */
    try {     
@@ -599,16 +603,20 @@ invocation_response my_handler(invocation_request const& request, const std::sha
       save_samples = body["samples"].as<bool>(false);       // include a sample of latencies in response
       max_phases = body["phases"].as<int>(1);               // run 1 phase by default
       max_bits = body["maxbits"].as<int>(8);                // Assume maximum of 8 bits in ID by default
-      bit_duration_secs = body["bitduration"].as<int>(1);          // takes 1 second for communicating each bit by default. phases*maxbits*bitduration gives total time
+      bit_duration_secs = body["bitduration"].as<int>(1);   // takes 1 second for communicating each bit by default. phases*maxbits*bitduration gives total time
       return_data = body["return_data"].as<bool>(false);    // return data in API response. Stored to S3 by default.
-      s3bucket = body["s3bucket"].as<std::string>("");    // return data in API response. Stored to S3 by default.
-      s3key = body["s3key"].as<std::string>("");    // return data in API response. Stored to S3 by default.
+      s3bucket = body["s3bucket"].as<std::string>("");      // return data in API response. Stored to S3 by default.
+      s3key = body["s3key"].as<std::string>("");            // return data in API response. Stored to S3 by default.
+      guid = body["guid"].as<std::string>("");              // globally unique id for this lambda (across experiments)
    }
    catch(std::exception& e){
       success = false;
       error = "INVALID_BODY";
       lprintf("Could not parse request body\n");
    }
+
+   lprintf("Starting lambda %d (GUID: %s) at %s", id, guid.c_str(), start_time.c_str());
+   lambdas.push_back(guid);
 
    // Test availability of s3 bucket
    if (success && !s3bucket.empty()) { 
@@ -736,6 +744,15 @@ invocation_response my_handler(invocation_request const& request, const std::sha
    std::ifstream ifs("/proc/sys/kernel/random/boot_id");
    std::string boot_id ( (std::istreambuf_iterator<char>(ifs) ), (std::istreambuf_iterator<char>()) );
    body["Boot ID"] = boot_id;
+
+   /* Save all the lambas that previously used the current container */
+   std::string arr;
+   for (int i = 0; i < lambdas.size()-1 ; i++) {
+      if (i == lambdas.size()-2)    arr += lambdas[i];
+      else                          arr += lambdas[i] + ',';
+   }
+   body["Predecessors"] = RSJresource(arr, true);
+   body["GUID"] = guid;
 
    /* Save logs to response */
    if (log_) {

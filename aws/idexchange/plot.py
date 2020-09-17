@@ -60,7 +60,7 @@ def set_axes_legend_loc(ax, lns, labels, loc):
     if loc == LegendLoc.topout:
         ax.legend(lns, labels, loc=loc.matplotlib_loc(), bbox_to_anchor=(0.5, 1.05), ncol=3, fancybox=True, shadow=True)
     if loc == LegendLoc.rightout:
-        ax.legend(lns, labels, loc=loc.matplotlib_loc(), bbox_to_anchor=(1, 0.5), ncol=1, fancybox=True, shadow=True)
+        ax.legend(lns, labels, loc=loc.matplotlib_loc(), bbox_to_anchor=(1, 1), ncol=1, fancybox=True, shadow=True)
 
 
 class LineStyle(Enum):
@@ -251,6 +251,12 @@ def parse_args():
         choices=list(LegendLoc), 
         default=LegendLoc.best)
 
+    parser.add_argument('-fs', '--fontsize', 
+        action='store', 
+        type=int,
+        help='Font size of plot labels, ticks, etc',
+        default=15)
+
     ## Twin Axis Settings
     parser.add_argument('-tw', '--twin', 
         action='store', 
@@ -274,13 +280,6 @@ def parse_args():
         type=LegendLoc, 
         choices=list(LegendLoc), 
         default=LegendLoc.best)
-
-    ## Twin Axis Settings
-    parser.add_argument('--fontsize', 
-        action='store', 
-        type=int,
-        help='Font size of plot labels, ticks, etc',
-        default=15)
 
     args = parser.parse_args()
     return args
