@@ -20,12 +20,10 @@ for f in `ls out/${prefix}*/stats.json`; do
     errorrate=`jq '."Error Rate"' $f`
     sizes=`jq '.Sizes[]' $f`
     maxsize=`jq '.Max' $f`
-    # echo "Size" > $dir/clusters
-    # echo "$sizes"
 
     # Data from config.json
     phases=`jq '.Phases' $dir/config.json`
-    lambda=`jq '.Name' $dir/config.json | tr -d '"'`
+    lambda=`jq '."Lambda Name"' $dir/config.json | tr -d '"'`
     bitdur=`jq '."Bit Duration (secs)"' $dir/config.json`
     samples=`ls $dir/base_samples* 2> /dev/null | wc -l | awk '{ if ($1 > 0) print "Yes"; else print "No"; }'`
 
@@ -46,7 +44,7 @@ for f in `ls out/${prefix}*/stats.json`; do
     unaccounted=`echo $responded $errors $size1 $size2 $size3 $size4 $size5 $size6 $size7 $size8 $size9 $size10 | awk '{print $1-$2-$3-($4*2)-($5*3)-($6*4)-($7*5)-($8*6)-($9*7)-($10*8)-($11*9)-($12*10)}'`
 
     # Print all
-    LINE=`echo $name, $lambda, $region, $phases, $bitdur, $count, $responded, $clusters, $maxsize, $errors, $size1, $size2, $size3_5, $size6_10, $unaccounted, $samples`
+    LINE=`echo $name, $lambda, $region, $phases, $bitdur, $count, $responded, $clusters, $maxsize, $errorrate, $size1, $size2, $size3_5, $size6_10, $unaccounted, $samples`
     OUT=`echo -e "${OUT}\n${LINE}"`
 done
 
