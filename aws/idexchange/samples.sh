@@ -157,7 +157,7 @@ function combine() {
 expname=$1
 if [ -z "$expname" ];  then  expname=$(ls -t out/ | head -n1);    fi
 plot_each "out/$expname" "samples_$expname"
-plot_each_ks "out/$expname" "ks_samples_$expname" "$expname"
+# plot_each_ks "out/$expname" "ks_samples_$expname" "$expname"
 
 
 # # Final plot for context switching

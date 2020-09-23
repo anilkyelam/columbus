@@ -30,7 +30,6 @@ class PlotType(Enum):
     def __str__(self):
         return self.value
 
-
 class LegendLoc(Enum):
     none = "none"
     best = 'best'
@@ -67,6 +66,14 @@ class LineStyle(Enum):
     solid = 'solid'
     dashed = "dashed"
     dotdash = "dashdot"
+
+    def __str__(self):
+        return self.value
+
+class OutputFormat(Enum):
+    pdf = 'pdf'
+    png = "png"
+    eps = "eps"
 
     def __str__(self):
         return self.value
@@ -257,6 +264,13 @@ def parse_args():
         help='Font size of plot labels, ticks, etc',
         default=15)
 
+    parser.add_argument('-of', '--outformat', 
+        action='store', 
+        help='Output file format',
+        type=OutputFormat, 
+        choices=list(OutputFormat), 
+        default=OutputFormat.pdf)
+
     ## Twin Axis Settings
     parser.add_argument('-tw', '--twin', 
         action='store', 
@@ -408,10 +422,6 @@ def main():
             xc = [x * args.xmul for x in xc]
             yc = [y * ymul for y in yc]
 
-            # Removing 100B and 200B. UNDO!
-            xc = xc[2:] 
-            yc = yc[2:] 
-
             if args.nomarker:
                 lns += ax.plot(xc, yc, label=label, color=colors[cidx])
             else:
@@ -440,11 +450,22 @@ def main():
 
         elif args.ptype == PlotType.hist:
             yc = df[ycol]
-            yc = [y * ymul for y in yc]
-            ax.hist(yc, bins=np.arange(1,6)-0.5, label=label, color='b', #colors[cidx],
-                edgecolor='white', linewidth=2.0)
-            ax.set_xticks(np.arange(1,6))
-            ylabel = "Frequency"
+            # yc = [y * ymul for y in yc]
+            # ax.hist(yc, bins=np.arange(1,10)-0.5, label=label, color='b', #colors[cidx],
+            #     edgecolor='white', linewidth=2.0)
+            # ax.set_xticks(np.arange(1,10))
+            # ylabel = "Frequency"
+            # Writing custom code; not really a hist anymore
+            MAX_N = 15 #max(yc)
+            neighbors = [0]*MAX_N
+            for y in yc:
+                if y > MAX_N: y = MAX_N
+                neighbors[y-1] += y
+            total = sum(neighbors)
+            neighbors = [x * 100.0/total for x in neighbors]
+            ax.bar(range(MAX_N), neighbors, label=label, color=colors[cidx])
+            ax.set_xticks(range(MAX_N))
+
 
         elif args.ptype == PlotType.cdf:
             xc, yc = gen_cdf(df[ycol], 100000)
@@ -528,7 +549,7 @@ def main():
         plt.text(args.vline, 0, str(args.vline))
 
     # plt.savefig(args.output, format="eps")
-    plt.savefig(args.output, format="pdf")
+    plt.savefig(args.output, format=str(args.outformat))
     # plt.savefig(args.output)
     if args.show:
         plt.show()

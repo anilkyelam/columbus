@@ -27,7 +27,7 @@ class Sample:
         self.std = std
 
 class BitInfo:
-    pvalue = None
+    ksvalue = None
     sample = None
 
 class PhaseInfo:
@@ -122,13 +122,13 @@ def error_analysis(expname, entries):
 
 
 # Pvalue threshold is an arbitrary value we picked beforehand but it does not need to be.
-# We save enough data from the experiment to "repeat" it with different pvalue threshold and 
-# see how the error rate is. This could let us pick the optimal pvalue threshold for minimum 
+# We save enough data from the experiment to "repeat" it with different ksvalue threshold and 
+# see how the error rate is. This could let us pick the optimal ksvalue threshold for minimum 
 # error rate. 
-def pvalue_thresh_analysis(expname, orig_entries):
+def ksvalue_thresh_analysis(expname, orig_entries):
     datafile = "log"
     infile = os.path.join("out", expname, datafile)
-    outfile = "pvalues.csv"
+    outfile = "ksvalues.csv"
 
     if not os.path.exists(infile):
         print("ERROR. Log file not found at {0}".format(infile))
@@ -160,8 +160,8 @@ def pvalue_thresh_analysis(expname, orig_entries):
                 base_size = int(matches.group(12))
                 base_mean = int(matches.group(13))
                 base_std = int(matches.group(14))
-                pvalue = float(matches.group(15))
-                # print(id, phase, position, bit, sent, pvalue, base_mean, base_std, base_size, bit_mean, bit_size, bit_std)
+                ksvalue = float(matches.group(15))
+                # print(id, phase, position, bit, sent, ksvalue, base_mean, base_std, base_size, bit_mean, bit_size, bit_std)
 
                 if id in ignored_lambdas:
                     continue
@@ -178,7 +178,7 @@ def pvalue_thresh_analysis(expname, orig_entries):
                 if position not in entries[id].phases[phase].bits:
                     if sent == 0:
                         entries[id].phases[phase].bits[position] = BitInfo()
-                        entries[id].phases[phase].bits[position].pvalue = None if sent == 1 else pvalue
+                        entries[id].phases[phase].bits[position].ksvalue = None if sent == 1 else ksvalue
                         entries[id].phases[phase].bits[position].sample = Sample(bit_size, bit_mean, bit_std)
                     else:
                         entries[id].phases[phase].bits[position] = None
@@ -201,19 +201,19 @@ def pvalue_thresh_analysis(expname, orig_entries):
                 print(e.id, p, len(phase.bits), len(first.phases[0].bits))
             assert len(phase.bits) == len(first.phases[0].bits), "ERROR! Not all lambda entries from log have same number of bits."
 
-    # Sanity check: With regular pvalue threshold, we get same result as original runs
-    # new_entries = apply_pvalue_threshold(entries, DEFAULT_PVALUE_THRESHOLD)
+    # Sanity check: With regular ksvalue threshold, we get same result as original runs
+    # new_entries = apply_ksvalue_threshold(entries, DEFAULT_PVALUE_THRESHOLD)
     # for e in orig_entries.values():
     #     if e.success:
     #         assert e.id in new_entries, "ERROR! Missing (succesful) lambda entry in the log: " + str(e.id)
     #         # print(e.id, e.id_read, new_entries[e.id].id_read)
     #         assert set(e.id_read) == set(new_entries[e.id].id_read), "ERROR! Evaluated results from log with default " + \
-    #             "pvalue threshold do not match with original ones. ID: " + str(e.id)
+    #             "ksvalue threshold do not match with original ones. ID: " + str(e.id)
 
     # Save all the stats for plotting
     with open(os.path.join("out", expname, outfile), 'w') as csvfile:
         # Write header
-        fieldnames = ["Id", "Lambda", "Phase", "Bit", "Base Size", "Base Mean", "Base Std", "Size", "Mean", "Std", "Pvalue", "Mean Diff"]
+        fieldnames = ["Id", "Lambda", "Phase", "Bit", "Base Size", "Base Mean", "Base Std", "Size", "Mean", "Std", "KSvalue", "Mean Diff"]
         writer = csv.writer(csvfile)
         writer.writerow(fieldnames)
         
@@ -222,11 +222,11 @@ def pvalue_thresh_analysis(expname, orig_entries):
         for _, e in entries.items():
             for pid, phase in e.phases.items():
                 for bid, bit in phase.bits.items():
-                    if bit is not None and -10 < bit.pvalue < 10:
+                    if bit is not None and -10 < bit.ksvalue < 10:
                         lines.append([idx, e.id, pid, bid, 
                             phase.base_sample.size, phase.base_sample.mean, phase.base_sample.std, 
                             bit.sample.size, bit.sample.mean, bit.sample.std, 
-                            bit.pvalue, bit.sample.mean - phase.base_sample.mean])
+                            bit.ksvalue, bit.sample.mean - phase.base_sample.mean])
                         idx += 1
         
         lines = sorted(lines, key=operator.itemgetter(11))
@@ -238,17 +238,17 @@ def pvalue_thresh_analysis(expname, orig_entries):
     # it is used to determine next action in each Lambda. Such a waste of time... :(
 
     
-# Applies a specified pvalue threshold on raw pvalues and evaluates final IDs read in each phase 
-def apply_pvalue_threshold(entries, threshold):
+# Applies a specified ksvalue threshold on raw ksvalues and evaluates final IDs read in each phase 
+def apply_ksvalue_threshold(entries, threshold):
     new_entries = {}
     for e in entries.values():
         ne = Entry()
         ne.id = e.id
         ne.id_read = []
-        for pvalues in e.Pvalues.values():      # for each phase
+        for ksvalues in e.Pvalues.values():      # for each phase
             id_read = 0
-            for bit in reversed(range(len(pvalues))):
-                bit_read = 1 if (pvalues[bit] < threshold or pvalues[bit] == NOT_APPLICABLE) else 0
+            for bit in reversed(range(len(ksvalues))):
+                bit_read = 1 if (ksvalues[bit] < threshold or ksvalues[bit] == NOT_APPLICABLE) else 0
                 id_read = 2 * id_read + bit_read
             ne.id_read.append(id_read)
         new_entries[ne.id] = ne
@@ -257,10 +257,10 @@ def apply_pvalue_threshold(entries, threshold):
 
 # Analyze collected latency samples and apply KS (Kolmogorov-Smirinov) and other similar 
 # tests for find a threshold for classifying samples
-def kstest_thresh_analysis(expname, entries):
+def kstest_samples_analysis(expname, entries):
     datafile = "log"
     expdir = os.path.join("out", expname)
-    outfile = "ksvalues.csv"
+    outfile = "kssamples.csv"
 
     base_files = glob.glob("{0}/base_samples*".format(expdir))
     if len(base_files) == 0:
@@ -413,22 +413,49 @@ def cvm_statistic(sample1, sample2):
 
 # Compares colocated clusters across different runs related by warm starts.
 def cluster_correlation(exp_name, base_expname, entries, base_entries):
-    
+    outfile = "clusters.dat"
+
     # Figure out clusters
     clusters = {}
-    for e in entries.values():
+    for e in sorted(entries.values(), key=lambda x: x.id):
         if e.maj_id:
             if e.maj_id not in clusters:    clusters[e.maj_id] = []
             clusters[e.maj_id].append(e.id)
 
-    # print(len(clusters))
-    for cluster in clusters.values():
-        # Is this also a cluster in base exp?
-        for id in cluster:
-            for pred in e[id].predecessors:
-                if pred.exp_name == base_expname:
-                    base_id = pred.id               # This is the previous lambda that ran in the same container as "id"
-                    
+    # If base experiment run is provided, compare clusters
+    if base_expname:
+        total_count = 0
+        found_pred_count = 0
+        colocated_count = 0
+        non_colocated_count = 0
+        for cluster in clusters.values():
+            # For every pair in the cluster, find out if thier predecessors were also a pair in base exp
+            for lambda1 in cluster:
+                for lambda2 in cluster:
+                    if lambda1 != lambda2:
+                        total_count += 1
+                        lambda1_pred = next(iter([pred.id for pred in entries[lambda1].predecessors if pred.exp_name == base_expname]), None)
+                        lambda2_pred = next(iter([pred.id for pred in entries[lambda2].predecessors if pred.exp_name == base_expname]), None)
+                        if lambda1_pred is None or lambda2_pred is None:
+                            continue
+                        found_pred_count += 1
+
+                        # check if the predecessors were co-located too
+                        if lambda1_pred in base_entries and lambda2_pred in base_entries \
+                                and base_entries[lambda1_pred].maj_id and base_entries[lambda2_pred].maj_id:
+                            colocated_count += 1 if base_entries[lambda1_pred].maj_id == base_entries[lambda2_pred].maj_id else 0
+                            non_colocated_count += 1 if base_entries[lambda1_pred].maj_id != base_entries[lambda2_pred].maj_id else 0
+
+        print("Total number of co-located pairs: {0}".format(total_count))
+        print("Total number of co-located pairs warm-started: {0} ({1}%)".format(found_pred_count, found_pred_count*100/total_count))
+        print("Cases where from base run conflicts with colocation assertion of current run: {0}%".format(non_colocated_count * 100 / found_pred_count))
+
+    # Write clusters to file
+    with open(os.path.join("out", exp_name, outfile), 'w') as outfile:
+        for cluster in sorted([sorted(c) for c in clusters.values()], key=operator.itemgetter(0)):
+            outfile.write(" ".join([str(i) for i in sorted(cluster)]))
+            outfile.write("\n")
+
 
 # Parse results.csv into Entry() objects
 def parse_results_file(exp_name):
@@ -468,8 +495,8 @@ def main():
     parser = argparse.ArgumentParser("Analyze Lambda runs")
     parser.add_argument('-i', '--expname', action='store', help='Name of the experiment run, used to look for data under out/<expname>', required=True)
     parser.add_argument('-ea', '--erroraz', action='store_true', help='do error analysis on the usual results', default=False)
-    parser.add_argument('-pt', '--pthreshaz', action='store_true', help='do pvalue threshold analysis from the logs to find the optimum pvalue threshold', default=False)
-    parser.add_argument('-ks', '--kstestz', action='store_true', help='do KS test threshold analysis from the logs to find the optimum threshold', default=False)
+    parser.add_argument('-kst', '--ksthreshaz', action='store_true', help='do ksvalue threshold analysis from the logs to find the optimum ksvalue threshold', default=False)
+    parser.add_argument('-ks', '--kssamplesaz', action='store_true', help='do KS test threshold analysis on the samples collected to find the optimum threshold', default=False)
     parser.add_argument('-cc', '--cluster_correlation', action='store_true', help='do cluster correlation between two different runs taking warm start into account', default=False)
     parser.add_argument('-cci', '--cc_expname', action='store', help='second run to perform cluster correlation against')
     args = parser.parse_args()
@@ -479,19 +506,19 @@ def main():
     if args.erroraz:
         error_analysis(args.expname, entries)
 
-    if args.pthreshaz:
-        pvalue_thresh_analysis(args.expname, entries)
+    if args.ksthreshaz:
+        ksvalue_thresh_analysis(args.expname, entries)
 
-    if args.kstestz:
-        kstest_thresh_analysis(args.expname, entries)
+    if args.kssamplesaz:
+        kstest_samples_analysis(args.expname, entries)
 
     if args.cluster_correlation:
         warm_start_count = len([e for e in entries.values() if e.success and len(e.predecessors) > 0])
         total_count = len([e for e in entries.values() if e.success])
         print("Warm start percentage for {0}: {1} %".format(args.expname, warm_start_count * 100 / total_count))
 
-        assert args.cc_expname, "Provide baseline experiment run for cluster corelation!"
-        base_entries = parse_results_file(args.cc_expname)
+        # assert args.cc_expname, "Provide baseline experiment run for cluster corelation!"
+        base_entries = parse_results_file(args.cc_expname) if args.cc_expname else None
         cluster_correlation(args.expname, args.cc_expname, entries, base_entries)
 
 

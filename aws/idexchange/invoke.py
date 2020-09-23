@@ -23,6 +23,7 @@ import statistics
 MAX_CONCURRENT = 1500
 req_q = Queue(MAX_CONCURRENT * 2)
 data_q = Queue(MAX_CONCURRENT * 2)
+order_q = Queue(MAX_CONCURRENT * 2)
 samples = False
 
 # Find majority elements in a list
@@ -65,8 +66,8 @@ def getResponse(ourl, body):
 def worker():
     while True:
         (url, id, guid, syncpt, phases, bits_in_id, bit_duration, start_delay, use_s3, s3bucket, tmpdir) = req_q.get()
+        
         s3file = guid
-
         body = { 
             "id": id, 
             "stime": syncpt, 
@@ -80,7 +81,11 @@ def worker():
             "guid": guid
         }
 
+        # invoke lambda
         resp = getResponse(url, json.dumps(body))
+        order_q.put(id)
+
+        # Wait for the results
         if use_s3:
             wait_secs = start_delay + phases*(bits_in_id+1)*bit_duration + 30
             start = time.time()
@@ -130,6 +135,7 @@ def worker():
             data_q.put(data)
         else:
             print (resp.status)
+
         req_q.task_done()
 
 
@@ -144,6 +150,7 @@ def main():
     parser.add_argument('-d', '--delay', action='store', type=int, help='initial delay for lambdas to sync up (in seconds)', default=30)
     parser.add_argument('-n', '--name', action='store', help='lambda name, if URL should be retrieved from cache', default="membusv2")
     parser.add_argument('-s', '--samples', action='store_true', help='save observed latency samples to log', default=False)
+    parser.add_argument('-seq', '--sequence', action='store_true', help='invoke lambdas sequentially one after another (requires huge start-up delay)', default=False)
     parser.add_argument('--useapi', action='store_true', help='Use response returned by API for data rather than writing to storage account', default=False)
     parser.add_argument('-od', '--outdir', action='store', help='name of output dir')
     parser.add_argument('-en', '--expname', action='store', help='Custom name for this experiment, defaults to datetime')
@@ -201,11 +208,20 @@ def main():
 
     # Invoke lambdas
     phases = args.phases
+    start = time.time()
     for i in range(args.count):
         id = i+1
         guid = unique_id + "-" + str(id)     # globally unique lambda id
+
+        print("Invoking lambda {0}".format(id))
         req_q.put((args.url, id, guid, sync_point, phases, args.idbits, args.bitduration, args.delay,
             not args.useapi, s3bucket, tmpdir))
+        
+        if args.sequence:
+            # If invoking in sequence, wait until the request is made
+            order_q.get()
+    end = time.time()
+    print("Invoking all lambdas took {0} seconds".format(int(end-start)))
 
     # Wait for everything to finish 
     try:
