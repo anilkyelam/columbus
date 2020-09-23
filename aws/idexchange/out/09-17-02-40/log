@@ -1,0 +1,19 @@
+Starting lambda 966 (GUID: 09-17-02-40-966) at 2020-09-17 09:41:16	Added object temp to s3 bucket lambda-cpp-ap-south-1
+    	Start time is not provided or is in the past
+Starting lambda 74 (GUID: 09-17-02-40-74) at 2020-09-17 09:40:58	Added object temp to s3 bucket lambda-cpp-ap-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556668e3c
+    	Baseline sample: Size- 979, Mean- 6085
+    	[Lambda- 74] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, PValue
+    	[Lambda- 74]   0         9    0     0     0       954     33190   441312 12173006     5258        979       6085      2935 0.058129730586703
+    	[Lambda- 74]   0         8    0     0     0       989     19093   175132  5054452     5220        979       6085      2935 0.019716262025911
+    	[Lambda- 74]   0         7    0     0     0       965     10108     4703    68750     5220        979       6085      2935 0.000000000000000
+    	[Lambda- 74]   0         6    1     1     1       965         0        0        0        0        979       6085      2935 0.000000000000000
+    	[Lambda- 74]   0         5    0     0     0      1000     11962    63603  2015648     5192        979       6085      2935 0.003592524296624
+    	[Lambda- 74]   0         4    0     0     0      1000     12782    27588   835446     5196        979       6085      2935 0.000000000000053
+    	[Lambda- 74]   0         3    1     1     1      1000         0        0        0        0        979       6085      2935 0.000000000000053
+    	[Lambda- 74]   0         2    0     0     0      1000     37443   713823 22035008     5190        979       6085      2935 0.165092417492797
+    	[Lambda- 74]   0         1    1     1     1      1000         0        0        0        0        979       6085      2935 0.165092417492797
+    	[Lambda- 74]   0         0    0     0     0       968     11659    16142   414598     5218        979       6085      2935 0.000000000000000
+    	[Lambda-74] Phase 0, Id read: 74
