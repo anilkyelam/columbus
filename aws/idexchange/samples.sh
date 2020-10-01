@@ -9,13 +9,13 @@ function plot_each() {
     plotname=$2
     # get base and 1-bit latency data files for plotting
     fileparam=""
-    files=$(find $outdir -name 'base_samples*')
-    while read -r i; do
-        base=$(basename $i)
-        label=${base/#"samples"} 
-        fileparam="$fileparam -d $i -l $label -cmi 0 -li 0"
-        # echo "$i $base"
-    done <<< "$files"
+    # files=$(find $outdir -name 'base_samples*')
+    # while read -r i; do
+    #     base=$(basename $i)
+    #     label=${base/#"samples"} 
+    #     fileparam="$fileparam -d $i -l $label -cmi 0 -li 0"
+    #     # echo "$i $base"
+    # done <<< "$files"
 
     labelincr=1
     files=$(find $outdir -name 'bit0_samples*')

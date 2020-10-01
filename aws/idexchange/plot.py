@@ -462,9 +462,12 @@ def main():
                 if y > MAX_N: y = MAX_N
                 neighbors[y-1] += y
             total = sum(neighbors)
-            neighbors = [x * 100.0/total for x in neighbors]
-            ax.bar(range(MAX_N), neighbors, label=label, color=colors[cidx])
-            ax.set_xticks(range(MAX_N))
+            bar_width = 0.35
+            xc = np.arange(MAX_N)
+            neighbors = [n * 100.0/total for n in neighbors]
+            ax.bar(xc + (plot_num * bar_width), neighbors, bar_width, label=label, color=colors[cidx])
+            ax.set_xticks(xc + (plot_num * bar_width) / 2) 
+            ax.set_xticklabels(xc)
 
 
         elif args.ptype == PlotType.cdf:
@@ -545,8 +548,9 @@ def main():
         plt.axhline(x=args.hline)
         plt.text(args.hline, 0, str(args.hline))
     if args.vline:
-        plt.axvline(x=args.vline)
-        plt.text(args.vline, 0, str(args.vline))
+        plt.axvline(x=args.vline, ls='dashed')
+        # plt.text(args.vline, 0, str(args.vline))
+        plt.text(args.vline, 0, " Possible\n threshold")
 
     # plt.savefig(args.output, format="eps")
     plt.savefig(args.output, format=str(args.outformat))
