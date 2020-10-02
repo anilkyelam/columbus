@@ -263,6 +263,10 @@ def main():
                 # print(item)   #raw
                 item_d = json.loads(item.decode("utf-8") if isinstance(item, bytes) else item , strict=False)
 
+                # Get lambda run time
+                if "Start Time" in item_d and "End Time" in item_d:
+                    
+
                 # If logs exist, put them in seperate file
                 if "Logs" in item_d:
                     logfile.write(item_d["Logs"] + "\n")

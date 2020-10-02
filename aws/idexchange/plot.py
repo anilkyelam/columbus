@@ -16,7 +16,7 @@ from enum import Enum
 import scipy.stats as scstats
 
 
-colors = ['r','b','g','brown', 'c','k', 'orange', 'm','orangered','y']
+colors = ['b', 'r', 'g','brown', 'c','k', 'orange', 'm','orangered','y']
 linetypes = ['g-','g--','g-+']
 markers = ['x','+','o','s','+', '|', '^']
 
@@ -168,6 +168,11 @@ def parse_args():
     parser.add_argument('--ylog', 
         action='store_true', 
         help='Plot y-axis on log scale',
+        default=False)
+
+    parser.add_argument('--xstr', 
+        action='store_true', 
+        help='Set X-values as string labels (applies to a bar plot)',
         default=False)
 
     parser.add_argument('--xlim', 
@@ -360,7 +365,7 @@ def main():
     aidx = 0
     labelidx = 0
 
-    font = {'family' : 'sans',
+    font = {'family' : 'sans-serif',
             'size'   : args.fontsize}
     matplotlib.rc('font', **font)
     matplotlib.rc('figure', autolayout=True)
@@ -421,6 +426,7 @@ def main():
             yc = df[ycol]
             xc = [x * args.xmul for x in xc]
             yc = [y * ymul for y in yc]
+            if args.xstr:   xc = [str(x) for x in xc]
 
             if args.nomarker:
                 lns += ax.plot(xc, yc, label=label, color=colors[cidx])
@@ -445,8 +451,10 @@ def main():
             yc = df[ycol]
             xc = [x * args.xmul for x in xc]
             yc = [y * ymul for y in yc]
+            if args.xstr:   xc = [str(x) for x in xc]
             ax.bar(xc, yc, label=label, color=colors[cidx])
-        
+            # ax.set_xticks(xc)
+            # ax.set_xticklabels(xc)
 
         elif args.ptype == PlotType.hist:
             yc = df[ycol]
@@ -462,9 +470,12 @@ def main():
                 if y > MAX_N: y = MAX_N
                 neighbors[y-1] += y
             total = sum(neighbors)
-            neighbors = [x * 100.0/total for x in neighbors]
-            ax.bar(range(MAX_N), neighbors, label=label, color=colors[cidx])
-            ax.set_xticks(range(MAX_N))
+            bar_width = 0.35
+            xc = np.arange(MAX_N)
+            neighbors = [n * 100.0/total for n in neighbors]
+            ax.bar(xc + (plot_num * bar_width), neighbors, bar_width, label=label, color=colors[cidx])
+            # ax.set_xticks(xc + (plot_num * bar_width) / 2) 
+            # ax.set_xticklabels(xc)
 
 
         elif args.ptype == PlotType.cdf:
@@ -545,8 +556,9 @@ def main():
         plt.axhline(x=args.hline)
         plt.text(args.hline, 0, str(args.hline))
     if args.vline:
-        plt.axvline(x=args.vline)
-        plt.text(args.vline, 0, str(args.vline))
+        plt.axvline(x=args.vline, ls='dashed')
+        # plt.text(args.vline, 0, str(args.vline))
+        plt.text(args.vline, 0, " Possible\n threshold")
 
     # plt.savefig(args.output, format="eps")
     plt.savefig(args.output, format=str(args.outformat))
