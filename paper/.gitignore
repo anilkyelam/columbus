@@ -1,0 +1,23 @@
+
+# Latex 
+paper.aux
+paper.bbl
+paper.blg
+paper.log
+paper.pdf
+
+*.fls
+*.fdb_latexmk
+paper.synctex.gz
+
+*.blg
+*.log   
+*.bbl
+*.aux
+*.fls
+*.fdb_latexmk
+*.dat
+*.png
+*.out
+!src/**/*.pdf
+!src/**/*.pn

@@ -1,0 +1,158 @@
+\section{EVALUATION}
+\label{sec:eval}
+
+\begin{figure}[!t]
+  \includegraphics[width=.99\linewidth]{fig/correlation.pdf}
+  \caption{Shows the fraction of lambdas by the number of neighbors they saw for two 
+  independent runs that use same set of underlying AWS containers. The perfect correlation 
+  shows that both runs depict the colocation status of those containers regardless of the 
+  lambdas that ran on them, 
+  providing an evidence for the correctness of our technique. \todo{this doesn't show perfect 
+  correlation because only 99\% of lambdas warm started. Get another perfect run?}
+\label{fig:correlation}}
+\end{figure}
+
+In this section, we evaluate the effectiveness of our co-residence detection 
+technique with respect to the desirable properties mentioned in section \ref{sec:methodology} 
+i.e., reliability and scalability. 
+
+\subsection{Setup}
+\label{subsec:expsetup}
+We run all our experiments with AWS\cite{awscloud} lambdas. (We have showed that this covert 
+channel exists on other clouds and so can be easily replicated with their serverless functions).
+Activating the memory bus covert channel requires address manipulation using pointers and 
+is not supported by most serverless platform runtimes that only allow high-level languages like Python. 
+However, we were able to find at least one exception to this on all clouds: AWS allows 
+C++ programs while Azure and GCP allow unsafe versions of C\# and Golang respectively.
+Once deployed, each instance participates in the first phase of the protocol
+as noted in section \ref{sec:protocol:complexity}, thereby learning the ID of their 
+biggest neighbor. As bit-flip errors are possible, we repeat the same phase for two 
+more (independent) rounds and take the majority result to record the ID seen by this instance. 
+If all three rounds resulted in different IDs, we classify this instance as erroneous 
+and report it in the error rate. We group all the successful instances that saw the same ID 
+as neighbors. We repeat the experiments for different lambda sizes and in various cloud regions.
+
+
+\subsection{Reliability}
+We consider the results of the technique reliable when 1) most of the deployed instances
+successfully see the same result in majority of the independent rounds (indicating 
+lesser bit-flip errors) and 2) the resulting co-located groups we see match the ground truth.
+For 1, we ran an experiment with 1000 AWS lambdas and compared the error rate across 
+different lambda sizes (the error rate indicates the fraction of these 1000 lambdas that 
+did not have a majority result). From figure \ref{fig:errorrates}, we can see that smaller 
+lambdas see lot more errors. This is expected because, as discussed in section \ref{sec:method:noise}, these lambdas experience lossy communication making it harder 
+for our technique to 
+sense contention. The lambdas above 1.5 GB though see a 100\% success rate.   
+
+\textbf{Correctness} Obtaining the ground truth on which instances were 
+"actually" co-located is not possible, 
+considering that that is the purpose of our technique. However, we found a way to 
+validate our results with high confidence. AWS caches the containers used to run 
+lambdas for a while (\todo{how long?}) to reuse them\cite{awscontainerreuse} for later lambdas and mitigate cold start latencies. For C++ lambdas, we found that the data structures declared in
+global namespace are tied to containers (and are not cleared on each lambda invocation),
+so we can use a global array to record all the 
+lambdas that were ever run in a particular container. This means, for a given lambda, we can 
+precisely tell all the lambdas that previously ran in the same container (aka predecessors).
+Using this, we validated that identical experiments repeated within a few minutes of each 
+other will use the same set of underlying containers for running the deployed lambdas.
+Since the lambda co-location is essentially co-location of their containers and given that 
+these containers persist across experiments (run within few minutes of each other), co-location 
+results from such experiments must agree on the co-location of their underlying
+containers. 
+
+
+
+
+\begin{figure}[!t]
+  \includegraphics[width=.99\linewidth]{fig/runtimes.pdf}
+  \caption{Shows the average runtime of a lambda for co-location runs of different sizes. 
+  The run time increases logarithmically with the number of lambdas as it is proportional to
+  the number of bits required to uniquely identify all the lambdas. \todo{Get real data.}
+\label{fig:runtimes}}
+\end{figure}
+
+
+
+To demonstrate that this is the case, we run an experiment with 1000 1.5GB cold-started lambdas (ID'ed 1 to 1000) in the
+one of densest AWS regions (AWS MiddleEast), which resulted in many co-located groups. 
+We repeat the experiment within few seconds, making sure that all 1000 lambdas are 
+warm-started this time (i.e., they use the same set of containers from the previous experiment).
+For each co-located group of lambdas in the latter experiment, we checked whether their 
+predecessor lambdas in the former one formed a co-located group a well. We note that while 
+different lambdas used the containers across the experiments, their co-located groups 
+are perfectly correlated. Figure \ref{fig:correlation} shows that both experiments saw the same 
+number of groups of different sizes. This proves the correctness of our co-location results.
+
+
+
+
+\subsection{Scalability}
+One of the key properties of this technique is that it's really fast.
+It takes only a second to communicate each binary bit of the ID, enabling 
+it to scale logarithmically with the number of lambdas involved. Figure 
+\ref{fig:runtimes} shows this for experiments involving different number 
+of lambdas. For a run with 10000 lambdas for example, each lambda can 
+find it's neighbors within a minute of its invocation, leaving ample time 
+to perform other things using this information. This also means the cost 
+per lambda also scales logarithmically, making it very cost-effective.
+
+
+
+% Figures from the next section
+% Moved here for formatting
+
+\begin{figure}[!t]
+  \includegraphics[width=.99\linewidth]{fig/density.pdf}
+  \caption{Shows the average number of lambdas per server i.e., colocation 
+  density seen in various AWS regions for a 1000-lambda run.
+\label{fig:density}}
+\end{figure}
+
+\begin{figure*}[!t]
+\begin{subfigure}{.33\textwidth}
+  \centering
+  \includegraphics[width=.99\linewidth]{fig/colocation-eu-west-1.pdf}
+%   \caption{1a}
+%   \label{fig:sfig1}
+\end{subfigure}%
+\begin{subfigure}{.33\textwidth}
+  \centering
+  \includegraphics[width=.99\linewidth]{fig/colocation-us-east-2.pdf}
+%   \caption{1b}
+%   \label{fig:sfig2}
+\end{subfigure}
+\begin{subfigure}{.33\textwidth}
+  \centering
+  \includegraphics[width=.99\linewidth]{fig/colocation-ap-southeast-1.pdf}
+%   \caption{1b}
+%   \label{fig:sfig2}
+\end{subfigure}
+
+\begin{subfigure}{.33\textwidth}
+  \centering
+  \includegraphics[width=.99\linewidth]{fig/colocation-ap-south-1.pdf}
+%   \caption{1a}
+%   \label{fig:sfig1}
+\end{subfigure}%
+\begin{subfigure}{.33\textwidth}
+  \centering
+  \includegraphics[width=.99\linewidth]{fig/colocation-sa-east-1.pdf}
+%   \caption{1b}
+%   \label{fig:sfig2}
+\end{subfigure}
+\begin{subfigure}{.33\textwidth}
+  \centering
+  \includegraphics[width=.99\linewidth]{fig/colocation-me-south-1.pdf}
+%   \caption{1b}
+%   \label{fig:sfig2}
+\end{subfigure}
+\caption{Shows co-location results for a 1000-lambda run in different AWS regions. Each bar shows the fraction 
+of those 1000 lambdas (in \%) that saw a certain number of neighbors. The total amount and density of co-location 
+vary widely across regions, perhaps based on the size and lambda activity within those regions. }
+\label{fig:awsregions}
+\end{figure*}
+
+
+%\paragraph{Generality}
+%\todo{We only implemented it on AWS. This requires us to implement it on 
+%Azure and GCP, and report some results. \textbf{Needs considerable effort}}

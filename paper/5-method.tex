@@ -1,0 +1,325 @@
+\section{Neighbor Discovery Protocol}
+\label{sec:technique}
+ 
+As noted earlier, co-residence detection scales well when co-residing 
+instances on each server communicate among themselves and discover each other. 
+Assuming that the instances 
+have unique IDs, this requires the co-resided instances to exchange these (integer) IDs with each other using the memory bus channel as a transmission medium. In this section, we present a communication protocol that the co-resided instances can use to achieve this in a fast and reliable way. We first discuss the challenges we faced in making the 
+channel reliable before diving into the protocol itself.
+
+\begin{algorithm}[!t]
+\caption{Writing 1-bit from the sender}
+\label{alg:sender}
+\begin{algorithmic}
+\STATE $now \leftarrow  time.now()$
+\STATE $end \leftarrow now + sampling\_duration$
+\STATE $address \leftarrow cache\_line\_boundary-2$
+\WHILE{$now < end$}
+    \STATE $\_\_ATOMIC\_FETCH\_ADD(address)$
+    \STATE $now \leftarrow  time.now()$
+\ENDWHILE
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Reliable Transmission}
+Consider the simple scenario where there is one sender and one receiver 
+instance on a machine, and the sender has a set of bits that it needs to communicate 
+with the receiver on the memory bus covert channel. On the sender side, to send 
+a 1-bit the sender causes contention on the memory bus by locking it using
+the special memory locking operations as discussed in section \ref{sec:background:membus} 
+(pseudo-code of the sender is shown in Algorithm \ref{alg:sender}).
+\todo{what is the subject here? rewrite with subject at front} Reading the bit on a 
+receiver would then require sampling the memory bus for contention, 
+inferring a 1-bit when the contention is observed or a 0-bit otherwise.
+
+\subsubsection{Sensing contention} 
+There are two ways in which the receivers could detect memory bus contention. 
+When the memory bus is locked, any non-cached memory 
+accesses will queue and therefore see higher latencies. The receiver can 
+then continually make un-cached memory accesses (referred to 
+as \textit{memory probing} receiver in literature\cite{varadarajan2015}) and 
+observe spike in their latencies to detect contention.
+The receiver could also use the same memory locking 
+operations as the sender (referred to as \textit{memory locking} receiver) to 
+probe the memory bus. 
+Since only one processor core can lock the memory bus at a given time, any other 
+concurrent locking operation will see higher latency. 
+
+Previous studies\cite{wuusenix2012,varadarajan2015} have established that both 
+memory probing and locking receivers experience significant latency overhead when compared 
+to their baselines during memory bus contention, making both of them desirable 
+contenders for sensing the channel on the receiver side. We examine which of the two 
+would be more fruitful for our experiments. Memory probing involves regular (un-cached) 
+memory accesses, which is universal, unlike the locking operations which are rarely used, 
+if at all, by standard applications. This makes memory probing the only viable option 
+for non-cooperative co-residence detection, where 
+victims are not under attacker's control and cannot be assumed to perform locking 
+operations. Furthermore, memory probing can be done on multiple receivers 
+constantly without affecting each other (due to the high memory bandwidth), which prevents 
+noise in measurements. This is an important attribute, as memory locking receivers 
+must contend with this noise. However, bypassing multi-levels of caches in today's servers 
+to perform memory accesses with reliable consistency is a challenging task 
+\todo{cite some papers}. Even with a reliable cache-bypassing technique, the 
+variety of cache architectures and sizes that we encounter on different clouds 
+would make tuning the technique to suit these architectures an arduous task while 
+reducing the applicability of our overall co-residence detection mechanism. 
+Thus, we decide to use the memory locking receiver.
+
+
+\begin{algorithm}[!t]
+\caption{Reading a bit in the receiver}
+\label{alg:receiver}
+\begin{algorithmic}[1]
+\STATE $now \leftarrow  time.now()$
+\STATE $end \leftarrow now + sampling\_duration$
+\STATE $sampling\_rate \leftarrow num\_samples / sampling\_duration$
+\STATE $address \leftarrow cache\_line\_boundary-2$
+\STATE $samples \leftarrow \{\} $
+\WHILE{$now < end$}
+    \STATE $before \leftarrow RDTSC()$
+    \STATE $\_\_ATOMIC\_FETCH\_ADD(address)$
+    \STATE $after \leftarrow RDTSC()$
+    \STATE $samples \leftarrow samples \cup \{(after-before)\}$
+    \STATE \textbf{wait until} $NEXT\_POISSON(sampling\_rate)$
+    \STATE $now \leftarrow  time.now()$
+\ENDWHILE
+\STATE $ks\_val \leftarrow KOLMOGOROV\_SMIRINOV(samples, baseline)$
+\STATE \textbf{return} $ks\_val < ksvalue\_threshold$
+\end{algorithmic}
+\end{algorithm}
+
+
+\subsubsection{Sampling frequency}
+Ideally, a memory locking receiver would perform locking operations in a loop and 
+look for a dip in the moving average of the number of operations to determine
+contention in real-time. Note that, in this case, there is 
+essentially no difference between the sender and receiver (i.e., both continually issue
+locking operations) except that receiver is taking measurements. This is adequate when 
+there is a single sender and receiver~\cite{varadarajan2015},
+but when there are multiple receivers, the mere act of sensing the channel by one 
+receiver causes contention and other receivers cannot differentiate between a silent (0-bit) 
+and a locking (1-bit) sender. To avoid this, we space the sampling of memory bus such that 
+no two receivers would sample the bus  at the same time, with high probability. 
+We achieve this by using large intervals between successive samples and a poisson-sampling 
+to prevent time-locking of receivers. We determined that a millisecond poisson gap between 
+samples is reasonable to minimize noise due to collisions in receiver sampling~\ref{fig:membus_clouds}, 
+assuming ten co-resided receivers and sampling takes a few microseconds each time.
+
+\subsubsection{Sampling duration}
+\label{sec:method:samplingdur}
+A receiver can confirm contention with high confidence with only a few samples, assuming 
+that the sender is actively causing contention on the memory bus
+and the receiver is constantly sampling the memory bus throughout the sampling duration. 
+However, in practice, the time-sharing of processors produces difficulties. 
+The sender is not continually causing contention, and neither is the receiver sensing it, 
+as they are context-switched by the scheduler to run other processes. 
+Assuming that the sender and receiver are running on different 
+cores, the amount of time they are actively communicating depends on 
+the proportion of time they are allocated on each core and how they are 
+scheduled. 
+
+To illustrate such behavior, we run a sender-receiver pair using 
+the Lambdas\cite{awslambda} of various sizes on AWS,
+and compare the distribution of latencies seen by the receiver during the 
+contention in each case. Figure \ref{fig:context_switching} shows that the much smaller 
+128 MB lambdas (which probably share a CPU core with others and gets constantly context-switched) 
+show less active communication than the bigger 3 GB lambdas (which may run on dedicated cores). 
+This means that smaller instances that tend to share
+processor cores with a lot of other instances may need to pause for more time
+and collect more samples to make up for lost communication due to scheduling.
+% Since the typical scheduling quantum is on the order of milliseconds, they 
+% will need at least a second?
+
+
+\begin{figure}[!t]
+  \includegraphics[width=.99\linewidth]{fig/lambda_sched_effect.pdf}
+  \caption{Shows CDF of latencies observed by 128 MB, 1 GB and 3 GB Lambdas during 
+  contention. The 128 MB lambda pair sees less contention due to more context switching, 
+  whereas the 1 GB and 3 GB lambdas see progressively more contention compared to baseline 
+  which we attribute to their relative stability on the underlying physical cores. 
+\label{fig:context_switching}}
+\end{figure}
+
+\subsubsection{Overcoming noise} 
+\label{sec:method:noise}
+Along with context switching and sensing noise, there are other imperfections 
+in measurement apparatus that cause (minor) noise. For example, we use difference
+in RDTSC timer readings before and after the locking operation to measure its 
+latency in cycles. If the receiver process gets context-switched in 
+between the timer readings 
+(e.g., at line 8 in Algorithm \ref{alg:receiver}), the latency measured from 
+their difference will be orders of magnitude higher 
+as it includes waiting time of the receiver process in the scheduler queue 
+- which we believe is what contributes 
+to the long tail in Figure \ref{fig:context_switching}. To overcome missed 
+samples and noise, we take hundreds of samples for communicating each bit 
+and compare it to the baseline 
+distribution of latencies sampled without contention. 
+We then take a variant of two-sample Kolmogorov-Smirinov (KS) test as a measure 
+to differentiate observed sample of latencies from the baseline and to establish 
+contention (In our variant, we take the mean of absolute difference between the 
+empirical CDFs instead of the maximum). We categorize a KS-value above certain 
+threshold (KS-threshold) as a 1-bit, or a 0-bit otherwise. 
+
+To figure out whether 
+such a threshold exists and a way to find it, we deploy a large number of lambdas 
+across AWS regions where some of them cause contention (aka senders) while others 
+observe contention by collecting samples of latencies (aka receivers). Each of the 
+samples may or may not have observed contention depending on whether the receiver 
+was colocated with a sender lambda (an unknown at this point). We then calculate the 
+KS-value for each sample against the baseline
+and plot a CDF of these values for lambdas of different sizes in Figure \ref{fig:ks_values}.
+Ideally, we expect a bi-modal distribution (stepped CDF) with the lower and upper peaks 
+corresponding to samples that have not and have seen contention respectively, and a big 
+gap between the two (long step). Fortunately, we do see that at higher lambda sizes 
+(which lets us pick a clear threshold) but is not the case with smaller lambdas where 
+scheduling instability causes lossy communication, as discussed in \ref{sec:method:samplingdur}.
+This also reflects in the reliability of our technique across various lambda sizes, as 
+we will show in our evaluation. Based on the plot, we picked KS-threshold at 3.0 which 
+seems to be constant across AWS regions, suggesting that this is a platform constant.
+
+We present pseudo-code of a receiver in 
+Algorithm \ref{alg:receiver} that includes all the 
+considerations we discussed so far.
+
+\subsubsection{Clock synchronization} 
+Since communicating each bit of information takes time (i.e., receiver sampling 
+duration), we need a way to synchronize sender and receiver at the start of 
+each bit. In traditional analog channels, this is achieved either using a 
+separate clock signal or a self-clocking signal encoding. For example, 
+\cite{whispers} uses differential Manchester encoding for clock synchronization 
+for the memory bus covert channel.
+But self-clocking encodings  become much trickier (\ques{why?}) when there are 
+multiple senders and receivers. In this work, we use the system clock in the instances 
+for synchronizing communication. We make the insight that all the instances involved 
+in the communication would be running on the same physical server and 
+so they share the server's clock. 
+The system clock on AWS Lambdas, for example, is precise up to nanoseconds 
+with a sub-microsecond drift between different lambdas running on the same server,
+which is by far good enough as we only work in the millisecond regime due to 
+sampling noise constraints.
+% this would limit application to VMs.. but containers are probably okay..
+
+
+\begin{figure}[!t]
+  \includegraphics[width=.99\linewidth]{fig/ksvalues.pdf}
+  \caption{Shows CDF of KS values observed for various lambda sizes. A bimodal distribution 
+  with longer step lets us pick a KS-threshold that enables our technique to differentiate 
+  between 0-bit and 1-bit with high confidence. 
+\label{fig:ks_values}}
+\end{figure}
+
+\subsection{Protocol}
+\label{sec:protocol}
+After the previous section, what we have is a communication channel with 
+synchronized time slots (called \textit{bit-slots}) where in each slot, an 
+instance can reliably send (broadcast) or receive (listen) a bit by causing 
+or sensing for contention respectively. Given that there are multiple instances that 
+may want to 
+broadcast information on the channel, we need a figure out who goes first, or 
+there will be collisions. Traditional channels like Ethernet or Wireless 
+detect collisions and employ random back-off to avoid them. This will be challenging 
+to implement in our case for two reasons: First, our instances do not have the 
+capability of sensing the channel while sending a bit, which 
+is required for detecting collisions - they can either cause contention or sense 
+it at a time, but not both. Note that senders do experience a push back 
+(i.e., higher latency for locking operations) where there are other senders that 
+are simultaneously causing contention. However, reliably judging this push back 
+requires each sender to have a baseline of latencies collected when there are 
+no collisions, making it a chicken-and-egg problem for avoiding collisions. 
+Second, even if we use random back-offs with acknowledgement based techniques, it 
+adds a lot of overhead before any meaningful communication happens - which is 
+only made worse as the number of instances involved grows. Note that each bit-slot 
+takes up to 1 second, so the additional overhead can be really high. \anil{get 
+information theoretic bounds on the capacity of our channel?}
+
+
+\begin{algorithm}[!t]
+\caption{ID exchange protocol \todo{Improve pseudo-code}}
+\label{alg:protcol}
+\begin{algorithmic}[1]
+\STATE $sync\_point \leftarrow$ {Start time for all instances}
+\STATE $ID \leftarrow$ {Instance ID}
+\STATE $N \leftarrow$ {Number of bits in ID}
+\STATE $advertising \leftarrow TRUE$
+\STATE $instances \leftarrow \{\} $
+\STATE $WAIT\_TILL(sync\_point)$
+\WHILE{$id\_read$}
+    \STATE $slots \leftarrow 0$
+    \STATE $id\_read \leftarrow 0$
+    \STATE $participating \leftarrow advertising$
+    \WHILE{$slots < N$}
+        \STATE $bit \leftarrow$ {$slots^{th}$ most significant bit of ID}
+        \IF{$participating$ \textbf{and} $bit$}
+            \STATE $WRITE\_BIT()$               (Alg. \ref{alg:sender})
+            \STATE $bit\_read \leftarrow 1$
+        \ELSE
+            \STATE $bit\_read \leftarrow READ\_BIT()$       (Alg. \ref{alg:receiver})
+            \IF{$bit\_read$}
+                \STATE $participating \leftarrow FALSE$
+            \ENDIF
+        \ENDIF
+        \STATE $id\_read \leftarrow 2 * id\_read + bit\_read$
+        \STATE $slots \leftarrow slots + 1$
+    \ENDWHILE
+    \IF{$id\_read = ID$}
+        \STATE $advertising \leftarrow FALSE$
+    \ENDIF
+    \STATE $instances \leftarrow instances \cup \{id\_read\}$
+\ENDWHILE
+\STATE \textbf{return} $instances$
+\end{algorithmic}
+\end{algorithm}
+
+For the co-residence detection though, we don't need the communication channel to 
+be very general and expressive. So we make a simplifying assumption that each instance 
+involved just has a unique fixed-length (say \emph{n}) bit-string corresponding 
+to its ID that it needs to communicate with others, so we propose a communication 
+protocol to exchange just this information while allowing for collisions. We 
+divide the entire time that the protocol takes into phases, with each phase running 
+for an interval of
+\textit{n} bit-slots. Each phase has a set of participating instances, 
+which in the first phase would be all of the co-located instances. In each bit-slot
+\textit{k} of \textit{n} slots in a phase, every participating instance broadcasts 
+a bit if $k^{th}$ bit of its 
+bit-string (ID) is 1, otherwise it just listens for a 0 or 1. If an instance senses a 1 
+while listening, it stops participating, and just listens for the rest of the 
+phase. The result is, only the instances with highest ID among the initial 
+set of participating lambdas wins out and keeps participating till the end, 
+effectively advertising its ID to the rest. The advertised instance then stops 
+participating in the later phases, allowing the next highest instance to advertise its 
+ID, and so on. Since the IDs are unique, there will always be one instance that 
+wins (and drops out) in every phase, and the protocol ends after \textit{x} phases 
+(where \textit{x} is number of co-located instances) when there is no participating 
+instances and everyone hears nothing for \textit{n} consecutive bit-slots. A 
+pseudo-code of the protocol is provided in Algorithm \ref{alg:protcol}. Note that 
+the protocol itself is channel-agnostic and can be extended for other (future) covert 
+channels with similar channel properties.
+
+% Figure moved here for formatting
+\begin{figure}[!t]
+  \includegraphics[width=.99\linewidth]{fig/errorrates.pdf}
+  \caption{Shows the error rate (as a fraction of 1000 lambdas deployed) for different lambda sizes in AWS Middle-East region. 
+\label{fig:errorrates}}
+\end{figure}
+
+\subsubsection{Complexity}
+\label{sec:protocol:complexity}
+Assuming \textit{N} total deployed instances to the cloud, the bit-string would need 
+$\log_2N$ bits to uniquely identify each instance. If a maximum \textit{K} of those instances 
+end up on the same server, the protocol runs for \textit{K} phases of $\log_2N$ bit-slots 
+each, taking $(K+1)*\log_2N$ bit-slots for the whole thing. For example, assuming 10,000 deployed lambdas and a maximum of 10 co-located instances on each server, the entire  
+co-residence detection takes around 4 minutes with 1-second bit-slots. 
+In fact, it is not necessary to run the protocol for all \textit{K} phases. After the 
+first round, all the co-located instances would know one of their neighbors. Since IDs are
+globally unique, the instances can exchange it offline (through network) and figure out 
+rest of their neighbors. This removes the dependency on number of co-located instances 
+(\textit{K}) and brings down the complexity to $O(\log_2N)$, finishing the entire protocol 
+within a minute for the earlier example!
+
+
+% \subsubsection{Limitations}
+% challenge with same core scheduling. - write a list of drawbacks?
+% this could be overcome by getting 
+% redundant info and constructing 
+% the graph

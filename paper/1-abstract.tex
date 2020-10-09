@@ -1,0 +1,36 @@
+
+\begin{abstract}
+Cloud computing has seen explosive growth in the past
+decade. This is made possible by efficient sharing of
+infrastructure among tenants, which unfortunately also 
+opens avenues for security attacks (e.g., side-channels). Providers, like AWS
+and Azure, have traditionally relied on hiding the 
+co-residency information to prevent targeted attacks 
+in their clouds. But recent works have repeatedly 
+found co-residence detection techniques that break
+this encapsulation, prompting the providers to address 
+them and harden isolation on their platforms. In 
+this work, we find yet another such technique based on 
+a memory bus covert channel, which 
+is more pervasive, reliable and harder to fix. We 
+show that we can use this technique to reliably perform co-operative co-residence detection for thousands 
+of AWS lambdas within a few seconds, which could aid attackers in performing DDoS attacks or learn 
+cloud's internal mechanisms. In this paper, we present the technique 
+in detail, evaluate it and use it to perform a small
+study on lambda activity across AWS regions. 
+Through this work, we hope to motivate the need to 
+address this covert channel in the cloud.
+
+% While the providers generally hide the placement information, 
+% numerous works in the past have proposed hardware and software-based 
+% information leakage channels that allow for co-residency detection 
+% for virtual machines and containers. In this paper, we morph previously-known 
+% hardware-based channels to create a methodology that allows for 
+% cooperative co-residency detection for serverless functions. We use these 
+% channels to successfully achieve co-location in both AWS and GCP clouds, 
+% and evaluate each of the channels for their efficiency in different 
+% scenarios using different regions in these cloud services.
+
+% we intend to highlight how easy it is and further motivate cloud providers 
+% to address the covert channel
+\end{abstract}

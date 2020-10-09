@@ -1,0 +1,49 @@
+\section{Placement Study}
+\label{sec:study}
+
+Our goal in developing this technique is to demonstrate how 
+easy it is for attackers to exploit the pervasive memory bus covert 
+channel and obtain co-residency information, thereby motivating 
+the need to address it. This information can be used by attackers 
+in aiding a lot of attack scenarios \todo{for example?} or simply learn 
+the internal mechanisms of a cloud. In the section, we explore some 
+ways in which the tool can be used to gain some insights into lambda 
+activity in some AWS regions. Unless specified otherwise, all the 
+experiments are performed with 1.5 GB lambdas and ran successfully with
+zero error rate. We find that \todo{summary of takeaways from the study}.
+
+% we have not even kicked off any alarms in the clouds - no notifications.
+
+\subsection{Co-residence across AWS regions}
+We ran co-residence detection in different AWS regions with 
+1000 1.5GB Lambdas. Figure \ref{fig:awsregions} shows multiple 
+plots showing the colocated groups, one per region, with each 
+bar in the plot showing the 
+fraction of lambdas that saw a certain number of neighbors (i.e.,
+that belong to a colocated group of certain size). Plots that 
+are right-heavy (towards bottom-right) indicate higher colocation density
+compared to the left-heavy (towards top-left) ones (which is also illustrated in 
+figure \ref{fig:density}). We can see that most 
+regions have almost all lambdas see at least one neighbor (smaller 
+or non-existent bar at 0). Assuming that the cloud placement scheduler
+tries to efficiently bin pack lambdas, we hypothsize that the 
+colocation is dependent on the total number of servers and the lambda
+activity in the region, both of which can be assumed to be lower 
+in newer AWS regions. We note that most right-heavy plots correspond 
+to the relatively newer AWS regions. The maximum size of a 
+co-located group we ever saw was 25 (1.5G) lambdas on a single machine.
+% max is 25 lambdas
+% indicative of lambda activity and size of the region
+% newer regions see less activity or less number of servers
+\todo{any other insights I missed?}
+
+
+\subsection{Weekly \& Daily Patterns}
+\todo{Run experiments in different times of the day or using 
+different deployment strategies that may affect co-location.}
+
+
+\subsection{Different accounts}
+\todo{Run experiments with lambdas from different user accounts 
+and see how the colocation is affected between single vs different 
+accounts.}

@@ -1,0 +1,31 @@
+
+\section{ETHICAL CONSIDERATIONS}
+\todo{Get help from Ariana/Stefan}. We are not violating security or privacy of other 
+lambdas in any way whatsoever. There may be some performance interference caused 
+by blocking other lambdas access to memory bus but this is minimal given 
+that memory accesses are infrequent due to multiple levels of caches; also memory accesses/locking operations are FIFO too which prevents starvation. Also, lambdas are not meant for latency-sensitive workloads due to their cold-start latencies.
+
+\section{CONCLUSION \& FUTURE WORK}
+\label{sec:conclusion}
+\todo{Copied abstract} 
+Cloud computing has seen explosive growth in the past
+decade. This is made possible by efficient sharing of
+infrastructure among tenants, which unfortunately also raises security challenges like preventing side-channel attacks. Providers, like AWS
+and Azure, have traditionally relied on hiding the 
+co-residency information to prevent targeted attacks 
+in their clouds. But recent works have repeatedly 
+found co-residence detection techniques that break
+this encapsulation, prompting the providers to address 
+them and harden isolation on their platforms. In 
+this work, we find yet another such technique based on 
+a memory bus covert channel that 
+is more pervasive, reliable and harder to fix. We 
+show that we can use this technique to reliably perform co-operative co-residence detection for thousands 
+of AWS lambdas within a few seconds, which opens a 
+way for attackers to perform DDoS attacks or learn 
+cloud's internal mechanisms. We present this technique 
+in detail, evaluate it and use it to perform a small
+study on lambda activity across a few AWS regions. 
+Through this work, we hope to motivate the need to 
+address this covert channel in the cloud.
+
