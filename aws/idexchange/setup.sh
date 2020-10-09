@@ -32,6 +32,10 @@ case $i in
     SIZE="${i#*=}"
     ;;
         
+    -s3p=*|--s3prefix=*)        # S3 bucket prefix, provide if using a different AWs account than default
+    S3PREFIX="${i#*=}"
+    ;;
+
     -r=*|--region=*)        # Region name, defaults to cli region
     region="${i#*=}"
     ;;
@@ -48,7 +52,7 @@ done
 # Defaults
 lambdafn=${lambdafn:-membusv21}    # Default lambda name
 SIZE=${SIZE:-128}
-S3PREFIX=lambda-cpp-
+S3PREFIX=${S3PREFIX:-lambda-cpp-}
 
 # Get account id from aws cli if not set
 if [ -z ${accountid+x} ]; then

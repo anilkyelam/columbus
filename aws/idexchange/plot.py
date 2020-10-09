@@ -16,7 +16,7 @@ from enum import Enum
 import scipy.stats as scstats
 
 
-colors = ['b', 'r', 'g','brown', 'c','k', 'orange', 'm','orangered','y']
+colors = ['g', 'b', 'r', 'g','brown', 'c','k', 'orange', 'm','orangered','y']
 linetypes = ['g-','g--','g-+']
 markers = ['x','+','o','s','+', '|', '^']
 
@@ -453,8 +453,8 @@ def main():
             yc = [y * ymul for y in yc]
             if args.xstr:   xc = [str(x) for x in xc]
             ax.bar(xc, yc, label=label, color=colors[cidx])
-            # ax.set_xticks(xc)
-            # ax.set_xticklabels(xc)
+            if args.xstr:   ax.set_xticks(xc)
+            if args.xstr:   ax.set_xticklabels(xc, rotation='45')
 
         elif args.ptype == PlotType.hist:
             yc = df[ycol]
@@ -464,7 +464,7 @@ def main():
             # ax.set_xticks(np.arange(1,10))
             # ylabel = "Frequency"
             # Writing custom code; not really a hist anymore
-            MAX_N = 15 #max(yc)
+            MAX_N = 25 #max(yc)
             neighbors = [0]*MAX_N
             for y in yc:
                 if y > MAX_N: y = MAX_N

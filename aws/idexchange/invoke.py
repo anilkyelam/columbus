@@ -65,7 +65,7 @@ def getResponse(ourl, body):
 # Invoker for each Lambda instance
 def worker():
     while True:
-        (url, id, guid, syncpt, phases, bits_in_id, bit_duration, start_delay, use_s3, s3bucket, tmpdir) = req_q.get()
+        (url, id, guid, syncpt, phases, bits_in_id, bit_duration, start_delay, use_s3, s3bucket, tmpdir, aws_profile) = req_q.get()
         
         s3file = guid
         body = { 
@@ -107,7 +107,9 @@ def worker():
             while time.time() < timeout:
                 # Set shell to true and pass entire command as a single string for usual shell like environment
                 # which is required to enable default aws credentials
-                p = subprocess.run(["aws s3 ls {0}/{1}".format(s3bucket, s3file)], stdout=subprocess.PIPE, shell=True)
+                command = "aws s3 ls {0}/{1}".format(s3bucket, s3file) if aws_profile is None else \
+                            "aws s3 ls {0}/{1} --profile {2}".format(s3bucket, s3file, aws_profile)
+                p = subprocess.run([command], stdout=subprocess.PIPE, shell=True)
                 if p.returncode == 0:
                     found = True
                     break
@@ -119,7 +121,9 @@ def worker():
                 
             if found:
                 tmppath = os.path.join(tmpdir, str(id))
-                p = subprocess.run(["aws s3 cp s3://{0}/{1} {2}".format(s3bucket, s3file, tmppath)], stdout=subprocess.PIPE, shell=True)
+                command = "aws s3 cp s3://{0}/{1} {2}".format(s3bucket, s3file, tmppath) if aws_profile is None else \
+                            "aws s3 cp s3://{0}/{1} {2} --profile {3}".format(s3bucket, s3file, tmppath, aws_profile)
+                p = subprocess.run([command], stdout=subprocess.PIPE, shell=True)
                 if p.returncode != 0:
                     print("Lambda {0} failed: Failed to copy file from S3 {1}/{2}".format(id, s3bucket, s3file))
                     req_q.task_done()
@@ -141,7 +145,11 @@ def worker():
 
 def main():
     parser = argparse.ArgumentParser("Makes concurrent requests to lambda URLs")
+    # Exp metadata
     parser.add_argument('-c', '--count', action='store', type=int, help='number of requests to make (max:{0})'.format(MAX_CONCURRENT), default=5)
+    parser.add_argument('-od', '--outdir', action='store', help='name of output dir')
+    parser.add_argument('-en', '--expname', action='store', help='Custom name for this experiment, defaults to datetime')
+    parser.add_argument('-ed', '--expdesc', action='store', help='Description/comments for this run', default="")
     parser.add_argument('-o', '--out', action='store', help='path to results file', default="results.csv")
     parser.add_argument('-u', '--url', action='store', help='url to invoke lambda. Looks in .api_cache by default.')
     parser.add_argument('-p', '--phases', action='store', type=int, help='number of phases to run', default=1)
@@ -152,9 +160,13 @@ def main():
     parser.add_argument('-s', '--samples', action='store_true', help='save observed latency samples to log', default=False)
     parser.add_argument('-seq', '--sequence', action='store_true', help='invoke lambdas sequentially one after another (requires huge start-up delay)', default=False)
     parser.add_argument('--useapi', action='store_true', help='Use response returned by API for data rather than writing to storage account', default=False)
-    parser.add_argument('-od', '--outdir', action='store', help='name of output dir')
-    parser.add_argument('-en', '--expname', action='store', help='Custom name for this experiment, defaults to datetime')
-    parser.add_argument('-ed', '--expdesc', action='store', help='Description/comments for this run', default="")
+    
+    # Launch lambdas from another account (make sure the credentials are added as a profile as directed in: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html)
+    parser.add_argument('-sa', '--secaccount', action='store', help='profile name of the second account if we want to some launch lambdas from a different account, expects URL in cache')
+    parser.add_argument('-su', '--securl', action='store', help='second URL if we want to some launch lambdas from a different account')
+    parser.add_argument('-ss3p', '--secs3prefix', action='store', help='prefix of S3 bucket where the second account lambdas write to', default="lambda-cpp2-")
+
+    
     args = parser.parse_args()
 
     # Prerequisite: AWS CLI configured to access the account
@@ -164,6 +176,7 @@ def main():
         return -1
     region = re.sub('\s+','', p.stdout.decode("utf-8"))
     s3bucket = "lambda-cpp-" + region
+    s3bucket_sec = args.secs3prefix + region
 
     # Find URL in cache if not specified.
     if not args.url:
@@ -185,6 +198,24 @@ def main():
         with open(url_cache, 'r') as file:
             args.url = re.sub('\s+','', file.read())
             print("Found url in cache {0}: {1}".format(url_cache, args.url))
+
+    # If second account is provided, get its URL from the cache too
+    if args.secaccount:
+        p = subprocess.run(["aws", "sts", "get-caller-identity", "--profile", args.secaccount], stdout=subprocess.PIPE)
+        if p.returncode != 0:
+            print("Failed to get account id from aws cli for second profile. Is the profile added properly? Or provide --securl.")
+            return -1
+        secaccountid = json.loads(p.stdout.decode("utf-8"), strict=False)["Account"]
+
+        url_cache = os.path.join(".api_cache", "{0}_{1}_{2}".format(secaccountid, region, args.name))
+        if not os.path.exists(url_cache):
+            print("Cannot find url cache for second account at: {0}. Provide actual url using --securl.".format(url_cache))
+            return -1
+
+        with open(url_cache, 'r') as file:
+            args.securl = re.sub('\s+','', file.read())
+            print("Found second account url in cache {0}: {1}".format(url_cache, args.securl))
+
 
     # Make output dir
     if not args.outdir:     args.outdir = datetime.now().strftime("%m-%d-%H-%M")
@@ -209,17 +240,27 @@ def main():
     # Invoke lambdas
     phases = args.phases
     start = time.time()
+    account_map = {}
     for i in range(args.count):
         id = i+1
         guid = unique_id + "-" + str(id)     # globally unique lambda id
 
-        print("Invoking lambda {0}".format(id))
-        req_q.put((args.url, id, guid, sync_point, phases, args.idbits, args.bitduration, args.delay,
-            not args.useapi, s3bucket, tmpdir))
-        
+        if not args.securl or i%2 == 0:
+            print("Invoking lambda {0} from main account".format(id))
+            req_q.put((args.url, id, guid, sync_point, phases, args.idbits, args.bitduration, args.delay,
+                not args.useapi, s3bucket, tmpdir, None))
+            account_map[id] = accountid if accountid else "FIRST"
+        else:
+            # if second account if provided, use it for every other lambda
+            print("Invoking lambda {0} from second account".format(id))
+            req_q.put((args.securl, id, guid, sync_point, phases, args.idbits, args.bitduration, args.delay,
+                not args.useapi, s3bucket_sec, tmpdir, args.secaccount))
+            account_map[id] = secaccountid if secaccountid else "SECOND"
+
         if args.sequence:
             # If invoking in sequence, wait until the request is made
             order_q.get()
+
     end = time.time()
     print("Invoking all lambdas took {0} seconds".format(int(end-start)))
 
@@ -263,10 +304,9 @@ def main():
                 # print(item)   #raw
                 item_d = json.loads(item.decode("utf-8") if isinstance(item, bytes) else item , strict=False)
 
-                # Get lambda run time
-                if "Start Time" in item_d and "End Time" in item_d:
+                # # Get lambda run time
+                # if "Start Time" in item_d and "End Time" in item_d:
                     
-
                 # If logs exist, put them in seperate file
                 if "Logs" in item_d:
                     logfile.write(item_d["Logs"] + "\n")
@@ -308,6 +348,10 @@ def main():
                 if "Predecessors" in item_d:
                     item_d["Warm Start"] = "Yes" if len([s for s in item_d["Predecessors"].split(",") if s]) > 0 else "No"
 
+                if "Id" in item_d:
+                    id = int(item_d["Id"])
+                    item_d["Account"] = account_map[id]
+
                 # Write col headers
                 if first:
                     writer = csv.DictWriter(csvfile, fieldnames=list(item_d.keys()))
@@ -320,7 +364,7 @@ def main():
                 # Print stdout
                 cols = ["Success", "Phases", "Id"]
                 for i in range(phases): cols += ["Phase {0}".format(i+1)]
-                cols += ["Warm Start", "Logs", "Base Sample", "Bit-0 Pvalue", "Bit-1 Pvalue", "Error"]
+                cols += ["Warm Start", "Account", "Logs", "Base Sample", "Bit-0 Pvalue", "Bit-1 Pvalue", "Error"]
 
                 firstline = ""
                 line = ""

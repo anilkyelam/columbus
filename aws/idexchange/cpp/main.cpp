@@ -23,6 +23,7 @@
 #include <iomanip>
 #include <fstream>
 #include <iomanip>
+#include <chrono> 
 
 #include <netdb.h>
 #include <unistd.h>
@@ -606,6 +607,15 @@ invocation_response my_handler(invocation_request const& request, const std::sha
 
    lprintf("Starting lambda %d (GUID: %s) at %s", id, guid.c_str(), start_time.c_str());
    lambdas.push_back(guid);
+
+   
+   #if __cplusplus==201402L
+   lprintf("C++14\n");
+   #elif __cplusplus==201103L
+   lprintf("C++11\n");
+   #else
+   lprintf("C++\n");
+   #endif
 
    // Test availability of s3 bucket
    if (success && !s3bucket.empty()) { 

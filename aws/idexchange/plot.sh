@@ -28,6 +28,7 @@ do
         -xl "Number of neighbors" \
         -o $plot -d ${dir}/clusters -of pdf
     echo "Plot at: $plot"
+    cp $plot plots/
     display $plot &
 done
 
@@ -94,5 +95,30 @@ done
 # python plot.py -xc "Count" -xl "Run Size (Lambda Count)" -yl "Time (secs)" -fs 20  --xstr \
 #     -yc "Protocol Time" -l "FAKE DATA FOR NOW" \
 #     -o $plot -d $datafile -of pdf
+# echo "Plot at: $plot"
+# display $plot &
+
+
+
+# # Plot colocation densities in various regions
+# # data from experiments: 09-22-15-08, 09-22-15-15, 09-22-15-18, 09-22-15-21, 09-22-15-24, 09-22-01-34, 09-17-14-13
+# datafile=plots/density.dat
+# plot=plots/density.pdf
+# python plot.py -xc "Region" -xl " " -yl "Count" -fs 20 -z bar  --xstr \
+#     -yc "Density" -l "Avg. Lambdas Per Server"\
+#     -o $plot -d $datafile -of pdf
+# echo "Plot at: $plot"
+# display $plot &
+
+
+# # # Get & Plot weekly and other variations in colocation density for regions
+# # # Parse data from runs
+# (bash show.sh 09-2[6-9] && bash show.sh 09-30 && bash show.sh 10-0[1-7] ) | grep 1000 | grep sa-east-1 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$12} ' > plots/density-sa-east-1.dat
+# (bash show.sh 09-2[6-9] && bash show.sh 09-30 && bash show.sh 10-0[1-7] ) | grep 1000 | grep us-east-2 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$12} ' > plots/density-us-east-2.dat
+# plot=plots/weekly-density.pdf
+# python plot.py -xc "Date" -xl " " -yl "Density" -fs 15 --xstr   \
+#     -d plots/density-sa-east-1.dat -yc "Density" -l "sa-east-1"     \
+#     -d plots/density-us-east-2.dat  -l "us-east-2"     \
+#     -o $plot -of pdf
 # echo "Plot at: $plot"
 # display $plot &

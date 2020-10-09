@@ -76,9 +76,11 @@ aws iam get-role --role-name ${ROLE}
 if [ $? -ne 0 ]; then
     # Does not exist
     aws iam create-role --role-name ${ROLE} --assume-role-policy-document file://$dir/cpp/trust-policy.json
-    aws iam attach-role-policy --role-name ${ROLE} --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-    aws iam attach-role-policy --role-name ${ROLE} --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess      # To write responses to S3 
 fi
+
+aws iam attach-role-policy --role-name ${ROLE} --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+aws iam attach-role-policy --role-name ${ROLE} --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess      # To write responses to S3 
+
 
 # Create or update function
 aws lambda get-function --function-name ${NAME} 1>/dev/null
