@@ -1,0 +1,476 @@
+
+
+@inproceedings{ristenpartccs2009,
+ author = {Ristenpart, Thomas and Tromer, Eran and Shacham, Hovav and Savage, Stefan},
+ title = {Hey, You, Get off of My Cloud: Exploring Information Leakage in Third-party Compute Clouds},
+ booktitle = {Proceedings of the 16th ACM Conference on Computer and Communications Security},
+ series = {CCS '09},
+ year = {2009},
+ isbn = {978-1-60558-894-0},
+ location = {Chicago, Illinois, USA},
+ pages = {199--212},
+ numpages = {14},
+ url = {http://doi.acm.org/10.1145/1653662.1653687},
+ doi = {10.1145/1653662.1653687},
+ acmid = {1653687},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {cloud computing, side channels, virtual machine security},
+} 
+
+@article{Barham,
+ author = {Barham, Paul and Dragovic, Boris and Fraser, Keir and Hand, Steven and Harris, Tim and Ho, Alex and Neugebauer, Rolf and Pratt, Ian and Warfield, Andrew},
+ title = {Xen and the Art of Virtualization},
+ journal = {SIGOPS Oper. Syst. Rev.},
+ issue_date = {December 2003},
+ volume = {37},
+ number = {5},
+ month = oct,
+ year = {2003},
+ issn = {0163-5980},
+ pages = {164--177},
+ numpages = {14},
+ url = {http://doi.acm.org/10.1145/1165389.945462},
+ doi = {10.1145/1165389.945462},
+ acmid = {945462},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {hypervisors, paravirtualization, virtual machine monitors},
+} 
+
+@article{Soltesz,
+ author = {Soltesz, Stephen and P\"{o}tzl, Herbert and Fiuczynski, Marc E. and Bavier, Andy and Peterson, Larry},
+ title = {Container-based Operating System Virtualization: A Scalable, High-performance Alternative to Hypervisors},
+ journal = {SIGOPS Oper. Syst. Rev.},
+ issue_date = {June 2007},
+ volume = {41},
+ number = {3},
+ month = mar,
+ year = {2007},
+ issn = {0163-5980},
+ pages = {275--287},
+ numpages = {13},
+ url = {http://doi.acm.org/10.1145/1272998.1273025},
+ doi = {10.1145/1272998.1273025},
+ acmid = {1273025},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {Linux-VServer, Xen, alternative, container, hypervisor, operating, system, virtualization},
+} 
+
+@misc{awscloud,
+ title = {Amazon EC2},
+ howpublished = {\url{https://aws.amazon.com/ec2/}},
+ year = {2019},
+ key = {aws},
+}
+
+@misc{awscontainers,
+ title = {Amazon Containers},
+ howpublished = {\url{https://aws.amazon.com/containers/}},
+ year = {2019},
+ key = {aws},
+}
+
+@misc{azurecloud,
+ title = {Azure VMs},
+ howpublished = {\url{https://azure.microsoft.com/en-us/services/virtual-machines/}},
+ year = {2019},
+ key = {Azure},
+}
+
+@misc{googlecloud,
+ title = {Google Compute},
+ howpublished = {\url{https://cloud.google.com/products/compute/}},
+ year = {2019},
+ key = {GoogleCloud},
+}
+
+@misc{awslambda,
+ title = {AWS Lambda},
+ howpublished = {\url{https://aws.amazon.com/lambda/}},
+ year = {2019},
+ key = {Lambda},
+}
+
+@misc{gcpfunctions,
+ title = {Google Cloud Functions},
+ howpublished = {\url{https://cloud.google.com/functions/}},
+ year = {2019},
+ key = {gcp},
+}
+
+@misc{azurefunctions,
+ title = {Azure Functions},
+ howpublished = {\url{https://azure.microsoft.com/en-us/services/functions/}},
+ year = {2019},
+ key = {azure},
+}
+
+@misc{awscontainerreuse,
+ title = {Understanding Container Reuse in AWS Lambda},
+ howpublished = {\url{https://aws.amazon.com/blogs/compute/container-reuse-in-lambda/}},
+ year = {2018},
+ key = {aws},
+}
+
+@article{Armbrust,
+ author = {Armbrust, Michael and Fox, Armando and Griffith, Rean and Joseph, Anthony D. and Katz, Randy and Konwinski, Andy and Lee, Gunho and Patterson, David and Rabkin, Ariel and Stoica, Ion and Zaharia, Matei},
+ title = {A View of Cloud Computing},
+ journal = {Commun. ACM},
+ issue_date = {April 2010},
+ volume = {53},
+ number = {4},
+ month = apr,
+ year = {2010},
+ issn = {0001-0782},
+ pages = {50--58},
+ numpages = {9},
+ url = {http://doi.acm.org/10.1145/1721654.1721672},
+ doi = {10.1145/1721654.1721672},
+ acmid = {1721672},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@inproceedings{Manco,
+ author = {Manco, Filipe and Lupu, Costin and Schmidt, Florian and Mendes, Jose and Kuenzer, Simon and Sati, Sumit and Yasukata, Kenichi and Raiciu, Costin and Huici, Felipe},
+ title = {My VM is Lighter (and Safer) Than Your Container},
+ booktitle = {Proceedings of the 26th Symposium on Operating Systems Principles},
+ series = {SOSP '17},
+ year = {2017},
+ isbn = {978-1-4503-5085-3},
+ location = {Shanghai, China},
+ pages = {218--233},
+ numpages = {16},
+ url = {http://doi.acm.org/10.1145/3132747.3132763},
+ doi = {10.1145/3132747.3132763},
+ acmid = {3132763},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {Virtualization, Xen, containers, hypervisor, operating systems, specialization, unikernels, virtual machine},
+} 
+
+@inproceedings{meltdown,
+ author = {Moritz Lipp and Michael Schwarz and Daniel Gruss and Thomas Prescher and Werner Haas and Anders Fogh and Jann Horn and Stefan Mangard and Paul Kocher and Daniel Genkin and Yuval Yarom and Mike Hamburg},
+ title = {Meltdown: Reading Kernel Memory from User Space},
+ booktitle = {27th {USENIX} Security Symposium ({USENIX} Security 18)},
+ year = {2018},
+}
+
+% 
+@InProceedings{zhang2016,
+author="Zhang, Weijuan
+and Jia, Xiaoqi
+and Wang, Chang
+and Zhang, Shengzhi
+and Huang, Qingjia
+and Wang, Mingsheng
+and Liu, Peng",
+editor="Lam, Kwok-Yan
+and Chi, Chi-Hung
+and Qing, Sihan",
+title="A Comprehensive Study of Co-residence Threat in Multi-tenant Public PaaS Clouds",
+booktitle="Information and Communications Security",
+year="2016",
+publisher="Springer International Publishing",
+address="Cham",
+pages="361--375",
+isbn="978-3-319-50011-9"
+}
+
+@inproceedings{gao2017,
+	title = {ContainerLeaks: Emerging Security Threats of Information Leakages in Container Clouds},
+	booktitle = {Dependable Systems and Networks (DSN), 2017 47th Annual IEEE/IFIP International Conference on},
+	year = {2017},
+	pages = {237{\textendash}248},
+	publisher = {IEEE},
+	organization = {IEEE},
+	author = {Gao, Xing and Gu, Zhongshu and Kayaalp, Mehmet and Pendarakis, Dimitrios and Wang, Haining}
+}
+
+@inproceedings{zhang2016memory,
+author = {Zhang, Tianwei and Zhang, Yinqian and Lee, Ruby},
+year = {2016},
+month = {03},
+pages = {},
+title = {Memory DoS Attacks in Multi-tenant Clouds: Severity and Mitigation}
+}
+
+@inproceedings{kaylaap2016,
+author = {Kayaalp, Mehmet and Abu-Ghazaleh, Nael and Ponomarev, Dmitry and Jaleel, Aamer},
+year = {2016},
+month = {06},
+pages = {1-6},
+title = {A high-resolution side-channel attack on last-level cache},
+doi = {10.1145/2897937.2897962}
+}
+
+@mastersthesis{izhikevich2018,
+  author       = {Elizabeth Izhikevich}, 
+  title        = {Building and Breaking Burst-Parallel Systems},
+  school       = {University of California, San Diego},
+  year         = 2018,
+}
+
+@article{kiran2015,
+  title={Lambda architecture for cost-effective batch and speed big data processing},
+  author={Mariam Kiran and Peter Murphy and Inder Monga and Jon Dugan and Sartaj Singh Baveja},
+  journal={2015 IEEE International Conference on Big Data (Big Data)},
+  year={2015},
+  pages={2785-2792}
+}
+
+@inproceedings{villamizar2016,
+author = {Villamizar, Mario and Garcés, Oscar and Ochoa, Lina and Castro, Harold and Salamanca, Lorena and Verano Merino, Mauricio and Casallas, Rubby and Gil, Santiago and Valencia, Carlos and Zambrano, Angee and Lang, Mery},
+year = {2016},
+month = {05},
+pages = {},
+title = {Infrastructure Cost Comparison of Running Web Applications in the Cloud Using AWS Lambda and Monolithic and Microservice Architectures},
+doi = {10.1109/CCGrid.2016.37}
+}
+
+@inproceedings{liu2015,
+author = {Liu, Fangfei and Yarom, Yuval and ge, Qian and Heiser, Gernot and Lee, Ruby},
+year = {2015},
+month = {07},
+pages = {605-622},
+title = {Last-Level Cache Side-Channel Attacks are Practical},
+volume = {2015},
+doi = {10.1109/SP.2015.43}
+}
+
+% Cache-based and Memory bus based attacks in detail
+@inproceedings {wuusenix2012,
+author = {Zhenyu Wu and Zhang Xu and Haining Wang},
+title = {Whispers in the Hyper-space: High-speed Covert Channel Attacks in the Cloud},
+booktitle = {Presented as part of the 21st {USENIX} Security Symposium ({USENIX} Security 12)},
+year = {2012},
+isbn = {978-931971-95-9},
+address = {Bellevue, WA},
+pages = {159--173},
+url = {https://www.usenix.org/conference/usenixsecurity12/technical-sessions/presentation/wu},
+publisher = {{USENIX}},
+}
+
+% another cache-based covert channel
+@inproceedings{xuccsw2011,
+ author = {Xu, Yunjing and Bailey, Michael and Jahanian, Farnam and Joshi, Kaustubh and Hiltunen, Matti and Schlichting, Richard},
+ title = {An Exploration of L2 Cache Covert Channels in Virtualized Environments},
+ booktitle = {Proceedings of the 3rd ACM Workshop on Cloud Computing Security Workshop},
+ series = {CCSW '11},
+ year = {2011},
+ isbn = {978-1-4503-1004-8},
+ location = {Chicago, Illinois, USA},
+ pages = {29--40},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/2046660.2046670},
+ doi = {10.1145/2046660.2046670},
+ acmid = {2046670},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {bandwidth, covert channel},
+}
+
+@inproceedings{varadarajan2015,
+  author    = {Venkatanathan Varadarajan and
+               Yinqian Zhang and
+               Thomas Ristenpart and
+               Michael M. Swift},
+  title     = {A Placement Vulnerability Study in Multi-tenant Public Clouds},
+  journal   = {CoRR},
+  volume    = {abs/1507.03114},
+  year      = {2015},
+  url       = {http://arxiv.org/abs/1507.03114},
+  archivePrefix = {arXiv},
+  eprint    = {1507.03114},
+  timestamp = {Mon, 13 Aug 2018 16:47:48 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/VaradarajanZRS15.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{zhang2011,
+author = {Zhang, Yinqian and Juels, Ari and Oprea, Alina and Reiter, Michael},
+year = {2011},
+month = {06},
+pages = {313 - 328},
+title = {HomeAlone: Co-Residency Detection in the Cloud via Side-Channel Analysis},
+doi = {10.1109/SP.2011.31}
+}
+
+@inproceedings{zhangpaas2016,
+author = {Zhang, Weijuan and Jia, Xiaoqi and Wang, Chang and Zhang, Shengzhi and Huang, Qingjia and Wang, Mingsheng and Liu, Peng},
+year = {2016},
+month = {11},
+pages = {361-375},
+title = {A Comprehensive Study of Co-residence Threat in Multi-tenant Public PaaS Clouds},
+volume = {9977},
+isbn = {978-3-319-50010-2},
+doi = {10.1007/978-3-319-50011-9_28}
+}
+
+@inproceedings{bates2012,
+author = {Bates, Adam and Mood, Benjamin and Pletcher, Joe and Pruse, Hannah and Valafar, Masoud and Butler, Kevin},
+year = {2012},
+month = {10},
+pages = {},
+title = {Detecting co-residency with active traffic analysis techniques},
+isbn = {978-1-4503-1665-1},
+doi = {10.1145/2381913.2381915}
+}
+
+% VM coresidency in 2015. How AWS reacted to the threats
+% 
+@inproceedings {xuusenix2015,
+author = {Zhang Xu and Haining Wang and Zhenyu Wu},
+title = {A Measurement Study on Co-residence Threat inside the Cloud},
+booktitle = {24th {USENIX} Security Symposium ({USENIX} Security 15)},
+year = {2015},
+isbn = {978-1-931971-232},
+address = {Washington, D.C.},
+pages = {929--944},
+url = {https://www.usenix.org/conference/usenixsecurity15/technical-sessions/presentation/xu},
+publisher = {{USENIX} Association},
+month = aug,
+}
+
+%% Example of Side channel attacks in containers
+@inproceedings{zhangccs2014,
+ author = {Zhang, Yinqian and Juels, Ari and Reiter, Michael K. and Ristenpart, Thomas},
+ title = {Cross-Tenant Side-Channel Attacks in PaaS Clouds},
+ booktitle = {Proceedings of the 2014 ACM SIGSAC Conference on Computer and Communications Security},
+ series = {CCS '14},
+ year = {2014},
+ isbn = {978-1-4503-2957-6},
+ location = {Scottsdale, Arizona, USA},
+ pages = {990--1003},
+ numpages = {14},
+ url = {http://doi.acm.org/10.1145/2660267.2660356},
+ doi = {10.1145/2660267.2660356},
+ acmid = {2660356},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {cache-based side channels, cloud security, platform-as-a-service, side-channel attacks},
+}
+
+@inproceedings{evtyushkinccs2016,
+ author = {Evtyushkin, Dmitry and Ponomarev, Dmitry},
+ title = {Covert Channels Through Random Number Generator: Mechanisms, Capacity Estimation and Mitigations},
+ booktitle = {Proceedings of the 2016 ACM SIGSAC Conference on Computer and Communications Security},
+ series = {CCS '16},
+ year = {2016},
+ isbn = {978-1-4503-4139-4},
+ location = {Vienna, Austria},
+ pages = {843--857},
+ numpages = {15},
+ url = {http://doi.acm.org/10.1145/2976749.2978374},
+ doi = {10.1145/2976749.2978374},
+ acmid = {2978374},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {covert channels, random number generator},
+} 
+@INPROCEEDINGS{8023126,
+author={X. {Gao} and Z. {Gu} and M. {Kayaalp} and D. {Pendarakis} and H. {Wang}},
+booktitle={2017 47th Annual IEEE/IFIP International Conference on Dependable Systems and Networks (DSN)},
+title={ContainerLeaks: Emerging Security Threats of Information Leakages in Container Clouds},
+year={2017},
+volume={},
+number={},
+pages={237-248},
+keywords={cloud computing;Linux;security of data;security threats;information leakages;container clouds;Linux kernel;system resource isolation mechanisms;two-stage defense approach;Containers;Kernel;Linux;Cloud computing;Servers;Security},
+doi={10.1109/DSN.2017.49},
+ISSN={2158-3927},
+month={June},}
+
+@inproceedings{mastiusenix2015,
+ author = {Masti, Ramya Jayaram and Rai, Devendra and Ranganathan, Aanjhan and M\"{u}ller, Christian and Thiele, Lothar and Capkun, Srdjan},
+ title = {Thermal Covert Channels on Multi-core Platforms},
+ booktitle = {Proceedings of the 24th USENIX Conference on Security Symposium},
+ series = {SEC'15},
+ year = {2015},
+ isbn = {978-1-931971-232},
+ location = {Washington, D.C.},
+ pages = {865--880},
+ numpages = {16},
+ url = {http://dl.acm.org/citation.cfm?id=2831143.2831198},
+ acmid = {2831198},
+ publisher = {USENIX Association},
+ address = {Berkeley, CA, USA},
+} 
+
+@inproceedings {wangusenix2018,
+author = {Liang Wang and Mengyuan Li and Yinqian Zhang and Thomas Ristenpart and Michael Swift},
+title = {Peeking Behind the Curtains of Serverless Platforms},
+booktitle = {2018 {USENIX} Annual Technical Conference ({USENIX} {ATC} 18)},
+year = {2018},
+isbn = {ISBN 978-1-939133-01-4},
+address = {Boston, MA},
+pages = {133--146},
+url = {https://www.usenix.org/conference/atc18/presentation/wang-liang},
+publisher = {{USENIX} Association},
+month = jul,
+}
+
+@inproceedings {firecracker,
+author = {Alexandru Agache and Marc Brooker and Alexandra Iordache and Anthony Liguori and Rolf Neugebauer and Phil Piwonka and Diana-Maria Popa},
+title = {Firecracker: Lightweight Virtualization for Serverless Applications },
+booktitle = {17th {USENIX} Symposium on Networked Systems Design and Implementation ({NSDI} 20)},
+year = {2020},
+isbn = {978-1-939133-13-7},
+address = {Santa Clara, CA},
+pages = {419--434},
+url = {https://www.usenix.org/conference/nsdi20/presentation/agache},
+publisher = {{USENIX} Association},
+month = feb,
+}
+
+@inproceedings{Xu2014PowerAA,
+  title={Power Attack: An Increasing Threat to Data Centers},
+  author={Zhang Xu and Haining Wang and Zichen Xu and Xiaorui Wang},
+  booktitle={NDSS},
+  year={2014}
+}
+
+@inproceedings {varad191016,
+author = {Venkatanathan Varadarajan and Yinqian Zhang and Thomas Ristenpart and Michael Swift},
+title = {A Placement Vulnerability Study in Multi-Tenant Public Clouds},
+booktitle = {24th {USENIX} Security Symposium ({USENIX} Security 15)},
+year = {2015},
+isbn = {978-1-939133-11-3},
+address = {Washington, D.C.},
+pages = {913--928},
+url = {https://www.usenix.org/conference/usenixsecurity15/technical-sessions/presentation/varadarajan},
+publisher = {{USENIX} Association},
+month = aug,
+}
+
+@inproceedings{cache-sidechannels,
+author = {Xu, Yunjing and Bailey, Michael and Jahanian, Farnam and Joshi, Kaustubh and Hiltunen, Matti and Schlichting, Richard},
+title = {An Exploration of L2 Cache Covert Channels in Virtualized Environments},
+year = {2011},
+isbn = {9781450310048},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2046660.2046670},
+doi = {10.1145/2046660.2046670},
+booktitle = {Proceedings of the 3rd ACM Workshop on Cloud Computing Security Workshop},
+pages = {29–40},
+numpages = {12},
+keywords = {bandwidth, covert channel},
+location = {Chicago, Illinois, USA},
+series = {CCSW ’11}
+}
+
+@inproceedings {vmplacement,
+author = {Zhang Xu and Haining Wang and Zhenyu Wu},
+title = {A Measurement Study on Co-residence Threat inside the Cloud},
+booktitle = {24th {USENIX} Security Symposium ({USENIX} Security 15)},
+year = {2015},
+isbn = {978-1-939133-11-3},
+address = {Washington, D.C.},
+pages = {929--944},
+url = {https://www.usenix.org/conference/usenixsecurity15/technical-sessions/presentation/xu},
+publisher = {{USENIX} Association},
+month = aug,
+}
