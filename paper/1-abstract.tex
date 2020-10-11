@@ -1,5 +1,25 @@
 
 \begin{abstract}
+
+
+\amirian{Cloud computing has seen explosive growth in the past decade. While
+efficient sharing of infrastructure among tenants has contributed to this
+growth, the same principles also open avenues for covert-channels, or the
+capability to share information between processes that should be hypothetically
+isolated.  Providers like AWS and Azure have traditionally relied on obfuscation
+to prevent this leakage of information, but recent works have repeatedly found
+detection techniques that break this encapsulation, prompting the providers to
+harden isolation on their platforms. In this work, we find yet another such
+covert-channel for lambdas based on the memory bus, which is more pervasive,
+reliable, and harder to fix.  We show that this technique can be used to
+reliably perform co-operative co-residence detection for thousands of AWS
+lambdas within a few seconds, which could aid attackers in performing DDoS
+attacks or learn cloud's internal mechanisms. In this paper, we present the
+technique in detail, evaluate it, and use it to perform a measurement study on
+lambda activity across AWS regions.  Through this work, we hope to motivate the
+need to address this covert channel in the cloud.}
+
+
 Cloud computing has seen explosive growth in the past
 decade. This is made possible by efficient sharing of
 infrastructure among tenants, which unfortunately also 
