@@ -1,12 +1,10 @@
 \section{Neighbor Discovery Protocol}
 \label{sec:technique}
  
-As noted earlier, co-residence detection for lambdas must be quick, as lambdas
+Co-residence detection for lambdas must be quick, as lambdas
 are ephemeral by nature. Thus, we require a way for lambdas to communicate among
 themselves and discover each other in a scalable manner. 
-\amirian{in an attempt to talk about our problems more, I wrote the first two
-sentences to replace this following on...flagging so someone else can take a
-look}Co-residence detection for lambdas scales well when co-residing instances
+As noted earlier, co-residence detection scales well when co-residing instances
 on each server communicate among themselves and discover each other.  
 Assuming that the instances have unique IDs, co-resided instances can exchange
 integer IDs with each other using the memory bus channel as a transmission
@@ -32,8 +30,7 @@ itself.
 
 \subsection{Reliable Transmission}
 First, we must determine how to reliably transmit information between the sender
-and receiver.\amirian{added this first sentence to give more motivation...bit of
-flow jam here} Senders and receivers can accurately communicate 0-bits and 1-bits
+and receiver. Senders and receivers can accurately communicate 0-bits and 1-bits
 by causing contention on the memory bus. Consider the simple scenario where
 there is one sender and one receiver instance on a machine, and the sender has a
 set of bits that it needs to communicate with the receiver via the memory bus
@@ -42,7 +39,7 @@ on the memory bus by locking it using the special memory locking operations
 (discussed in section~\ref{sec:background:membus}). The receiver would then
 sample the memory bus for contention, inferring whether the communication is a
 1-bit (when contention is observed) or a 0-bit (when contention is not
-observed).  Pseudo-code for the sender instance is shown in
+observed). Pseudo-code for the sender instance is shown in
 Algorithm~\ref{alg:sender}.
 
 \subsubsection{Sensing contention} 
@@ -58,11 +55,10 @@ locking} receiver) to probe the memory bus. Since only one processor core can
 lock the memory bus at a given time, any other concurrent locking operation will
 see higher latency. 
 
-Though two methods exist for detecting memory bus contention, we decide to use
-the memory locking receiver for our experiments. Previous
-studies\cite{wuusenix2012,varadarajan2015} have established that both memory
+Of these two methods, we decide to use the memory locking receiver for our experiments. 
+Previous studies\cite{wuusenix2012,varadarajan2015} have established that both memory
 probing and memory locking receivers experience significant latency overhead
-during memory bus contention, making them both avenues for sensing the
+during memory bus contention, making them both viable avenues for sensing the
 covert-channel. Memory probing involves regular (un-cached) memory accesses,
 which is universal, unlike the locking operations which are rarely used, if at
 all, by standard applications. This makes memory probing the only viable option
@@ -77,8 +73,9 @@ task \todo{cite some papers}. Even with a reliable cache-bypassing technique,
 the variety of cache architectures and sizes that we encounter on different
 clouds would make tuning the technique to suit these architectures an arduous
 task while reducing the applicability of our overall co-residence detection
-mechanism. Thus, we decide to use the memory locking receiver as our sensing
-mechanism.
+mechanism. 
+%Thus, we decide to use the memory locking receiver as our sensing mechanism.
+%% we already said it at the beginning of the paragraph
 
 
 \begin{algorithm}[!t]
@@ -106,7 +103,7 @@ mechanism.
 
 \subsubsection{Sampling frequency}
 Another challenge for our protocol is determining an adequate sampling
-frequency.  Ideally, a memory locking receiver would loop locking operations and
+frequency. Ideally, a memory locking receiver would loop locking operations and
 determine contention in real-time by identifying a decrease in the moving
 average of the number of operations. Note that, in this case, there is
 essentially no difference between the sender and receiver (i.e., both
@@ -123,12 +120,10 @@ between samples is reasonable to minimize noise due to collisions in receiver
 sampling~\ref{fig:membus_clouds}, assuming ten co-resided receivers and a few
 microsecond sampling time.
 
-\subsubsection{Sampling duration} 
+\subsubsection{Sample Size} 
 \label{sec:method:samplingdur}
-
-\amirian{is sampling duration the right header for this subsubsection?}
-In addition to adequate sampling frequency, we must also determine sampling
-duration.  A receiver can confirm contention with high confidence with only a
+In addition to adequate sampling frequency, we must also determine sample size.  
+A receiver can confirm contention with high confidence with only a
 few samples, assuming that the sender is actively causing contention on the
 memory bus and the receiver is constantly sampling the memory bus throughout the
 sampling duration.  However, in practice, the time-sharing of processors
@@ -164,8 +159,7 @@ samples to make up for lost communication due to scheduling.
 \subsubsection{Overcoming noise} 
 \label{sec:method:noise}
 Along with context switching and sensing noise, there are other imperfections in
-the measurement apparatus that cause \amirian{I dont think we need the word
-minor but it's a nit}(minor) noise. For example, we use the difference in
+the measurement apparatus that may cause noise. For example, we use the difference in
 readings from the timestamp counter of the processor (RDTSC) before and after
 the locking operation to measure the latency of the operation in cycles. If the
 receiver process is context-switched in between the timer readings (e.g., at
@@ -176,13 +170,12 @@ contributes to the long tail in Figure~\ref{fig:context_switching}. To overcome
 missed samples and noise, we record hundreds of samples and compare it to the
 baseline distribution of latencies sampled without contention. We then need to
 compare and differentiate the observed sample of latencies from the baseline to
-establish contention. Since we effectively need to compare the empirical CDFs of
-the baseline measurements to the contention measurements, we decide to use a
-variant of the two-sample Kolomogorov-Smirinov (KS) test (which is used to
-determine statistical differences in CDFs). By taking the mean of the absolute
-differences between the empirical CDFs, we can categorize a KS-value above a
-certain threshold as a 1-bit (contention) and a value below the
-threshold as 0-bit (baseline).
+establish contention. To do this, we use a variant of the two-sample 
+Kolomogorov-Smirinov (KS) test that takes the maximum of absolute difference between 
+empirical CDFs of the samples as measure of comparison ((In our variant, we take the 
+\emph{mean} of absolute difference instead of the maximum)). Using this measure,
+we can categorize a KS-value above a certain threshold as a 1-bit (contention) and a 
+value below the threshold as 0-bit (baseline).
 
 To determine the KS-threshold, we deploy a large number of lambdas across AWS
 regions. Some of these lambdas cause contention (aka senders) while others
@@ -193,12 +186,12 @@ calculate the KS-value for each sample against the baseline and plot a CDF of
 these values for lambdas of different sizes in Figure~\ref{fig:ks_values}.
 Ideally, we expect a bi-modal distribution (stepped CDF) with the upper and
 lower peaks corresponding to samples that have and have not seen contention, and
-a big gap between the two (long step). Fortunately, we examine this
+a big gap between the two (long step). Fortunately, we observe this
 differentiation with larger lambda sizes (which allows us to choose a clear
-threshold), but we do not examine a clear differentiation with smaller lambdas,
+threshold), but we do not observe a clear differentiation with smaller lambdas,
 where scheduling instability causes lossy communication (discussed in~\ref{sec:method:samplingdur}).  
 This trend also reflects in the reliability of our technique across various
-lambda sizes, as we will show in our evaluation.  Based on the plot, we picked a
+lambda sizes, as we will show in our evaluation. Based on the plot, we picked a
 KS-threshold at 3.0 which seems to be constant across AWS regions, suggesting
 that this threshold is a platform constant.
 
@@ -249,13 +242,12 @@ instances can either cause contention or sense it, but not both. Note that
 senders do experience a higher latency for locking operations when other senders
 are simultaneously causing contention. However, reliably judging this higher
 latency requires each sender to already have calculated a baseline of latencies
-without collisions\amirian{chicken and egg is a bit too colloquial...need to
-figure out how to communicate this thought better}. Second, even implementing a
+without collisions, which takes us back to the original problem of avoiding collisions. 
+Second, even implementing a
 random or exponential backoff mechanism will introduce significant overhead before any
 meaningful communication occurs. This overhead will also increase as the number
-of instances involved increases. Since each time slot takes up to 1 second, the
-additional overhead can be detrimental to the efficacy of the communication
-channel.
+of instances involved increases. Since each time slot could take up to 1 second, this
+additional overhead can make the whole communication very slow.
 
 
 \begin{algorithm}[!t]
@@ -297,8 +289,8 @@ channel.
 
 \amirian{I think in general we need a bit more sign-posting to guide the reader.
 I will think about this a bit more}.
-However, a communication channel for lambda co-residence detection need not be
-general and expressive as lambdas only need to communicate their IDs with one 
+We make the insight that a communication channel for lambda co-residence detection 
+need not be general and expressive as lambdas only need to communicate their IDs with one 
 another. Thus, we assume that each instance
 involved has a unique fixed-length (say \emph{n}) bit-string corresponding to
 its ID that must be communicated.  As such, we propose a communication protocol
