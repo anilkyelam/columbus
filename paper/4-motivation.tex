@@ -122,28 +122,26 @@ hardware is more homogenous in nature than software.
 % lambda co-location, as we are not able to differentiate when contention is happening.
 
 \subsubsection{Memory bus channel}
-We chose the memory bus covert channel described
-in section~\ref{sec:background:membus} as it exploits a fundamental hardware
+We chose the memory bus covert channel described in
+section~\ref{sec:background:membus} as it exploits a fundamental hardware
 vulnerability that is present across all generations of x86 hardware.
 Historically, multiple public cloud services have been vulnerable to this
-channel~\cite{varad191016,zhang2016}, and we found that they are
-still vulnerable today. To demonstrate the presence of the vulnerability, 
-we measure the latency of atomic operations on a 4B memory region as 
-we slide the region from one cacheline into another across the cacheline 
-boundary. We perform this experiment on three major clouds (AWS, Google 
-and Microsoft Azure) and we show the latencies observed in Figure 
-\ref{fig:membus_clouds}. From the figure, we can see that all three clouds 
-still exhibit significant difference in latencies for the "exotic" memory locking
-operations (where the memory region falls across cacheline boundary) when compared 
-to regular memory accesses, demonstrating the presence of this covert channel 
-on all of them. Moreover, we were able to run these experiments on 
-serverless function instances, whose runtimes are generally restricted to 
-high-level languages that
-prevent the pointer arithmetic required to perform these exotic operations.  
-(We used the unsafe environments--C++ on AWS, Unsafe Go
-on GCP, Unsafe C\# On Azure--that these clouds allowed for their serverless functions). 
-This shows the applicability of using the covert channel across 
-different kinds of cloud instances as well.
+channel~\cite{varad191016,zhang2016}, and we found that they are still
+vulnerable today. To demonstrate the presence of the vulnerability, we measure
+the latency of atomic operations on a 4B memory region as we slide the region
+from one cacheline into another across the cacheline boundary. We perform this
+experiment on three major clouds (AWS, Google and Microsoft Azure) and show the
+latencies observed in Figure~\ref{fig:membus_clouds}. From the figure, we can
+see that all three clouds still exhibit significant difference in latencies for
+the "exotic" memory locking operations (where the memory region falls across
+cacheline boundary) when compared to regular memory accesses, demonstrating the
+presence of this covert channel on all of them. Moreover, we were able to run
+these experiments on serverless function instances. Since serverless function
+instances have runtimes that are generally restricted to high-level languages
+(that prevent the pointer arithmetic required to perform these exotic
+operations), we used the unsafe environments on these clouds --- C++ on AWS,
+Unsafe Go on GCP, Unsafe C\# On Azure. This shows the applicability of using the
+covert channel across different kinds of cloud instances as well.
 
 
 % why previous approaches were not scalable
@@ -165,51 +163,51 @@ An alternative method is to try pair-wise detection where only one attack
 instance locks and one victim instance probes at a time revealing co-residence
 of this pair, and repeating this serially for each pair. However, this technique
 is too slow and scales quadratically with the number of instances e.g., a
-hundred instances take more than 10 hours assuming 10 secs for each pair. 
-Varadarajan et al.\cite{varad191016} speeds up 
-this process significantly by performing detection for mutually-exclusive
-subsets in parallel, allowing for false-positives and later eliminating the
-false-positives sequentially\amirian{might want to elaborate on this; on its
-own may be a bit confusing}. This would still only scale linearly in the best
-case, which is still expensive; With a thousand
-instances, for example, the whole detection process takes well over 2 hours to
-finish, which is infeasible for lambdas that are, by nature, ephemeral. Thus,
-one challenge in this work is creating a faster neighbor detection algorithm.
+hundred instances take more than 10 hours assuming 10 secs for each pair.
+Varadarajan et al.\cite{varad191016} speeds up this process significantly by
+performing detection for mutually-exclusive subsets in parallel, allowing for
+false-positives and later eliminating the false-positives
+sequentially\amirian{might want to elaborate on this; on its own may be a bit
+confusing}. This would still only scale linearly in the best case, which is
+still expensive; with a thousand instances, for example, the whole detection
+process takes well over 2 hours to finish, which is infeasible for lambdas that
+are, by nature, ephemeral. Thus, one challenge in this work is creating a faster
+neighbor detection algorithm.
 
 % how do we scale it - challenges.
 \subsubsection{The Path to Scalability}
 
-One method to quicken the co-location process is by cutting down on the time it
-takes for single attack-victim pair to determine co-residence i.e., improving
-upon probing time and accuracy of the victim. However, this only affects total
-time by a constant factor. To improve scalability, we need to be able to run
-the detection for different attack-victim pairs in parallel without
-sacrificing the certainty of information we get when they are run serially. 
-For example, when two pairs see co-residence, 
-we must be certain that each victim in the pair experienced
-co-residence because of its own attack instance, which is not possible if
-co-residence is ascertained based a simple yes/no signal from the attack
-instances. 
+One challenge in creating a lambda neighbor detection algorithm is speed. One
+method to quicken the co-location process is by decreasing the time a single
+attack-victim pair requires to determine co-residence i.e., improving upon
+probing time and accuracy of the victim.  However, this method only affects
+total time by a constant factor. To improve scalability, we need to be able to
+run the detection for different attack-victim pairs in parallel without
+sacrificing the certainty of information we get when they are run serially.  For
+example, when two pairs observe co-residence, we must be certain that each
+victim experienced co-residence because of its own paired attack instance, which
+is not possible if co-residence is ascertained based a simple yes/no signal from
+the attack instances. 
 
-The memory bus convert channel was used to exchange more complex
-information like keys in previous work\cite{wuusenix2012}, and at first sight,
-can be used to exchange information such as unique IDs between the co-resided instances
-to solve our problem.  However, the original work assumes that there is only one
-sender and one receiver who know exactly how and when to communicate. As we will
-see in the next section, this model is not sustainable when there exist many
-parties that have no knowledge of each other but try to communicate on the same
-channel.
+Previous work utilized the memory bus channel to exchange more complex
+information like keys~\cite{wuusenix2012}. At first sight, it appears that the
+memory bus can be used to exchange information, such as unique IDs, between the
+co-resided instances, which would allow us to ascertain victim/attacker pairs.
+However, the previous work assumes that there is only one sender and one
+receiver that know exactly how and when to communicate. As we will see in the
+next section, this model is not sustainable when there exist many parties that
+have no knowledge of each other but try to communicate on the same channel.
 
 To solve some of the challenges mentioned previously, we propose a protocol in
-which we use the memory bus covert channel to exchange information between 
-the instances (that have access to the channel). Using the protocol, 
-the co-resided instances can reliably exchange their unique IDs with each other to
-discover their neighbors. \amirian{this sentence is a bit confusing}The protocol
-takes time on the order of number of instances involved, which is limited by the
-maximum number of co-located instances on a single server (tens) -- something
-that is orders of magnitude less than total number of instances deployed to the
-cloud (hundreds to thousands).  This lets us scale our co-residence detection
-significantly, as we will see the the next section.
+which we use the memory bus covert channel to exchange information between the
+instances that have access to the channel. Using the protocol, co-resided
+instances can reliably exchange their unique IDs with each other to discover
+their neighbors. The protocol takes time on the order of number of instances
+involved, which is limited by the maximum number of co-located instances on a
+single server (tens), a number that is orders of magnitude less than total
+number of instances deployed to the cloud (hundreds to thousands).  This lets us
+scale our co-residence detection significantly, as we will see the the next
+section.
 
 % ofcourse, this only works if all the instances are in our control 
 % so we limit our focus to cooperative co-residence detection - where do 
