@@ -80,25 +80,25 @@ software-based covert channels, and are also more ubiquitous, given that
 hardware is more homogenous in nature than software. 
 % generic
 
-\subsubsection{RNG Hardware}
-\amirian{This feels a bit awkward. We might want to move this to discussion}
-We first examined covert channels based on Random Number Generator (RNG)
-hardware\cite{evtyushkinccs2016}.  Modern processors support this shared
-hardware module to generate true random numbers. 
-% These devices use low level noise signals such as thermal noise and other
-% quantum phenomena to produce true non deterministic entropy. 
-To produce true random numbers, information from this module is routed from the
-host machine to the /dev/random file in the guest virtual machine for
-cryptographic operations. Since the hardware is shared, if one guest consumes
-these random bits within an infinite\amirian{does it need to be infinite?} loop,
-another user could notice a spike in random operations, indicating contention on
-the machine.
-\amirian{do we have an old graph to back up this point of being too noisy? to
-just drive the point home that RNG is not great for these purposes} 
-However, our experiments on AWS using RNG hardware indicated that this channel
-is unreliable for lambda co-detection. We hypothesize that perhaps, because
-causing contention is easy, the channel gets too noisy as a result to accurately
-use for our purposes.
+% \subsubsection{RNG Hardware}
+% \amirian{This feels a bit awkward. We might want to move this to discussion}
+% We first examined covert channels based on Random Number Generator (RNG)
+% hardware\cite{evtyushkinccs2016}.  Modern processors support this shared
+% hardware module to generate true random numbers. 
+% % These devices use low level noise signals such as thermal noise and other
+% % quantum phenomena to produce true non deterministic entropy. 
+% To produce true random numbers, information from this module is routed from the
+% host machine to the /dev/random file in the guest virtual machine for
+% cryptographic operations. Since the hardware is shared, if one guest consumes
+% these random bits within an infinite\amirian{does it need to be infinite?} loop,
+% another user could notice a spike in random operations, indicating contention on
+% the machine.
+% \amirian{do we have an old graph to back up this point of being too noisy? to
+% just drive the point home that RNG is not great for these purposes} 
+% However, our experiments on AWS using RNG hardware indicated that this channel
+% is unreliable for lambda co-detection. We hypothesize that perhaps, because
+% causing contention is easy, the channel gets too noisy as a result to accurately
+% use for our purposes.
 
 % In order to get random bits, we used a Python module called rdrand that supports 
 % both rdrand and rdseed instructions. While our initial plan was to run only rdseed 
@@ -122,24 +122,28 @@ use for our purposes.
 % lambda co-location, as we are not able to differentiate when contention is happening.
 
 \subsubsection{Memory bus channel}
-We next explored (and ultimately used) the memory bus covert channel described
+We chose the memory bus covert channel described
 in section~\ref{sec:background:membus} as it exploits a fundamental hardware
 vulnerability that is present across all generations of x86 hardware.
 Historically, multiple public cloud services have been vulnerable to this
-channel~\cite{varad191016,compstudycoresidency}, and we found that they are
-still vulnerable today. \amirian{I think there should be another sentence or two
-describing how we got to this figure right here. It sort of feels like we just
-jump into results}.
-Moreover, we were able to demonstrate this behavior through serverless function
-instances, whose runtimes are mostly restricted to high-level languages that
-prevent the pointer arithmetic required to perform these exotic operations.  To
-demonstrate this attack, we used the unsafe environments (C++ on AWS, Unsafe Go
-on GCP, Unsafe C\# On Azure) that these clouds allowed. 
-Figure~\ref{fig:membus_clouds} shows that all three major cloud providers still
-exhibit significant difference in latencies for the "exotic" memory locking
-operations when compared to regular memory access latencies. This figure shows
-the applicability of using memory bus across different kinds of cloud instances
-as well.
+channel~\cite{varad191016,zhang2016}, and we found that they are
+still vulnerable today. To demonstrate the presence of the vulnerability, 
+we measure the latency of atomic operations on a 4B memory region as 
+we slide the region from one cacheline into another across the cacheline 
+boundary. We perform this experiment on three major clouds (AWS, Google 
+and Microsoft Azure) and we show the latencies observed in Figure 
+\ref{fig:membus_clouds}. From the figure, we can see that all three clouds 
+still exhibit significant difference in latencies for the "exotic" memory locking
+operations (where the memory region falls across cacheline boundary) when compared 
+to regular memory accesses, demonstrating the presence of this covert channel 
+on all of them. Moreover, we were able to run these experiments on 
+serverless function instances, whose runtimes are generally restricted to 
+high-level languages that
+prevent the pointer arithmetic required to perform these exotic operations.  
+(We used the unsafe environments--C++ on AWS, Unsafe Go
+on GCP, Unsafe C\# On Azure--that these clouds allowed for their serverless functions). 
+This shows the applicability of using the covert channel across 
+different kinds of cloud instances as well.
 
 
 % why previous approaches were not scalable
@@ -161,13 +165,13 @@ An alternative method is to try pair-wise detection where only one attack
 instance locks and one victim instance probes at a time revealing co-residence
 of this pair, and repeating this serially for each pair. However, this technique
 is too slow and scales quadratically with the number of instances e.g., a
-hundred instances take more than 10 hours assuming 10 secs for each pair.
-\todo{get a cost estimate on ec2}. Varadarajan et al.\cite{varad191016} speeds
+hundred instances take more than 10 hours assuming 10 secs for each pair. 
+Varadarajan et al.\cite{varad191016} speeds up 
 this process significantly by performing detection for mutually-exclusive
 subsets in parallel, allowing for false-positives and later eliminating the
-false-positives sequentially.\amirian{might want to elaborate on this; on its
-own may be a bit confusing} This would still only scale linearly in the best
-case \todo{(or not even that?)}, which is still expensive - with a thousand
+false-positives sequentially\amirian{might want to elaborate on this; on its
+own may be a bit confusing}. This would still only scale linearly in the best
+case, which is still expensive; With a thousand
 instances, for example, the whole detection process takes well over 2 hours to
 finish, which is infeasible for lambdas that are, by nature, ephemeral. Thus,
 one challenge in this work is creating a faster neighbor detection algorithm.
@@ -179,16 +183,17 @@ One method to quicken the co-location process is by cutting down on the time it
 takes for single attack-victim pair to determine co-residence i.e., improving
 upon probing time and accuracy of the victim. However, this only affects total
 time by a constant factor. To improve scalability, we need to be able to run
-detection for two\amirian{why two?} attack-victim pairs in parallel without
-sacrificing the certainty when they are run serially. For example, when both
-pairs see co-residence, we must be certain that each victim experienced
-co-residence because of its own attacker pair, which is not possible if
+the detection for different attack-victim pairs in parallel without
+sacrificing the certainty of information we get when they are run serially. 
+For example, when two pairs see co-residence, 
+we must be certain that each victim in the pair experienced
+co-residence because of its own attack instance, which is not possible if
 co-residence is ascertained based a simple yes/no signal from the attack
-instance. 
+instances. 
 
 The memory bus convert channel was used to exchange more complex
 information like keys in previous work\cite{wuusenix2012}, and at first sight,
-can be used to exchange information such as IDs between the co-resided instances
+can be used to exchange information such as unique IDs between the co-resided instances
 to solve our problem.  However, the original work assumes that there is only one
 sender and one receiver who know exactly how and when to communicate. As we will
 see in the next section, this model is not sustainable when there exist many
@@ -196,14 +201,15 @@ parties that have no knowledge of each other but try to communicate on the same
 channel.
 
 To solve some of the challenges mentioned previously, we propose a protocol in
-which we use the memory busy covert channel to exchange IDs between instances,
-and the co-resided instances reliably exchange their IDs with each other to
+which we use the memory bus covert channel to exchange information between 
+the instances (that have access to the channel). Using the protocol, 
+the co-resided instances can reliably exchange their unique IDs with each other to
 discover their neighbors. \amirian{this sentence is a bit confusing}The protocol
 takes time on the order of number of instances involved, which is limited by the
-maximum number of co-located instances on a single server (tens) - something
+maximum number of co-located instances on a single server (tens) -- something
 that is orders of magnitude less than total number of instances deployed to the
 cloud (hundreds to thousands).  This lets us scale our co-residence detection
-significantly to run in less than a minute.\amirian{seconds? minutes?}.
+significantly, as we will see the the next section.
 
 % ofcourse, this only works if all the instances are in our control 
 % so we limit our focus to cooperative co-residence detection - where do 
