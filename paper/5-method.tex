@@ -26,10 +26,10 @@ before examining the protocol itself.
 
 \subsection{Reliable Transmission}
 Senders and receivers can reliably communicate 0-bits and 1-bits by causing
-contention on the memory busy.  Consider the simple scenario where there is one
+contention on the memory bus.  Consider the simple scenario where there is one
 sender and one receiver instance on a machine, and the sender has a set of bits
 that it needs to communicate with the receiver on the memory bus covert channel.
-To communicate a 1-bit, the sender instance causes contention on the memory busy
+To communicate a 1-bit, the sender instance causes contention on the memory bus
 by locking it using the special memory locking operations (discussed in
 section~\ref{sec:background:membus}). The receiver would then sample the memory
 bus for contention, inferring whether the communication is a 1-bit (when
@@ -48,7 +48,7 @@ locking} receiver) to probe the memory bus. Since only one processor core can
 lock the memory bus at a given time, any other concurrent locking operation will
 see higher latency. 
 
-Thought two methods exist for detecting memory bus contention, we decide to use
+Though two methods exist for detecting memory bus contention, we decide to use
 the memory locking receiver for our experiments. Previous
 studies\cite{wuusenix2012,varadarajan2015} have established that both memory
 probing and memory locking receivers experience significant latency overhead
@@ -60,14 +60,14 @@ for \textbf{non-cooperative} co-residence detection, where victims are not under
 attacker's control and cannot be assumed to perform locking operations.
 Furthermore, memory probing can be done on multiple receivers constantly without
 affecting each other (due to the high memory bandwidth), which prevents noise in
-measurements.  This is an important attribute, as memory locking receivers must
+measurements. This is an important attribute, as memory locking receivers must
 contend with this noise. However, bypassing multi-levels of caches in today's
 servers to perform memory accesses with reliable consistency is a challenging
 task \todo{cite some papers}. Even with a reliable cache-bypassing technique,
 the variety of cache architectures and sizes that we encounter on different
 clouds would make tuning the technique to suit these architectures an arduous
 task while reducing the applicability of our overall co-residence detection
-mechanism.  Thus, we decide to use the memory locking receiver.
+mechanism. Thus, we decide to use the memory locking receiver.
 
 
 \begin{algorithm}[!t]
@@ -149,9 +149,8 @@ make up for lost communication due to scheduling.
 \label{sec:method:noise}
 Along with context switching and sensing noise, there are other imperfections in
 measurement apparatus that cause (minor) noise. For example, we use the
-difference in \amirian{is this the first time we mention RDTSC? do we need to
-define it for a community liek this?}RDTSC timer readings before and after the
-locking operation to measure its\amirian{what is its in this case?} latency in
+difference in readings from the timestamp counter of the processor (RDTSC) 
+before and after the locking operation to measure the latency of the operation in
 cycles. If the receiver process is context-switched in between the timer
 readings (e.g., at line 8 in Algorithm \ref{alg:receiver}), the latency measured
 from their difference will be orders of magnitude higher as it includes the
@@ -164,8 +163,8 @@ baseline to establish contention. Since we effectively need to compare the
 empirical CDFs of the baseline measurements to the contention measurements, we
 deicde to use a variant of the two-sample Kolomogorov-Smirinov (KS) test. By
 taking the mean of the absolute differences between the empirical CDFs, we can
-categorize a KS-value above a certain threshold (KS-threshold) as a 1-bit or a
-0-bit.
+categorize a KS-value above a certain threshold (KS-threshold) as a 1-bit and 
+a value below the threshold as 0-bit.
 
 To determine the threshold, we deploy a large number of lambdas across AWS
 regions. Some of these lambdas cause contention (aka senders) while others
@@ -195,14 +194,14 @@ duration), our algorithm requires synchronizing sender and receiver at the start
 of each bit. In traditional analog channels, this is achieved either using a
 separate clock signal or a self-clocking signal encoding. For example,
 \cite{whispers} uses differential Manchester encoding for clock synchronization
-for the memory bus covert channel.  Self-clocking encodings  become much
-trickier (\ques{why?}) when there are multiple senders and receivers. In this
+for the memory bus covert channel. Using self-clocking encodings becomes more 
+challenging when there are multiple senders and receivers. In this
 work, we use the system clock for synchronizing communication.
 All the instances involved in the communication would be running on the same
-physical server and so they share the server's clock.  The system clock on AWS
-lambdas, for example, is precise up to nanoseconds with a sub-microsecond drift
-between different lambdas running on the same server, which is accurate
-enough as we only work in the millisecond regime due to sampling noise
+physical server and so they share the server's clock. On AWS, for example,
+we observe that the system clock on lambdas is precise up to nanoseconds with 
+a sub-microsecond drift between different lambdas running on the same server, 
+which is accurate enough as we only work in the millisecond regime due to sampling noise
 constraints\amirian{is there some sort of citation for this?}
 % this would limit application to VMs.. but containers are probably okay..
 
@@ -223,9 +222,9 @@ synchronized time slots. In each time slot, an instance can reliably send
 Given that there are multiple instances that may want to broadcast information
 on the channel, we next must determine which instance broadcasts first, to avoid
 collisions.  Traditional channels like Ethernet or Wireless detect and avoid
-collisions by employing a random \amirian{colloquial?}"back-off" mechanism.
-This type of mechanism will be challenging to implement in methodology for two
-reasons.  First, lambda instances do not have the capability of sensing the
+collisions by employing a random exponential backoff mechanism.
+Such a mechanism will be challenging to implement in case of our channel for two
+reasons. First, lambda instances do not have the capability of sensing the
 channel while sending a bit, which is required for detecting collisions;
 instances can either cause contention or sense it, but not both. Note that
 senders do experience a higher latency for locking operations when other senders
@@ -233,12 +232,11 @@ are simultaneously causing contention. However, reliably judging this higher
 latency requires each sender to already have calculated a baseline of latencies
 without collisions\amirian{chicken and egg is a bit too colloquial...need to
 figure out how to communicate this thought better}. Second, even implementing a
-random "back-off" mechanism will introduce significant overhead before any
+random or exponential backoff mechanism will introduce significant overhead before any
 meaningful communication occurs. This overhead will also increase as the number
 of instances involved increases. Since each time slot takes up to 1 second, the
 additional overhead can be detrimental to the efficacy of the communication
 channel.
-\anil{get information theoretic bounds on the capacity of our channel?}
 
 
 \begin{algorithm}[!t]
@@ -281,7 +279,8 @@ channel.
 \amirian{I think in general we need a bit more sign-posting to guide the reader.
 I will think about this a bit more}.
 However, a communication channel for lambda co-residence detection need not be
-general and expressive\amirian{why?}.  Thus, we assume that each instance
+general and expressive as lambdas only need to communicate their IDs with one 
+another. Thus, we assume that each instance
 involved has a unique fixed-length (say \emph{n}) bit-string corresponding to
 its ID that must be communicated.  As such, we propose a communication protocol
 that exchanges these bit-strings while allowing for collisions. We divide the
