@@ -6,7 +6,7 @@
 #
 
 from urllib.parse import urlparse
-from threading import Thread
+from threading import Thread,Lock
 import http.client, sys
 from queue import Queue
 import argparse
@@ -63,10 +63,15 @@ def getResponse(ourl, body):
         return None
 
 # Invoker for each Lambda instance
+responded = {}
+last_updated = None
 def worker():
+    global responded
+    global last_updated
+
     while True:
-        (url, id, guid, syncpt, phases, bits_in_id, bit_duration, start_delay, use_s3, s3bucket, tmpdir, aws_profile) = req_q.get()
-        
+        (url, id, guid, syncpt, phases, bits_in_id, bit_duration, start_delay, use_s3, s3bucket, tmpdir, aws_profile, retrys3, shared_lock) = req_q.get()
+
         s3file = guid
         body = { 
             "id": id, 
@@ -81,15 +86,18 @@ def worker():
             "guid": guid
         }
 
-        # invoke lambda
-        resp = getResponse(url, json.dumps(body))
-        order_q.put(id)
+        # Invoke lambda (unless this is a follow-up run that just downloads resuts of an earlier experiment)
+        if not retrys3: 
+            pass
+            # resp = getResponse(url, json.dumps(body))
+            # order_q.put(id)
 
         # Wait for the results
         if use_s3:
-            wait_secs = start_delay + phases*(bits_in_id+1)*bit_duration + 30
+            S3_FILE_CHECK_TIMEOUT_SECS = 150
+            timeout_secs = start_delay + phases*(bits_in_id+1)*bit_duration + S3_FILE_CHECK_TIMEOUT_SECS if not retrys3 else S3_FILE_CHECK_TIMEOUT_SECS
             start = time.time()
-            timeout = time.time() + wait_secs
+            timeout = time.time() + timeout_secs
             found = False
 
             # Check for S3 file no matter how the API returns. Asychronous calls to API currently 
@@ -104,20 +112,48 @@ def worker():
             #         req_q.task_done()
             #         return
 
-            while time.time() < timeout:
-                # Set shell to true and pass entire command as a single string for usual shell like environment
-                # which is required to enable default aws credentials
-                command = "aws s3 ls {0}/{1}".format(s3bucket, s3file) if aws_profile is None else \
-                            "aws s3 ls {0}/{1} --profile {2}".format(s3bucket, s3file, aws_profile)
-                p = subprocess.run([command], stdout=subprocess.PIPE, shell=True)
-                if p.returncode == 0:
+            while True:
+                # Making s3 command per each thread would hit the AWS quota limits. Instead, make one thread 
+                # update the responded lambdas in one call
+                S3_QUERY_INTERVAL_SECS = 30
+                acquired = shared_lock.acquire(False)
+                if acquired:
+                    # Doesn't matter who acquires the lock and does the work
+                    try:
+                        now = time.time()
+                        if (last_updated is None) or ((now - last_updated) > S3_QUERY_INTERVAL_SECS):
+                            last_updated = now
+
+                            # Query S3 for all responded lambdas               
+                            # Set shell to true and pass entire command as a single string for usual shell like environment
+                            # which is required to enable default aws 
+                            # The command returns IDs of all lambdas that responded (NOTE: Uses awk in shell)
+                            command = "aws s3 ls {0} | awk '{{ print $4 }}' | awk -F'-' '{{ print $5 }}'".format(s3bucket) if aws_profile is None else \
+                                        "aws s3 ls {0} --profile {1} | awk '{{ print $4 }}' | awk -F'-' '{{ print $5 }}'".format(s3bucket, aws_profile)
+                            p = subprocess.run([command], stdout=subprocess.PIPE, shell=True)
+                            if p.returncode != 0:
+                                print("ERROR! Cannot query or parse results from S3 {0}".format(s3bucket))
+                                sys.exit(1)
+
+                            # print(p.stdout.split())
+                            for id_ in [int(x) for x in p.stdout.split()]:
+                                responded[id_] = True
+                            # print(responded.keys())
+                    finally:
+                        shared_lock.release()
+
+                if id in responded:
                     found = True
                     break
 
+                if time.time() > timeout:
+                    found = False
+                    break
+
                 # WARNING: This print stdout seems necessary for the control to move forward
-                progress = int((time.time() - start) * 50 / wait_secs)
-                sys.stdout.write("\rLambda {0}: Waiting [{1}{2}]".format(id, '#'*progress, '.'*(50-progress), p.stdout))
                 time.sleep(1)
+                progress = int((time.time() - start) * 50 / timeout_secs)
+                sys.stdout.write("\rLambda {0}: Waiting [{1}{2}]".format(id, '#'*progress, '.'*(50-progress)))
                 
             if found:
                 tmppath = os.path.join(tmpdir, str(id))
@@ -160,6 +196,7 @@ def main():
     parser.add_argument('-s', '--samples', action='store_true', help='save observed latency samples to log', default=False)
     parser.add_argument('-seq', '--sequence', action='store_true', help='invoke lambdas sequentially one after another (requires huge start-up delay)', default=False)
     parser.add_argument('--useapi', action='store_true', help='Use response returned by API for data rather than writing to storage account', default=False)
+    parser.add_argument('--retrys3', action='store_true', help='Do not invoke lambdas, just retry downloading results from S3 for an earlier experiment (provided with --outdir)', default=False)
     
     # Launch lambdas from another account (make sure the credentials are added as a profile as directed in: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html)
     parser.add_argument('-sa', '--secaccount', action='store', help='profile name of the second account if we want to some launch lambdas from a different account, expects URL in cache')
@@ -227,7 +264,7 @@ def main():
 
     # Lambda sync point
     sync_point = int(time.time()) + args.delay       # now + delay, assuming (api invoke + lambda create + lambda setup) happens within this delay for all lambdas
-    unique_id = datetime.now().strftime("%m-%d-%H-%M")
+    unique_id = datetime.now().strftime("%m-%d-%H-%M") if not args.retrys3 else args.outdir
 
     # Start enough threads
     global samples
@@ -241,6 +278,7 @@ def main():
     phases = args.phases
     start = time.time()
     account_map = {}
+    shared_lock = Lock()
     for i in range(args.count):
         id = i+1
         guid = unique_id + "-" + str(id)     # globally unique lambda id
@@ -248,13 +286,13 @@ def main():
         if not args.securl or i%2 == 0:
             print("Invoking lambda {0} from main account".format(id))
             req_q.put((args.url, id, guid, sync_point, phases, args.idbits, args.bitduration, args.delay,
-                not args.useapi, s3bucket, tmpdir, None))
+                not args.useapi, s3bucket, tmpdir, None, args.retrys3, shared_lock))
             account_map[id] = accountid if accountid else "FIRST"
         else:
             # if second account if provided, use it for every other lambda
             print("Invoking lambda {0} from second account".format(id))
             req_q.put((args.securl, id, guid, sync_point, phases, args.idbits, args.bitduration, args.delay,
-                not args.useapi, s3bucket_sec, tmpdir, args.secaccount))
+                not args.useapi, s3bucket_sec, tmpdir, args.secaccount, args.retrys3, shared_lock))
             account_map[id] = secaccountid if secaccountid else "SECOND"
 
         if args.sequence:

@@ -82,14 +82,14 @@ do
     echo $region
     # bash setup.sh -n=membus1536 -s=1536
     # python3 invoke.py --name=membus1536 -c=100 -p=3 -s
-    python3 invoke.py --name=membus1536 -c=1000 -p=3 -b=1 -d=90 -s
+    python3 invoke.py --name=membus1536 -c=1000 -p=3 -b=1 -d=90 -s -ed "daily runs"
 
     region=sa-east-1
     aws configure set region $region
     echo $region
     # bash setup.sh -n=membus1536 -s=1536
     # python3 invoke.py --name=membus1536 -c=100 -p=3 -s
-    python3 invoke.py --name=membus1536 -c=1000 -p=3 -b=1 -d=90 -s
+    python3 invoke.py --name=membus1536 -c=1000 -p=3 -b=1 -d=90 -s -ed "daily runs"
     echo "Executed at " $(date)
 
     # Collect output from VMs and stop them

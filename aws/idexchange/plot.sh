@@ -2,35 +2,35 @@
 # set -e  # stop on error
 
 
-# Plot colocation clusters for each experiment
-# Current candidates for the paper: 09-22-15-08, 09-22-15-15, 09-22-15-18, 09-22-15-21, 09-22-15-24, 09-22-01-34, 09-17-14-13
-prefix=$1
-if [ -z "$prefix" ];  then    prefix=$(date +"%m-%d");    fi    # today
-for f in `ls -d out/${prefix}*/stats.json`
-do
-    echo $f
-    dir=`dirname $f`
-    region=`jq '.Region' $f | tr -d '"'`
-    count=`jq '.Count' $f`
-    clusters=`jq '.Clusters' $f`
-    errorrate=`jq '."Error Rate"' $f`
-    sizes=`jq '.Sizes[]' $f`
-    errors=`echo $count $errorrate | awk '{print $1*$2/100.0}'`
-    echo "Size" > $dir/clusters
-    echo "$sizes" >> $dir/clusters
-    echo $region, $count, $clusters, $errorrate
+# # Plot colocation clusters for each experiment
+# # Current candidates for the paper: 09-22-15-08, 09-22-15-15, 09-22-15-18, 09-22-15-21, 09-22-15-24, 09-22-01-34, 09-17-14-13
+# prefix=$1
+# if [ -z "$prefix" ];  then    prefix=$(date +"%m-%d");    fi    # today
+# for f in `ls -d out/${prefix}*/stats.json`
+# do
+#     echo $f
+#     dir=`dirname $f`
+#     region=`jq '.Region' $f | tr -d '"'`
+#     count=`jq '.Count' $f`
+#     clusters=`jq '.Clusters' $f`
+#     errorrate=`jq '."Error Rate"' $f`
+#     sizes=`jq '.Sizes[]' $f`
+#     errors=`echo $count $errorrate | awk '{print $1*$2/100.0}'`
+#     echo "Size" > $dir/clusters
+#     echo "$sizes" >> $dir/clusters
+#     echo $region, $count, $clusters, $errorrate
     
-    # Plot
-    plot=${dir}/colocation-$region.pdf
-    python plot.py -z hist -l $region -fs 25 \
-        -yc "Size" \
-        -yl " " \
-        -xl "Number of neighbors" \
-        -o $plot -d ${dir}/clusters -of pdf
-    echo "Plot at: $plot"
-    cp $plot plots/
-    display $plot &
-done
+#     # Plot
+#     plot=${dir}/colocation-$region.pdf
+#     python plot.py -z hist -l $region -fs 25 \
+#         -yc "Size" \
+#         -yl " " \
+#         -xl "Number of neighbors" \
+#         -o $plot -d ${dir}/clusters -of pdf
+#     echo "Plot at: $plot"
+#     cp $plot plots/
+#     display $plot &
+# done
 
 
 # # Plot error rates for different lambda sizes
@@ -65,26 +65,28 @@ done
 # display $plot &
 
 
-# # Plot colocation correltion between two experiments
-# # Data from runs: 09-17-14-13, 09-17-14-07
+# Plot colocation correltion between two experiments
+# Data from runs: 09-17-14-13, 09-17-14-07
 # former=09-17-14-07
 # latter=09-17-14-13
-# plot=plots/correlation.pdf
-# sizes=`jq '.Sizes[]' out/$former/stats.json`
-# echo "Size" > out/$former/clusters
-# echo "$sizes" >> out/$former/clusters
-# sizes=`jq '.Sizes[]' out/$latter/stats.json`
-# echo "Size" > out/$latter/clusters
-# echo "$sizes" >> out/$latter/clusters
-# python plot.py -z hist -fs 20 \
-#     -d out/${former}/clusters -l "Run 1" \
-#     -d out/${latter}/clusters -l "Run 2" \
-#     -yc "Size" \
-#     -yl "% of total lambdas" \
-#     -xl "Number of neighbors" \
-#     -o $plot -of pdf
-# echo "Plot at: $plot"
-# display $plot &
+former=10-13-23-34
+latter=10-13-23-38
+plot=plots/correlation.pdf
+sizes=`jq '.Sizes[]' out/$former/stats.json`
+echo "Size" > out/$former/clusters
+echo "$sizes" >> out/$former/clusters
+sizes=`jq '.Sizes[]' out/$latter/stats.json`
+echo "Size" > out/$latter/clusters
+echo "$sizes" >> out/$latter/clusters
+python plot.py -z hist -fs 20 \
+    -d out/${former}/clusters -l "Run 1" \
+    -d out/${latter}/clusters -l "Run 2" \
+    -yc "Size" \
+    -yl "% of total lambdas" \
+    -xl "Number of neighbors" \
+    -o $plot -of pdf
+echo "Plot at: $plot"
+display $plot &
 
 
 # # Plot run times for various lambda counts
@@ -97,7 +99,6 @@ done
 #     -o $plot -d $datafile -of pdf
 # echo "Plot at: $plot"
 # display $plot &
-
 
 
 # # Plot colocation densities in various regions

@@ -6,7 +6,7 @@
 prefix=$1
 if [ -z "$prefix" ];  then    prefix=$(date +"%m-%d");    fi    # today
 
-OUT=`echo Exp,Lambda,Region,Phases,Bit-Time,Count,Responded,Clusters,Density,Max Size,Errors,Size 1,Size 2,Size 3-5,Size 6-10,Unaccounted,Samples`
+OUT=`echo Exp,Lambda,Region,Phases,Bit-Time,Count,Responded,Clusters,Density,Max Size,Errors,Size 1,Size 2,Size 3-5,Size 6-10,Unaccounted,Samples,Comments`
 # for f in `ls out/08-20-1*/stats.json`; do
 for f in `ls out/${prefix}*/stats.json`; do
     # Data from stats.json
@@ -27,6 +27,7 @@ for f in `ls out/${prefix}*/stats.json`; do
     lambda=`jq '."Lambda Name"' $dir/config.json | tr -d '"'`
     bitdur=`jq '."Bit Duration (secs)"' $dir/config.json`
     samples=`ls $dir/base_samples* 2> /dev/null | wc -l | awk '{ if ($1 > 0) print "Yes"; else print "No"; }'`
+    comments=`jq '."Comments"' $dir/config.json | tr -d '"'`
 
     # Inferred stats
     errors=`echo $count $errorrate | awk '{print $1*$2/100.0}'`
@@ -45,7 +46,7 @@ for f in `ls out/${prefix}*/stats.json`; do
     unaccounted=`echo $responded $errors $size1 $size2 $size3 $size4 $size5 $size6 $size7 $size8 $size9 $size10 | awk '{print $1-$2-$3-($4*2)-($5*3)-($6*4)-($7*5)-($8*6)-($9*7)-($10*8)-($11*9)-($12*10)}'`
 
     # Print all
-    LINE=`echo $name, $lambda, $region, $phases, $bitdur, $count, $responded, $clusters, $density, $maxsize, $errorrate, $size1, $size2, $size3_5, $size6_10, $unaccounted, $samples`
+    LINE=`echo $name, $lambda, $region, $phases, $bitdur, $count, $responded, $clusters, $density, $maxsize, $errorrate, $size1, $size2, $size3_5, $size6_10, $unaccounted, $samples,$comments`
     OUT=`echo -e "${OUT}\n${LINE}"`
 done
 
