@@ -321,22 +321,24 @@ extended for other (future) covert channels with similar channel properties.
 \label{fig:errorrates}}
 \end{figure}
 
-\subsubsection{Complexity}
+\subsubsection{Time Complexity}
 \label{sec:protocol:complexity}
 Assuming \textit{N} total deployed instances to the cloud, the bit-string needs
 to be $\log_2N$ bits to uniquely identify each instance. If a maximum \textit{K}
 of those instances are launched on the same server, the protocol executes for
 \textit{K} phases of $\log_2N$ bit-slots each, taking $(K+1)*\log_2N$ bit-slots
-for the whole thing. For example, assuming 10,000 deployed lambdas and a maximum
+for the whole operation. For example, assuming 10,000 deployed lambdas and a maximum
 of 10 co-located instances on each server, the entire  co-residence detection
-requires around four minutes to fully execute (with 1-second time slots).  In fact,
+requires around four minutes to fully execute (with 1-second time slots). In fact,
 it is not necessary to run the protocol for all \textit{K} phases. After the
-first round, all the co-located instances would know one of their neighbors.
-\amirian{confused about this sentence} Instances can exchange the globally
-unique IDs offline (through the network) to determine the rest of their
-neighbors.  This simplification removes the dependency on number of co-located
-instances (\textit{K}) and decreases the complexity to $O(\log_2N)$, allowing
-the entire protocol to finish within a minute instead of four.
+first phase, all the co-located instances would know one of their neighbors (as 
+each phase reveals the ID of the biggest participating instance to others).
+\amirian{confused about this sentence}\anil{does that help?} If we use IDs that are 
+globally unique, all (and only) the co-resided instances see the same ID. The instances can 
+then exchange these IDs offline (e.g., through the network) to 
+infer the rest of their neighbors. This simplification removes the dependency on 
+number of co-located instances (\textit{K}) and decreases the complexity to $O(\log_2N)$, 
+allowing the entire protocol to finish within a minute instead of four.
 
 
 % \subsubsection{Limitations}
