@@ -156,11 +156,11 @@ echo "TESTING. Invoking function using API. Result:"
 secs_since_epoch=$(date +%s)
 secs_since_epoch=$((secs_since_epoch+5))    # now + 5 secs
 # echo ${secs_since_epoch}
-curl -X POST $url -d '{ "id": 11, "stime": '${secs_since_epoch}', "log": 1, "phases": 1, "samples": 1, "s3bucket": "'${s3bucket}'", "s3key":"'$secs_since_epoch'" }'
+curl -X POST $url -d '{ "id": 11, "stime": '${secs_since_epoch}', "log": 1, "phases": 0, "samples": 0, "s3bucket": "'${s3bucket}'", "s3key":"'$secs_since_epoch'" }'
 echo "  <== IGNORE THIS."   # Ignore 500 error, which is expected now.
 
 # Wait for response
-WAIT_SECS=20            # now + 10 secs
+WAIT_SECS=60            # now + 10 secs
 echo "Waiting for response... ($WAIT_SECS secs)"
 sleep $WAIT_SECS
 exit_code=0

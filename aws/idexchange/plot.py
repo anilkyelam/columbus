@@ -24,6 +24,7 @@ class PlotType(Enum):
     line = 'line'
     scatter = 'scatter'
     bar = 'bar'
+    barstacked = 'barstacked'
     cdf = 'cdf'
     hist = 'hist'
 
@@ -391,6 +392,7 @@ def main():
     ax = axmain
     ymul = args.ymul
     twin = False
+    base_dataset = None     
     for (datafile, ycol) in dfile_ycol_map:
 
         if (plot_num + 1) == args.twin:
@@ -455,6 +457,18 @@ def main():
             ax.bar(xc, yc, label=label, color=colors[cidx])
             if args.xstr:   ax.set_xticks(xc)
             if args.xstr:   ax.set_xticklabels(xc, rotation='45')
+            
+
+        elif args.ptype == PlotType.barstacked:
+            xc = xcol
+            yc = df[ycol]
+            xc = [x * args.xmul for x in xc]
+            yc = np.array([y * ymul for y in yc])
+            if args.xstr:   xc = [str(x) for x in xc]
+            ax.bar(xc, yc, bottom=base_dataset, label=label, color=colors[cidx])
+            if args.xstr:   ax.set_xticks(xc)
+            if args.xstr:   ax.set_xticklabels(xc, rotation='45')
+            base_dataset = yc if base_dataset is None else base_dataset + yc
 
         elif args.ptype == PlotType.hist:
             yc = df[ycol]
@@ -476,7 +490,6 @@ def main():
             ax.bar(xc + (plot_num * bar_width), neighbors, bar_width, label=label, color=colors[cidx])
             # ax.set_xticks(xc + (plot_num * bar_width) / 2) 
             # ax.set_xticklabels(xc)
-
 
         elif args.ptype == PlotType.cdf:
             xc, yc = gen_cdf(df[ycol], 100000)
@@ -544,7 +557,7 @@ def main():
         for idx, ls in enumerate(args.linestyle):
             lns[idx].set_linestyle(ls)
     
-    if args.ptype in [PlotType.bar, PlotType.hist]:
+    if args.lloc != LegendLoc.none and args.ptype in [PlotType.bar, PlotType.barstacked, PlotType.hist]:
         plt.legend(loc=args.lloc.matplotlib_loc())
     else:
         # TODO: Fix labels for bar plot

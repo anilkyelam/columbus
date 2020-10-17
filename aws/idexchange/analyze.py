@@ -11,6 +11,7 @@ import operator
 import glob
 import math 
 from shutil import copyfile
+import numpy as np
 
 
 # Constants
@@ -52,6 +53,14 @@ class Entry:
     bit0_ks_metric = None
     bit1_ks_metric = None
     predecessors = None
+    raw_data = None
+
+class Cluster:
+    id = None
+    maj_id = None
+    lambdas = None
+    tags = None
+    cpis = None
 
 
 # Gets hamming distance between two integers
@@ -457,6 +466,85 @@ def cluster_correlation(exp_name, base_expname, entries, base_entries):
             outfile.write("\n")
 
 
+# Analyzes metadata associated with co-located lambdas
+def data_analysis(exp_name, entries):
+    MAX_COLOCATED_GROUP_SIZE = 50
+
+    # Figure out clusters and fill metadata
+    idx = 1
+    clusters = {}
+    for e in sorted(entries.values(), key=lambda x: x.id):
+        if e.maj_id:
+            if e.maj_id not in clusters:
+                c = Cluster()
+                c.id = idx
+                c.maj_id = e.maj_id
+                c.lambdas = []
+                c.tags = {}
+                c.cpis = []
+                idx += 1
+                clusters[e.maj_id] = c
+
+            clusters[e.maj_id].lambdas.append(e.id)
+            if "Account" in e.raw_data or "Tag" in e.raw_data:
+                tag = e.raw_data["Tag"] if "Tag" in e.raw_data else e.raw_data["Account"] 
+                if tag not in clusters[e.maj_id].tags:  
+                    clusters[e.maj_id].tags[tag] = 0
+                clusters[e.maj_id].tags[tag] += 1
+            if "CPU CPI" in e.raw_data:
+                clusters[e.maj_id].cpis.append(float(e.raw_data["CPU CPI"]))
+
+    # print([c.lambdas for c in clusters.values()])
+    
+    # # Print some cluster metadata
+    # for cidx, cl in enumerate(clusters.keys()):
+    #     for id in clusters[cl].lambdas:
+    #         boot_id = entries[id].raw_data["Boot ID"]
+    #         mac_addr = entries[id].raw_data["MAC Address"]
+    #         ip_addr = entries[id].raw_data["IP Address"]
+    #         acc_id = entries[id].raw_data["Account"]
+    #         cpi = entries[id].raw_data["CPU CPI"]
+    #         print(cidx, id, boot_id, mac_addr, ip_addr, acc_id, cpi)
+
+
+    # Save the tag stats for plotting
+    outfile = "tags.csv"
+    tags = set([acc for c in clusters.values() for acc in c.tags.keys()])
+    clusters_sorted = sorted(clusters.values(), key=lambda c: len(c.lambdas))
+    with open(os.path.join("out", exp_name, outfile), 'w') as csvfile:
+        # Write header
+        fieldnames = ["Cluster"]
+        for i,_ in enumerate(tags):   fieldnames.append("Tag {0}".format(i))
+        for i,_ in enumerate(tags):   fieldnames.append("Tag {0} %".format(i))
+        writer = csv.writer(csvfile)
+        writer.writerow(fieldnames)     
+
+        # Write values for each cluster        
+        # for cidx, cluster in enumerate(clusters_sorted):
+        #     values = [cidx]
+        #     sum_ = 0
+        #     for acc in tags:    values.append(cluster.tags.get(acc, 0))
+        #     for acc in tags:    sum_ += cluster.tags.get(acc, 0)
+        #     for acc in tags:    values.append(cluster.tags.get(acc, 0) * 100.0 / sum_ if sum_ > 0 else 0)
+        #     writer.writerow(values)
+
+        # Average values over each cluster size  
+        cidx = 0
+        size = 1
+        while size <= MAX_COLOCATED_GROUP_SIZE and cidx < len(clusters_sorted):
+            values = []
+            cpi_values = []
+            while cidx < len(clusters_sorted) and len(clusters_sorted[cidx].lambdas) == size:
+                values.append([clusters_sorted[cidx].tags.get(acc, 0) for acc in tags])
+                cpi_values += clusters_sorted[cidx].cpis
+                cidx += 1
+            values = np.mean(values, axis = 0) if values else np.empty(0)
+            fractions = values * 100.0 / np.sum(values) if values.any() else np.empty(0)
+            writer.writerow([size] + list(values) + list(fractions))
+            # print(size, np.mean(cpi_values))
+            size += 1
+
+
 # Parse results.csv into Entry() objects
 def parse_results_file(exp_name):
     datafile = "results.csv"
@@ -484,8 +572,8 @@ def parse_results_file(exp_name):
                         pred.exp_name = p[0]
                         pred.id = int(p[1])
                         e.predecessors.append(pred)
-                    
             e.maj_id = find_majority(e.id_read)
+            e.raw_data = row
             entries[e.id] = e
     return entries
 
@@ -499,6 +587,7 @@ def main():
     parser.add_argument('-ks', '--kssamplesaz', action='store_true', help='do KS test threshold analysis on the samples collected to find the optimum threshold', default=False)
     parser.add_argument('-cc', '--cluster_correlation', action='store_true', help='do cluster correlation between two different runs taking warm start into account', default=False)
     parser.add_argument('-cci', '--cc_expname', action='store', help='second run to perform cluster correlation against')
+    parser.add_argument('-da', '--dataaz', action='store_true', help='do analysis on data collected about lambdas for colocated groups', default=False)
     args = parser.parse_args()
     
     entries = parse_results_file(args.expname)
@@ -521,6 +610,8 @@ def main():
         base_entries = parse_results_file(args.cc_expname) if args.cc_expname else None
         cluster_correlation(args.expname, args.cc_expname, entries, base_entries)
 
+    if args.dataaz:
+        data_analysis(args.expname, entries)
 
 if __name__ == "__main__":
     main()

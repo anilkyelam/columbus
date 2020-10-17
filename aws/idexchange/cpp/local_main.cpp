@@ -24,9 +24,11 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <netinet/in.h>
 #include <net/if.h>
 #include <stdio.h>
 #include <ifaddrs.h>
+
 
 #include "util.h"
 #include "RSJparser.tcc"
@@ -511,6 +513,62 @@ void get_mac_addrs(char* mac)
    close(s);
 }
 
+
+/* Get IP address associated with the socket interface 
+ * Courtesy of https://stackoverflow.com/questions/49335001/get-local-ip-address-in-c
+ */
+std::string get_ipaddr(void) {
+    int sock = socket(PF_INET, SOCK_DGRAM, 0);
+    sockaddr_in loopback;
+    if (sock == -1) {
+        printf("ERROR! Could not get socket for IP address\n");
+        return std::string("");
+    }
+
+    std::memset(&loopback, 0, sizeof(loopback));
+    loopback.sin_family = AF_INET;
+    loopback.sin_addr.s_addr = INADDR_LOOPBACK;   // using loopback ip address
+    loopback.sin_port = htons(9);                 // using debug port
+
+    if (connect(sock, reinterpret_cast<sockaddr*>(&loopback), sizeof(loopback)) == -1) {
+        close(sock);
+        printf("ERROR! Could not connect to socket for IP addr\n");
+        return std::string("");
+    }
+
+    socklen_t addrlen = sizeof(loopback);
+    if (getsockname(sock, reinterpret_cast<sockaddr*>(&loopback), &addrlen) == -1) {
+        close(sock);
+        printf("ERROR! Could not getsockname for IP addr\n");
+        return std::string("");
+    }
+
+    close(sock);
+
+    char buf[INET_ADDRSTRLEN];
+    if (inet_ntop(AF_INET, &loopback.sin_addr, buf, INET_ADDRSTRLEN) == 0x0) {
+        printf("ERROR! Could not inet_ntop for IP addr\n");
+        std::string("");
+    } else {
+        return std::string(buf);
+    }
+}
+
+/* Performs a CPU-bound operation and gets time taken for the operation. (A measure of how much CPU the process is getting...) */
+uint64_t get_cpu_cycles_for_task(){
+   int TIMES = 1e6;
+   uint64_t x = 0, start, end;
+   rdtsc();
+   for(int i = 0; i < TIMES; i++)  x += i;
+   rdtsc1();
+
+   start = ( ((int64_t)cycles_high << 32) | cycles_low );
+   end = ( ((int64_t)cycles_high1 << 32) | cycles_low1 );
+   lprintf("Summing %d times to %lu took %lu cycles\n", TIMES, x, (end-start));
+   return (end - start);
+}
+
+
 /* Get current date/time, format is YYYY-MM-DD.HH:mm:ss */
 const std::string current_datetime() {
    time_t     now = time(0);
@@ -536,6 +594,9 @@ int main()
     * information across lambda invocations. AMAZING, isn't it?
     * We could use this to detect if a lambda underwent a warm start or a cold start */
    logs.clear();
+   std::cout << get_ipaddr() << std::endl;
+   std::cout << get_cpu_cycles_for_task() << std::endl;
+   return 0;
 
    // std::string payload = "";
    // /* Parse request body for arguments */

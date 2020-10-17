@@ -18,6 +18,7 @@ from datetime import datetime
 import subprocess
 import re
 import statistics
+import random
 
 
 MAX_CONCURRENT = 1500
@@ -70,7 +71,7 @@ def worker():
     global last_updated
 
     while True:
-        (url, id, guid, syncpt, phases, bits_in_id, bit_duration, start_delay, use_s3, s3bucket, tmpdir, aws_profile, retrys3, shared_lock) = req_q.get()
+        (url, id, guid, syncpt, phases, bits_in_id, bit_duration, start_delay, use_s3, s3bucket, s3prefix, tmpdir, aws_profile, retrys3, shared_lock) = req_q.get()
 
         s3file = guid
         body = { 
@@ -88,9 +89,8 @@ def worker():
 
         # Invoke lambda (unless this is a follow-up run that just downloads resuts of an earlier experiment)
         if not retrys3: 
-            pass
-            # resp = getResponse(url, json.dumps(body))
-            # order_q.put(id)
+            resp = getResponse(url, json.dumps(body))
+            order_q.put(id)
 
         # Wait for the results
         if use_s3:
@@ -128,8 +128,8 @@ def worker():
                             # Set shell to true and pass entire command as a single string for usual shell like environment
                             # which is required to enable default aws 
                             # The command returns IDs of all lambdas that responded (NOTE: Uses awk in shell)
-                            command = "aws s3 ls {0} | awk '{{ print $4 }}' | awk -F'-' '{{ print $5 }}'".format(s3bucket) if aws_profile is None else \
-                                        "aws s3 ls {0} --profile {1} | awk '{{ print $4 }}' | awk -F'-' '{{ print $5 }}'".format(s3bucket, aws_profile)
+                            command = "aws s3 ls {0}/{1} | awk '{{ print $4 }}' | awk -F'-' '{{ print $5 }}'".format(s3bucket, s3prefix) if aws_profile is None else \
+                                        "aws s3 ls {0}/{1} --profile {2} | awk '{{ print $4 }}' | awk -F'-' '{{ print $5 }}'".format(s3bucket, s3prefix, aws_profile)
                             p = subprocess.run([command], stdout=subprocess.PIPE, shell=True)
                             if p.returncode != 0:
                                 print("ERROR! Cannot query or parse results from S3 {0}".format(s3bucket))
@@ -200,8 +200,9 @@ def main():
     
     # Launch lambdas from another account (make sure the credentials are added as a profile as directed in: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html)
     parser.add_argument('-sa', '--secaccount', action='store', help='profile name of the second account if we want to some launch lambdas from a different account, expects URL in cache')
-    parser.add_argument('-su', '--securl', action='store', help='second URL if we want to some launch lambdas from a different account')
-    parser.add_argument('-ss3p', '--secs3prefix', action='store', help='prefix of S3 bucket where the second account lambdas write to', default="lambda-cpp2-")
+    parser.add_argument('-sn', '--secname', action='store', help='name of the second lambda if we want to some launch different kinds of lambdas, expects URL in cache')
+    parser.add_argument('-su', '--securl', action='store', help='second URL if we want to some launch lambdas from a different account/lambdas')
+    parser.add_argument('-ss3p', '--secs3prefix', action='store', help='prefix of S3 bucket where the second account lambdas write to')
 
     
     args = parser.parse_args()
@@ -213,7 +214,7 @@ def main():
         return -1
     region = re.sub('\s+','', p.stdout.decode("utf-8"))
     s3bucket = "lambda-cpp-" + region
-    s3bucket_sec = args.secs3prefix + region
+    s3bucket_sec = (args.secs3prefix + region) if args.secs3prefix else s3bucket
 
     # Find URL in cache if not specified.
     if not args.url:
@@ -237,22 +238,22 @@ def main():
             print("Found url in cache {0}: {1}".format(url_cache, args.url))
 
     # If second account is provided, get its URL from the cache too
-    if args.secaccount:
-        p = subprocess.run(["aws", "sts", "get-caller-identity", "--profile", args.secaccount], stdout=subprocess.PIPE)
+    if args.secaccount or args.secname:
+        p = subprocess.run(["aws", "sts", "get-caller-identity", "--profile", args.secaccount], stdout=subprocess.PIPE) if args.secaccount \
+                else subprocess.run(["aws", "sts", "get-caller-identity"], stdout=subprocess.PIPE)
         if p.returncode != 0:
-            print("Failed to get account id from aws cli for second profile. Is the profile added properly? Or provide --securl.")
+            print("Failed to get account id from aws cli for second lambda. Is the profile added properly? Or provide --securl.")
             return -1
         secaccountid = json.loads(p.stdout.decode("utf-8"), strict=False)["Account"]
 
-        url_cache = os.path.join(".api_cache", "{0}_{1}_{2}".format(secaccountid, region, args.name))
+        url_cache = os.path.join(".api_cache", "{0}_{1}_{2}".format(secaccountid, region, args.secname if args.secname else args.name))
         if not os.path.exists(url_cache):
-            print("Cannot find url cache for second account at: {0}. Provide actual url using --securl.".format(url_cache))
+            print("Cannot find url cache for second lambda at: {0}. Provide actual url using --securl.".format(url_cache))
             return -1
 
         with open(url_cache, 'r') as file:
             args.securl = re.sub('\s+','', file.read())
-            print("Found second account url in cache {0}: {1}".format(url_cache, args.securl))
-
+            print("Found second lambda url in cache {0}: {1}".format(url_cache, args.securl))
 
     # Make output dir
     if not args.outdir:     args.outdir = datetime.now().strftime("%m-%d-%H-%M")
@@ -277,23 +278,26 @@ def main():
     # Invoke lambdas
     phases = args.phases
     start = time.time()
-    account_map = {}
+    lambda_tags = {}
     shared_lock = Lock()
     for i in range(args.count):
         id = i+1
         guid = unique_id + "-" + str(id)     # globally unique lambda id
+        s3prefix = unique_id
 
-        if not args.securl or i%2 == 0:
-            print("Invoking lambda {0} from main account".format(id))
+        if not args.securl or random.randint(0, 1) == 0:
+            tag = accountid if args.secaccount else (args.name if args.secname else "DEFAULT")
+            print("Invoking lambda {0} with tag {1}".format(id, tag))
             req_q.put((args.url, id, guid, sync_point, phases, args.idbits, args.bitduration, args.delay,
-                not args.useapi, s3bucket, tmpdir, None, args.retrys3, shared_lock))
-            account_map[id] = accountid if accountid else "FIRST"
+                not args.useapi, s3bucket, s3prefix, tmpdir, None, args.retrys3, shared_lock))
+            lambda_tags[id] = tag
         else:
             # if second account if provided, use it for every other lambda
-            print("Invoking lambda {0} from second account".format(id))
+            tag = secaccountid if args.secaccount else (args.secname if args.secname else "SECOND")
+            print("Invoking lambda {0} with tag {1}".format(id, tag))
             req_q.put((args.securl, id, guid, sync_point, phases, args.idbits, args.bitduration, args.delay,
-                not args.useapi, s3bucket_sec, tmpdir, args.secaccount, args.retrys3, shared_lock))
-            account_map[id] = secaccountid if secaccountid else "SECOND"
+                not args.useapi, s3bucket_sec, s3prefix, tmpdir, args.secaccount, args.retrys3, shared_lock))
+            lambda_tags[id] = tag
 
         if args.sequence:
             # If invoking in sequence, wait until the request is made
@@ -388,7 +392,7 @@ def main():
 
                 if "Id" in item_d:
                     id = int(item_d["Id"])
-                    item_d["Account"] = account_map[id]
+                    item_d["Tag"] = lambda_tags[id]
 
                 # Write col headers
                 if first:
@@ -402,7 +406,7 @@ def main():
                 # Print stdout
                 cols = ["Success", "Phases", "Id"]
                 for i in range(phases): cols += ["Phase {0}".format(i+1)]
-                cols += ["Warm Start", "Account", "Logs", "Base Sample", "Bit-0 Pvalue", "Bit-1 Pvalue", "Error"]
+                cols += ["Warm Start", "Account", "Logs", "Tag", "Error"]
 
                 firstline = ""
                 line = ""

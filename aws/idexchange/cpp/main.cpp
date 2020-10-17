@@ -51,7 +51,7 @@ char const TAG[] = "MEMBUS";
 #define SAMPLES_PER_SECOND       1000           /* Sampling rate: This is limited by 1) noise under too much sampling            */
                                                 /* and 2) post-processing computation (KS test) done for each sample at every bit*/
 #define MAX_BIT_DURATION_SECS    5
-#define MUS_IN_ONE_SEC           1000000
+#define MUS_PER_SEC              1000000
 #define MAX_PHASES               15
 #define PVALUE_THRESHOLD         0.0
 // #define PVALUE_THRESHOLD      0.0005
@@ -271,8 +271,8 @@ int read_bit(uint64_t* addr, microseconds release_time_mus, int bit_duration_sec
    // int num_samples = calibrate ? BASELINE_SAMPLES : SAMPLES_PER_BIT;
    // int interval_mus = calibrate ? BASELINE_INTERVAL : BIT_INTERVAL_MUS;
    int num_samples = bit_duration_secs * SAMPLES_PER_SECOND;
-   int interval_mus = bit_duration_secs * MUS_IN_ONE_SEC;
-   double sampling_rate_mus = SAMPLES_PER_SECOND * 1.0 / MUS_IN_ONE_SEC;
+   int interval_mus = bit_duration_secs * MUS_PER_SEC;
+   double sampling_rate_mus = SAMPLES_PER_SECOND * 1.0 / MUS_PER_SEC;
 
    /* Release a bit early to avoid overruns (and allow for post-processing) */
    release_time_mus -= ten_ms;
@@ -407,10 +407,12 @@ uint64_t* get_cache_line_straddled_address()
 * other or for a specified number of phases
 * If repeat_phases is true, protocol repeats the first phase i.e., in every phase all 
 * lambdas try to agree on the same max lambda id  */
-result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_phases, int max_bits_in_id, int bit_duration_secs, uint64_t* cacheline_addr, bool repeat_phases)
+result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_phases, int max_bits_in_id, int bit_duration_secs, uint64_t* cacheline_addr, bool repeat_phases, double* time_secs)
 {
    double pvalue;
-   microseconds bit_duration = microseconds(bit_duration_secs * MUS_IN_ONE_SEC);
+
+   std::clock_t protocol_start, protocol_end;
+   microseconds bit_duration = microseconds(bit_duration_secs * MUS_PER_SEC);
    microseconds five_ms = microseconds(5000);
    microseconds ten_ms = microseconds(10000);
    microseconds phase_duration = bit_duration * max_bits_in_id;
@@ -423,14 +425,15 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
       return result;
    }
 
-   // Calibrate baseline latencies (when no contention)
+   /* Record start timestamp */
+   microseconds begin = duration_cast<microseconds>(Clock::now().time_since_epoch());
+
+   /* Calibrate baseline latencies (when no contention) */
    microseconds next_time_mus = start_time_mus + bit_duration;
-   // if (my_id % 2)   next_time_mus += five_ms;
    read_bit(cacheline_addr, next_time_mus - ten_ms, bit_duration_secs, true, my_id, 0, 0, &pvalue);
 
-   // Start protocol phases
+   /* Start protocol phases */
    bool advertised = false;
-
    lprintf("[Lambda-%3d] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue\n", my_id);
 
    for (int phase = 0; phase < max_phases; phase++) {
@@ -482,17 +485,23 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
             advertised = true;
    }
 
+   /* Record end timestamp */
+   microseconds end = duration_cast<microseconds>(Clock::now().time_since_epoch());
+   *time_secs = (end - begin).count() * 1.0 / MUS_PER_SEC;
+   lprintf("The protocol ran for %.2lf seconds.\n", *time_secs);
+
    return result;
 }
 
 /* Get comma-seperated MAC addresses of all interfaces */
-void get_mac_addrs(char* mac)
+std::string get_mac_addrs()
 {
+   char mac[50] = "";
    struct ifreq ifr;
    int s;
    if ((s = socket(AF_INET, SOCK_STREAM,0)) < 0) {
-      perror("socket");
-      return;
+      lprintf("ERROR! Could not get socket for MAC address\n");
+      return std::string("");
    }
 
    struct ifaddrs *addrs,*tmp;
@@ -504,8 +513,8 @@ void get_mac_addrs(char* mac)
       {
          strcpy(ifr.ifr_name, tmp->ifa_name);
          if (ioctl(s, SIOCGIFHWADDR, &ifr) < 0) {
-            perror("ioctl");
-            return;
+            lprintf("ERROR! Could not ioctl for MAC address\n");
+            return std::string("");
          }
          
          unsigned char *hwaddr = (unsigned char *)ifr.ifr_hwaddr.sa_data;
@@ -518,7 +527,72 @@ void get_mac_addrs(char* mac)
 
    freeifaddrs(addrs);
    close(s);
+   return std::string(mac);
 }
+
+/* Get IP address associated with the socket interface 
+ * Courtesy of https://stackoverflow.com/questions/49335001/get-local-ip-address-in-c
+ */
+std::string get_ipaddr(void) {
+   int sock = socket(PF_INET, SOCK_DGRAM, 0);
+   sockaddr_in loopback;
+   if (sock == -1) {
+      lprintf("ERROR! Could not get socket for IP address\n");
+      return std::string("");
+   }
+
+   std::memset(&loopback, 0, sizeof(loopback));
+   loopback.sin_family = AF_INET;
+   loopback.sin_addr.s_addr = INADDR_LOOPBACK;   // using loopback ip address
+   loopback.sin_port = htons(9);                 // using debug port
+
+   if (connect(sock, reinterpret_cast<sockaddr*>(&loopback), sizeof(loopback)) == -1) {
+      close(sock);
+      lprintf("ERROR! Could not connect to socket for IP addr\n");
+      return std::string("");
+   }
+
+   socklen_t addrlen = sizeof(loopback);
+   if (getsockname(sock, reinterpret_cast<sockaddr*>(&loopback), &addrlen) == -1) {
+      close(sock);
+      lprintf("ERROR! Could not getsockname for IP addr\n");
+      return std::string("");
+   }
+
+   close(sock);
+
+   char buf[INET_ADDRSTRLEN];
+   if (inet_ntop(AF_INET, &loopback.sin_addr, buf, INET_ADDRSTRLEN) == 0x0) {
+      lprintf("ERROR! Could not inet_ntop for IP addr\n");
+      std::string("");
+   } else {
+      return std::string(buf);
+   }
+}
+
+/* Performs a CPU-bound operation and gets time taken for the operation. (A measure of how much CPU the process is getting...)
+ * Turn off GCC optimizations for this piece of code as to avoid any funky changes to the CPU operation.
+ */
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
+double get_cpu_cycles_per_operation(){
+   int TIMES = 1e8;
+   uint64_t x = 0, start, end;
+   microseconds begin_time = duration_cast<microseconds>(Clock::now().time_since_epoch());
+
+   rdtsc();
+   for(int i = 0; i < TIMES; i++)  x += i;
+   rdtsc1();
+
+   start = ( ((int64_t)cycles_high << 32) | cycles_low );
+   end = ( ((int64_t)cycles_high1 << 32) | cycles_low1 );
+       
+   microseconds end_time = duration_cast<microseconds>(Clock::now().time_since_epoch());
+   lprintf("Calculating CPU CPI took %.2lf seconds\n", (end_time - begin_time).count() * 1.0 / MUS_PER_SEC);
+
+   return (end - start) * 1.0 / TIMES;
+}
+#pragma GCC pop_options
 
 /* Get current date/time, format is YYYY-MM-DD.HH:mm:ss */
 const std::string current_datetime() {
@@ -571,6 +645,7 @@ invocation_response my_handler(invocation_request const& request, const std::sha
    bool success = true, sysinfo, return_data;
    std::string error, s3bucket, s3key, guid;
    result_t* res = NULL;
+   double protocol_time = 0;
 
    AWS_LOGSTREAM_INFO(TAG, "Start");
 
@@ -680,8 +755,8 @@ invocation_response my_handler(invocation_request const& request, const std::sha
          /* Run id exchange protocol */
          try {
             AWS_LOGSTREAM_INFO(TAG, "Running");
-            microseconds start_time_mus = duration_cast<microseconds>(std::chrono::seconds(start_time_secs));
-            res = run_membus_protocol(id, start_time_mus, max_phases, max_bits, bit_duration_secs, addr, true);
+            microseconds start_time_mus = duration_cast<microseconds>(seconds(start_time_secs));
+            res = run_membus_protocol(id, start_time_mus, max_phases, max_bits, bit_duration_secs, addr, true, &protocol_time);
          }
          catch (std::exception e){
             lprintf("Exception in membus protocol execution: %s", e.what());
@@ -702,6 +777,7 @@ invocation_response my_handler(invocation_request const& request, const std::sha
    /* Save results (return all fields whether applicable or not) */
    body["Success"] = success;
    body["Error"] = error;
+   body["Protocol Time"] = (int)protocol_time;
    body["Phases"] =  res != NULL ? res->num_phases : 0;
    for (int i = 0; i < max_phases; i++) {
       body["Phase " + std::to_string(i+1)] = (res != NULL && i < res->num_phases) ? res->ids[i] : -1;
@@ -736,13 +812,13 @@ invocation_response my_handler(invocation_request const& request, const std::sha
 
    /* Save some system info */
    /* Get MAC addresses and add to the buffer */ 
-   char mac[50] = "";
-   get_mac_addrs(mac);
-   body["MAC Address"] = std::string(mac);
+   body["MAC Address"] = get_mac_addrs();
+   body["IP Address"] = get_ipaddr();
    /* Get boot id */
    std::ifstream ifs("/proc/sys/kernel/random/boot_id");
    std::string boot_id ( (std::istreambuf_iterator<char>(ifs) ), (std::istreambuf_iterator<char>()) );
    body["Boot ID"] = boot_id;
+   body["CPU CPI"] = get_cpu_cycles_per_operation();
 
    /* Save all the lambas that previously used the current container */
    std::string arr;

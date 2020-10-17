@@ -65,40 +65,39 @@
 # display $plot &
 
 
-# Plot colocation correltion between two experiments
-# Data from runs: 09-17-14-13, 09-17-14-07
-# former=09-17-14-07
-# latter=09-17-14-13
-former=10-13-23-34
-latter=10-13-23-38
-plot=plots/correlation.pdf
-sizes=`jq '.Sizes[]' out/$former/stats.json`
-echo "Size" > out/$former/clusters
-echo "$sizes" >> out/$former/clusters
-sizes=`jq '.Sizes[]' out/$latter/stats.json`
-echo "Size" > out/$latter/clusters
-echo "$sizes" >> out/$latter/clusters
-python plot.py -z hist -fs 20 \
-    -d out/${former}/clusters -l "Run 1" \
-    -d out/${latter}/clusters -l "Run 2" \
-    -yc "Size" \
-    -yl "% of total lambdas" \
-    -xl "Number of neighbors" \
-    -o $plot -of pdf
-echo "Plot at: $plot"
-display $plot &
-
-
-# # Plot run times for various lambda counts
-# # data from experiments: NONE
-# # May need to repeat multiple times and get average but the numbers were consistent in general
-# datafile=plots/runtimes.dat
-# plot=plots/runtimes.pdf
-# python plot.py -xc "Count" -xl "Run Size (Lambda Count)" -yl "Time (secs)" -fs 20  --xstr \
-#     -yc "Protocol Time" -l "FAKE DATA FOR NOW" \
-#     -o $plot -d $datafile -of pdf
+# # Plot colocation correltion between two experiments
+# # Data from runs: 09-17-14-13, 09-17-14-07
+# # former=09-17-14-07
+# # latter=09-17-14-13
+# former=10-13-23-34
+# latter=10-13-23-38
+# plot=plots/correlation.pdf
+# sizes=`jq '.Sizes[]' out/$former/stats.json`
+# echo "Size" > out/$former/clusters
+# echo "$sizes" >> out/$former/clusters
+# sizes=`jq '.Sizes[]' out/$latter/stats.json`
+# echo "Size" > out/$latter/clusters
+# echo "$sizes" >> out/$latter/clusters
+# python plot.py -z hist -fs 20 \
+#     -d out/${former}/clusters -l "Run 1" \
+#     -d out/${latter}/clusters -l "Run 2" \
+#     -yc "Size" \
+#     -yl "% of total lambdas" \
+#     -xl "Number of neighbors" \
+#     -o $plot -of pdf
 # echo "Plot at: $plot"
 # display $plot &
+
+
+# Plot run times for various lambda counts
+# data from experiments: 10-16-16-[46 to 58]
+datafile=plots/runtimes.dat
+plot=plots/runtimes.pdf
+python plot.py -xc "Count" -xl "Run Size (Lambda Count)" -yl "Time (secs)" -fs 20  --xstr -z bar \
+    -yc "Protocol Time" -ll none \
+    -o $plot -d $datafile -of pdf
+echo "Plot at: $plot"
+display $plot &
 
 
 # # Plot colocation densities in various regions
@@ -114,12 +113,27 @@ display $plot &
 
 # # # Get & Plot weekly and other variations in colocation density for regions
 # # # Parse data from runs
-# (bash show.sh 09-2[6-9] && bash show.sh 09-30 && bash show.sh 10-0[1-7] ) | grep 1000 | grep sa-east-1 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$12} ' > plots/density-sa-east-1.dat
-# (bash show.sh 09-2[6-9] && bash show.sh 09-30 && bash show.sh 10-0[1-7] ) | grep 1000 | grep us-east-2 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$12} ' > plots/density-us-east-2.dat
-# plot=plots/weekly-density.pdf
+# # (bash show.sh 09-2[6-9] && bash show.sh 09-30 && bash show.sh 10-0[1-7] ) | grep 1000 | grep sa-east-1 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$12} ' > plots/density-sa-east-1.dat
+# # (bash show.sh 09-2[6-9] && bash show.sh 09-30 && bash show.sh 10-0[1-7] ) | grep 1000 | grep us-east-2 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$12} ' > plots/density-us-east-2.dat
+# (bash show.sh 10-*-12 ) | grep 1000 | grep sa-east-1 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$12} ' > plots/density-sa-east-1.dat
+# (bash show.sh 10-*-12 ) | grep 1000 | grep us-east-2 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$12} ' > plots/density-us-east-2.dat
+# plot=plots/weekly-density2.pdf
 # python plot.py -xc "Date" -xl " " -yl "Density" -fs 15 --xstr   \
 #     -d plots/density-sa-east-1.dat -yc "Density" -l "sa-east-1"     \
 #     -d plots/density-us-east-2.dat  -l "us-east-2"     \
 #     -o $plot -of pdf
 # echo "Plot at: $plot"
 # display $plot &
+
+
+# # Plot percentage of lambdas in each colocated cluster when different accounts are used
+# two_acc_run=10-08-01-19
+# # python analyze.py -i $two_acc_run --dataaz
+# plot=plots/different-acocunts.pdf
+# python plot.py -xc "Cluster" -xl "Group Size" -yl "Fraction %" -d out/$two_acc_run/accounts.csv -fs 15     \
+#     -yc "Account 0 %" -l "Account 0"    \
+#     -yc "Account 1 %" -l "Account 1"    \
+#     -z barstacked -o $plot -of pdf
+# echo "Plot at: $plot"
+# display $plot &
+
