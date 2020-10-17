@@ -35,7 +35,7 @@ repeat the experiments for different lambda sizes and in various cloud regions.
 \subsection{Reliability}
 We consider the results of the technique reliable when 1) most of the deployed
 instances successfully see the same result in majority of the independent rounds
-(indicating lesser bit-flip errors) and 2) the resulting co-located groups we
+(indicating lesser bit-flip errors) and 2) the resulting co-resided groups we
 see match the ground truth.  For 1, we ran an experiment with 1000 AWS lambdas
 and compared the error rate across different lambda sizes (the error rate
 indicates the fraction of these 1000 lambdas that did not have a majority
@@ -47,7 +47,7 @@ see a 100\% success rate.
 
 \textbf{Correctness} 
 To determine correctness, we require ground truth on which instances are
-co-located with one another, which we are able to ascertain by utilizing an AWS
+co-resided with one another, which we are able to ascertain by utilizing an AWS
 caching mechanism. After execution, AWS caches the lambda containers to reuse 
 them\cite{awscontainerreuse} for repeat lambdas and mitigate
 "cold start" latencies. For C++ lambdas, we found that the data structures
@@ -74,12 +74,12 @@ containers for true correctness.
 
 To demonstrate this principle, we run an experiment with 1000 1.5GB cold-started
 lambdas (ID'ed 1 to 1000) in one of densest AWS regions (AWS MiddleEast), which
-resulted in many co-located groups.  We repeat the experiment within a few
+resulted in many co-resided groups.  We repeat the experiment within a few
 seconds, thereby ensuring that all 1000 lambdas are warm-started on the second
 trial (i.e., they use the same set of containers from the previous experiment).
-For each co-located group of lambdas in the latter experiment, we checked
+For each co-resided group of lambdas in the latter experiment, we checked
 whether their predecessor lambdas (that used the same set of containers) in the former one 
-formed a co-located group a well. \amirian{a bit lost here} \anil{how about now?} 
+formed a co-resided group a well. \amirian{a bit lost here} \anil{how about now?} 
 We observed that while the lambdas that used a set of containers differ across 
 both experiments, the results of these experiments agree perfectly on the continer 
 colocation. Figure~\ref{fig:correlation} shows that both experiments saw
