@@ -3,7 +3,7 @@
 As with any large scale measurement project, there are ethical considerations to
 take into account. First, there are security and privacy concerns of using this
 technique to uncover other consumer's lambdas. However, since we focus on
-co-operative co-residence detection, we only determine co-location for the
+co-operative co-residence detection, we only determine co-residence for the
 lambdas we launched, and do not gain insight into other consumer's lambdas.
 Secondly, there is concern that our experiments may cause performance issues
 with other lambdas, as we may block their access to the memory bus. We believe
@@ -15,8 +15,6 @@ lambdas are generally not recommended for latency-sensitive workloads, due to
 their cold-start latencies. Thus, the small amount of lambdas that we might
 affect should not, by definition, be affected in their longterm computational
 goals. 
-\amirian{is lambda cost by second? is it possible that by causing a longer
-lambda runtime, we are costing someone more money?}
 
 
 \section{CONCLUSION \& FUTURE WORK}
