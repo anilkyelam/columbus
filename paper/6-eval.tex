@@ -21,7 +21,7 @@ lambdas as it allows pointer arthmetic that is required to access the covert cha
 
 \subsection{Setup}
 \label{subsec:expsetup}
-For each experiment, we deploy a series of instances from an AWS lambda`
+For each experiment, we deploy a series of instances from an AWS lambda
 account. Once deployed, each instance participates in the first phase of the
 protocol as noted in section \ref{sec:protocol:complexity}, thereby learning the
 largest ID of their neighbors. As bit-flip errors are possible, we repeat the
@@ -39,7 +39,7 @@ instances successfully see the same result in majority of the independent rounds
 see match the ground truth.  For 1, we ran an experiment with 1000 AWS lambdas
 and compared the error rate across different lambda sizes (the error rate
 indicates the fraction of these 1000 lambdas that did not have a majority
-result). From figure \ref{fig:errorrates}, we can see that smaller lambdas see
+result). From Figure \ref{fig:errorrates}, we can see that smaller lambdas see
 lot more errors. This is expected because, as discussed in section
 \ref{sec:method:noise}, these lambdas experience lossy communication making it
 harder for our technique to sense contention. The lambdas above 1.5 GB, though,
