@@ -1,33 +1,36 @@
 \section{RELATED WORK}
 \label{sec:relatedwork}
-\todo{needs polishing; make sure that terms are consistent with the work,
-covert-channel vs side-channel}
 
-\textbf{Covert Channels \& Cloud Attacks} Co-residency is possible because of
-covert channels, so we begin our related work with an investigation into covert
-channels and cloud attacks. Initial papers in co-residency detection utilized
-host information and network addresses arising due to imperfect
-virtualization~\cite{ristenpartccs2009}. However, these covert channels are now
-obsolete, as cloud provides have strengthened virtualization and introduced
-Virtual Private Clouds\todo{cite}. Later work used cache-based channels in
-various levels of the cache~\cite{xuccsw2011, zhangccs2014, liu2015,
-kaylaap2016} and hardware based covert channels like thermal covert channels
-\cite{mastiusenix2015}, RNG module \cite{evtyushkinccs2016} and memory bus
-\cite{wuusenix2012} have also been  explored in the recent past. Moreover,
-studies have found that VM performance can be significantly degraded using
-memory DDoS attacks~\cite{zhang2016memory}, while containers are susceptible to
-power attacks from adjacent containers~\cite{gao2017}. Our work focuses on using
-the memory bus as a covert channel for determining cooperative co-residency.
-.\amirian{work this in?}Covert channels using memory bus were first introduced
-by Wu etl. al~\cite{whispers}, and subsequently has been used for co-residency
-detection on VMs and Containers~\cite{compstudycoresidency,varad191016}  Wu et.
-al~\cite{whispers} introduced a new technique to lock the memory bus by using
-atomic memory operations on addresses that fall on multiple cache lines. .  \\
+\textbf{Cloud Attacks} 
+Co-residency is possible because of covert channels, so we begin our related
+work with an investigation into cloud attacks. Initial
+papers in co-residency detection utilized host information and network
+addresses arising due to imperfect virtualization~\cite{ristenpartccs2009}.
+However, these channels are now obsolete, as cloud provides have
+strengthened virtualization and introduced Virtual Private
+Clouds~\cite{awsvpc}. Later work used cache-based channels in various levels of
+the cache~\cite{xuccsw2011, zhangccs2014, liu2015, kaylaap2016} and hardware
+based channels like thermal covert channels~\cite{mastiusenix2015}, RNG
+module~\cite{evtyushkinccs2016} and memory bus~\cite{wuusenix2012} have also
+been explored in the recent past. Moreover, studies have found that VM
+performance can be significantly degraded using memory DDoS
+attacks~\cite{zhang2016memory}, while containers are susceptible to power
+attacks from adjacent containers~\cite{gao2017}.  
 
-\textbf{Co-residency} One of the first pieces of literature in detecting VM
-co-residency was introduced by Ristenpart et al., who demonstrated that VM
-co-residency detection was possible and that these techniques could be used to
-gather information about the victim machine (such as keystrokes and network
+Our work focuses on using the memory bus as a covert channel for determining
+cooperative co-residency.  Covert channels using memory bus were first
+introduced by Wu et.  al~\cite{whispers}, and subsequently has been used for
+co-residency detection on VMs and
+containers~\cite{compstudycoresidency,varad191016}  Wu et. al~\cite{whispers}
+introduced a new technique to lock the memory bus by using atomic memory
+operations on addresses that fall on multiple cache lines, a technique we rely
+on in our own work. \\
+
+\textbf{Co-residency} 
+One of the first pieces of literature in detecting VM co-residency was
+introduced by Ristenpart et al., who demonstrated that VM co-residency detection
+was possible and that these techniques could be used to gather information about
+the victim machine (such as keystrokes and network
 usage)~\cite{ristenpartccs2009}. This initial work was further expanded in
 subsequent years to examine co-residency using memory bus
 locking~\cite{xuusenix2015} and active traffic analysis~\cite{bates2012}, as
@@ -37,16 +40,16 @@ Zhang et al. demonstrated a technique to detect VM co-residency detection via
 side-channel analyses~\cite{zhang2011}. Our work expands on these previous works
 by investigating co-residency for lambdas.\\
 
-\textbf{Lambdas} \todo{pretty rough paragraph...needs a rewrite} While lambdas
-are a newer technology than VMs, there still exists a variety of literature. For
-example, recent studies examine cost comparisons of running web applications in
-the cloud on lambdas versus other architectures~\cite{villamizar2016}. Moreover,
-lambdas have been studied in the context of cost-effective batching and data
-processing~\cite{kiran2015}. Further research has shown how lambdas perform with
+\textbf{Lambdas} 
+While lambdas are a much newer technology than VMs, there still exists lterature
+on the subject. Recent studies examined cost comparisons of running web
+applications in the cloud on lambdas versus other
+architectures~\cite{villamizar2016}, and also examined the lambdas have been
+studied in the context of cost-effectivness of batching and data processing with
+lambdas~\cite{kiran2015}.  Further research has shown how lambdas perform with
 scalability and hardware isolation, indicating some flaws in the lambda
 architecture~\cite{wangusenix2018}. From a security perspective, Izhikevich et.
 al examined lambda co-residency using RNG and memory bus techniques (similar to
-techniques used  looking at VM co-residency)~\cite{izhikevich2018}.. However,
-our work differs from this study in that our technique informs the user of which
-lambdas are on the same machine, not only that the lambdas experience
-co-residency.
+techniques utilized in VM co-residency)~\cite{izhikevich2018}. However, our work
+differs from this study in that our technique informs the user of which lambdas
+are on the same machine, not only that the lambdas experience co-residency.
