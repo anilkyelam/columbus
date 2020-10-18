@@ -45,7 +45,7 @@
 
 Our goal is to determine a (co-operative) co-residence detection mechanism for
 lambdas. In other words, given a series of spawned lambdas in a
-given region on a cloud service, how can we determine the lambdas that are
+certain region of a cloud service, how can we determine the lambdas that are
 co-located on the same machines?  In this section, we discuss the details of
 such a mechanism, previous solutions to this problem, and the unique challenges
 we faced with lambda co-residence.
@@ -82,7 +82,7 @@ properties:
 
 Given these properties, we decide to investigate harware-based covert channels.
 Hardware-based covert-channels are more difficult to remove and obfuscate than
-software-based covert channels, and are also more ubiquitous, given that
+software-based covert channels, and are also ubiquitous, given that
 hardware is more homogenous in nature than software. 
 % generic
 
@@ -166,7 +166,7 @@ the amount of co-location. The only information we can deduce is that receivers
 were probably co-located with just a single sender.
 
 An alternative method is to try pair-wise detection where only one sender 
-instance locks and one victim instance probes at a time revealing co-residence
+instance locks and one receiver instance probes at a time revealing co-residence
 of this pair, and repeating this serially for each pair. However, this technique
 is too slow and scales quadratically with the number of instances e.g., a
 hundred instances take more than 10 hours assuming 10 secs for each pair.
@@ -174,14 +174,14 @@ Varadarajan et al.\cite{varad191016} speeds up this process significantly by
 performing detection for mutually-exclusive subsets in parallel, allowing for
 false-positives and later eliminating the false-positives
 sequentially\amirian{might want to elaborate on this; on its own may be a bit
-confusing}. This would still only scale linearly in the best case, which is
+confusing}. This would only scale linearly in the best case, which is
 still expensive; with a thousand instances, for example, the whole detection
 process takes well over 2 hours to finish, which is infeasible for lambdas that
 are, by nature, ephemeral. Thus, one challenge in this work is creating a faster
 neighbor detection algorithm.
 
 % how do we scale it - challenges.
-\subsubsection{The Path to Scalability}`'
+\subsubsection{The Path to Scalability}
 
 %One challenge in creating a lambda neighbor detection algorithm is speed. - repeated
 One method to quicken the co-location process is by decreasing the time a single
@@ -211,6 +211,7 @@ instances can reliably exchange their unique IDs with each other to discover
 their neighbors. The protocol takes time on the order of number of instances
 involved, which is limited by the maximum number of co-located instances on a
 single server (tens), a number that is orders of magnitude less than total
-number of instances deployed to the cloud (hundreds to thousands).  This lets us
+number of instances deployed to the cloud (hundreds to thousands). Removing 
+this dependency on total number of instances deployed lets us
 scale our co-residence detection significantly, as we will see the the next
 section.

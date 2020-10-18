@@ -2,9 +2,8 @@
 \label{sec:technique}
  
 Co-residence detection for lambdas must be quick, as lambdas
-are ephemeral by nature. Thus, we require a way for lambdas to communicate among
-themselves and discover each other in a scalable manner. 
-As noted earlier, co-residence detection scales well when co-residing instances
+are ephemeral by nature. As noted earlier, co-residence detection is faster 
+when co-residing instances
 on each server communicate among themselves and discover each other.  
 Assuming that the instances have unique IDs, co-resided instances can exchange
 integer IDs with each other using the memory bus channel as a transmission
@@ -44,12 +43,12 @@ Algorithm~\ref{alg:sender}.
 
 \subsubsection{Sensing contention} 
 Next, we determine how best for the receivers to sense contention on the memory
-bus, given that there are two available methods. When the memory bus is locked,
+bus. There are two ways to acheive this. When the memory bus is locked,
 any non-cached memory accesses will queue and therefore see higher latencies.
 The receiver can then continually make un-cached memory accesses (referred to as
 the \textit{memory probing} receiver in previous
 literature~\cite{varadarajan2015}) and observe a spike in their latencies to
-detect contention.  The receiver can also detect memory bus contention by using
+detect contention. On the other hand, the receiver can also detect memory bus contention by using
 the same memory locking operations as the sender (referred to as \textit{memory
 locking} receiver) to probe the memory bus. Since only one processor core can
 lock the memory bus at a given time, any other concurrent locking operation will
@@ -172,8 +171,8 @@ baseline distribution of latencies sampled without contention. We then need to
 compare and differentiate the observed sample of latencies from the baseline to
 establish contention. To do this, we use a variant of the two-sample 
 Kolomogorov-Smirinov (KS) test that takes the maximum of absolute difference between 
-empirical CDFs of the samples as measure of comparison ((In our variant, we take the 
-\emph{mean} of absolute difference instead of the maximum)). Using this measure,
+empirical CDFs of the samples as measure of comparison (In our variant, we take the 
+\emph{mean} of absolute difference instead of the maximum). Using this measure,
 we can categorize a KS-value above a certain threshold as a 1-bit (contention) and a 
 value below the threshold as 0-bit (baseline).
 
@@ -313,7 +312,7 @@ otherwise it listens for a 0 or 1. If an instance senses a 1 while listening, it
 stops participating, and listens for the rest of the phase. Thus, only the
 instances with the highest ID among the initial set of participating lambdas
 continues broadcasting until the end of the protocol, effectively advertising
-its full ID to the rest of the (now listening) lambdas). In the next cycle, the
+its full ID to the rest of the (now listening) lambdas. In the next cycle, the
 lambda with the previously highest ID now only listens, allowing the next
 highest instance to advertise its ID, and so on.  Since the IDs are unique,
 there will always be only one instance that broadcasts in every phase. The
