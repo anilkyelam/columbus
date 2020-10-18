@@ -1,118 +1,110 @@
-\section{Background}
+\section{Background \& Motivation}
 \label{sec:background}
 
 We begin with a brief background on relevant topics.
 
+
 \subsection{Lambdas/Serverless Functions} 
 \label{sec:background:lambdas}
-\todo{needs sprucing} 
+
 We focus on serverless functions in this paper, as they are one of the
-fastest-growing cloud services. Otherwise known as lambdas on
-AWS~\cite{awslambda} and cloud functions on GCP~\cite{gcpfunctions}, these
-serverless functions are of interest because they do not require the developer
+fastest-growing cloud services and are less well-studied from a security 
+standpoint. Offered as lambdas on
+AWS~\cite{awslambda}, and cloud functions on GCP~\cite{gcpfunctions} and 
+Azure~\cite{azurefunctions}, these functions are of interest because they do 
+not require the developer
 to provision, maintain, or administer servers. In addition to this low overhead,
 lambdas are much more cost-efficient than virtual machines (VMs) as they allow
 more efficient packing of functions on servers. Lambdas execute as much smaller
-units than containers and virtual machines, ranging in size from 128 MB to 3 GB,
-with a maximum execution limit of 15 minutes. While lambdas are limited in the
-computations they can execute, they are conversely incredibly lightweight and
-can be initiated and deleted in a very short amount of time. Since lambdas are
-short-lived and lightweight, the user has no control over the physical location
-of the server(s) on which their lambdas are spawned.  The nature of serverless
-functions and their flexibility in cost and functionality increases the
-difficulty in detecting co-residency and launching successful attacks, as we
-will discuss in later sections.
+units than containers and virtual machines, and are more ephemeral. 
+For example, on AWS, the memory 
+of lambdas is capped at 3 GB, with a maximum execution limit of 15 minutes. 
+As with other cloud services, the user has no control over the physical location
+of the server(s) on which their lambdas are spawned.
 
-%We focus on AWS Lambdas in this paper but we show that our study is applicable
-%to other clouds as well. 
+While lambdas are limited in the computations they can execute (typically 
+written in high-level languages like Python, C\#, etc), 
+they are conversely incredibly lightweight and
+can be initiated and deleted in a very short amount of time. Cloud providers 
+run lambdas in dedicated containers with limited resources (e.g., Firecracker
+~\cite{firecracker}), which are usually cached and re-used for future lambdas 
+to mitigate cold-start latencies\cite{awscontainerreuse}. The ephemeral nature of serverless
+functions and their limited flexibility increases the difficulty in detecting 
+co-residency, as we will discuss later. Previous studies that profiled 
+lambdas~\cite{wangusenix2018} focused on the performance aspects like 
+cold start latencies, function instance lifetime, CPU usage, etc. 
+across various clouds, while the security aspects remain relatively understudied.
 
-%This seems like a repeat of similar content in other places in the paper, so
-%I've commented it out for now - AM In addition to being a relatively recent
-%addition to the long list of %cloud computing services provided, the seemingly
-%fleeting nature of %Lambdas make it challenging to perform targeted co-location
-%attacks %using hardware channels. This could potentially be the reason why
-%%Lambdas have not been explored as much as virtual machines and %containers in
-%literature. But the same characteristics of Lambdas are %what make them
-%interesting to explore, which is what we set out to do %in this work.
 
-\subsection{Co-residence Detection}
-\label{sec:background:pastwork}
+\subsection{Covert Channels in the Cloud}
+\label{sec:background:covertchannels}
+In our attempt to shed light on the security aspects of lambdas, we focus 
+particularly on the feasiblity of establishing reliable covert channels 
+between lambdas running in the cloud. 
+Covert channels enable a means of transmitting information beween entities 
+that bypasses traditional monitoring or auditing. Typically, this is acheived 
+by communicating data across unintended channels such as signalling bits by 
+causing contention on shared hardware media on the server~\cite{L2cacheCovertChannels,
+ProcessorCovertChannels,ThermalCovertChannel,SshOverCovertChannel,wuusenix2012}. 
+Past work has demonstrated covert channels in virtualized environments like 
+the clouds using various harware such as caches~\cite{ristenpartccs2009,L2cacheCovertChannels},
+memory bus~\cite{wuusenix2012}, and even processor temperature~\cite{ThermalCovertChannel}.
 
-%On previous work on colocation, past techniques and why those techniques would 
-%not work anymore
-Of interest to this work is how to determine co-residency of lambdas, or how to
-determine which lambdas are spawned on the same machines.  To perform
-side-channel attacks against other tenants in a cloud setting, attackers need to
-co-locate their applications on the same servers as their victims using
-covert-channels. Past research has used various strategies to achieve
-co-residency for demonstrating such attacks. \amirian{got a bit lost
-here...mostly with what is in parenthesis}Typically, achieving co-residency
-includes a (VM/Container) launch strategy (varying number of instances, time of
-the day, etc) combined with a co-residence detection mechanism for detecting if
-two instances are running on the same machine. Traditionally, this was done
-based on software runtime information like public/internal IP
-addresses\cite{ristenpartccs2009}, files in \textit{procfs} or other environment
-variables\cite{wangusenix2018} and other such logical
-side-channels\cite{varad191016,vmplacement} that two instances running on a same
-server might share. 
-
-As virtualization platforms move towards stronger isolation between instances
-(e.g. AWS' Firecracker VM \cite{firecracker}), these logical covert-channels
-have become less effective or infeasible. Furthermore, some of these
-covert-channels were only effective on container-based platforms that shared the
-underlying OS image and were thus less suitable for hypervisor-based platforms.
-This prompted a move towards hardware-based covert channels which can bypass
-software isolation and are usually harder to fix. Typically, these covert
-channels involve sending/receiving information by causing contention on a shared
-hardware that results in observable performance fluctuations across
-applications. A number of such side-/covert channels based on shared hardware
-(e.g. last-level caches \todo{references}, memory
-bus~\cite{wuusenix2012,zhang2016,varadarajan2015} and storage
-devices\todo{references}) have been explored in the past, some of which have
-already been addressed and are no longer even feasible in most clouds (e.g.,
-last-level cache-based channels\cite{cache-sidechannels}). 
-
-%  \subsection{Random Number Generator hardware} \label{sec:background:rng} When
-%  examining avenues for co-location on lambdas, one avenue we explored is the
-%  random number generator (RNG) hardware. Modern processors support a shared
-%  hardware module to generate true random numbers. These devices use low level
-%  noise signals such as thermal noise and other quantum phenomena to produce
-%  true non deterministic entropy. Information from this module is routed from
-%  the host machine to the /dev/random file in the guest virtual machine for
-%  cryptographic operations. Since the hardware is shared, if one guest consumes
-%  these random bits within an infinite loop, another user could notice a spike
-%  in random operations, indiciating contention.
-
-% Rdrand and rdseed are the two instructions used to access random bits produced
-% by the RNG generator hardware. The bits in the conditional buffer are directly
-% used by the rdseed instruction, but rdrand uses another deterministic module
-% that depends on the past outputs, which helps rdrand achieve a higher
-% throughput than rdseed. This design makes rdseed more reliable to use as
-% rdseed instructions are easily and quickly exhaustible. 
-
-\subsection{Memory Bus Covert Channel} 
-\label{sec:background:membus} 
-As software (and some hardware) channels have proven to be less effective over
-time, the shared hardware that we ultimately examine and use in our study is the
-memory bus. The memory bus is the piece of hardware that connects the memory
-controller to main memory.  Memory bus contention can be caused by initiating
-repeated memory accesses to saturate the bus bandwidth and cause observable
-latency spikes. However, this turns out to be very challenging given the
-multiple levels of caches on today's servers, which prevent repeated memory
-accesses, and the high memory bandwidth that cannot be saturated by few CPU
-cores. 
-
-In x86 systems, atomic memory instructions designed to facilitate
+\textbf{Memory bus covert channel} 
+Of particular interest to this work is the covert channel based on memory bus 
+hardware introduced by Wu et al.~\cite{wuusenix2012}. 
+In x86 systems, atomic memory instructions designed to facilitate 
 multi-processor synchronization are supported by cache coherence protocols as
 long as the operands stay within a cache line (generally the case as language
 compilers make sure that operands are aligned). However, if the operand is
 spread across two cache lines (referred to as "exotic" memory operations), x86
 hardware achieves atomicity by locking the memory bus to prevent any other
 memory access operations until the current operation finishes. This results in
-significantly higher latencies for the other operations which cannot use the
-ample memory bandwidth due to the lock~\cite{wuusenix2012}. Furthermore, this
-behavior persists even in the presence of multiple processor sockets, making the
-locking effects visible to all the cores on the machine. We exploit this
-property of x86 hardware to cause contention on the memory bus and use the
-resulting observable variations in performance as a covert channel for detecting
-co-residency. 
+significantly higher latencies for such locking operations compared to traditional 
+memory accesses. As a result, a few consecutive locking operations could cause 
+contention on the memory bus that could be exploited for covert communication.
+Wu et al. acheived a data rate of 700 bps on the memory bus channel in an 
+ideal laboratory setup.
+
+Cloud environments, however, pose challenges to both establishing  
+such covert channels and using them at their ideal performance. First, in the 
+cloud setting, the sender and receiver entities are not known to be on the same server 
+as this (coresidency) information is hidden from the tenants (even if the entities belong to 
+the same tenant). Second, clouds present a virtualized platform that affects 
+the communication on the covert channel as it introduces scheduling uncertainties
+between the participating entities and interference from other non-partiticpating 
+workloads. While studies generally deal with the latter problem by employing 
+traditional error correction techniques\cite{wuusenix2012} to overcome errors, 
+the former challenge of establishing the covert channel (by detecting coresidency) 
+in the first place requires a co-residence detection mechansim which the 
+attacker needs to employ to get the sender and receiver on the same machine. 
+
+
+\subsection{Co-residence Detection}
+\label{sec:background:pastwork}
+
+%On previous work on colocation, past techniques and why those techniques would 
+%not work anymore
+Past research has used various strategies to achieve co-residency for demonstrating 
+various covert channel attacks in the cloud. Typically, the attacker launches a 
+large number of cloud instances (VMs, Containers, etc.) following a certain 
+launch strategy and employs a co-residence detection mechanism for detecting if
+any pair of those instances are running on the same machine. 
+Traditionally, the co-residence detection was done based on software runtime information 
+like public/internal IP addresses\cite{ristenpartccs2009}, files in \textit{procfs} 
+or other environment variables\cite{wangusenix2018} and other such logical
+side-channels\cite{varad191016,vmplacement} that two instances running on a same
+server might share.
+
+As virtualization platforms move towards stronger isolation between instances
+(e.g. AWS' Firecracker VM \cite{firecracker}), these logical covert-channels
+have become less effective or infeasible. Furthermore, some of these
+channels were only effective on container-based platforms that shared the
+underlying OS image and were thus less suitable for hypervisor-based platforms.
+This prompted a move towards using hardware-based covert channels, such as the 
+ones discussed in the earlier section, which can bypass software isolation and 
+are usually harder to fix. For example, Varadarajan et al.~\cite{varadarajan2015}
+uses the memory bus covert channel to detect co-residency for EC2 instances. 
+However, as we will show, traditional approaches do not extend well to lambdas 
+as they are too slow or are not scalable. Thus, we set forth to determine a 
+fast and scalable co-residence detection for lambdas.

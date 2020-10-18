@@ -474,3 +474,68 @@ url = {https://www.usenix.org/conference/usenixsecurity15/technical-sessions/pre
 publisher = {{USENIX} Association},
 month = aug,
 }
+
+@inproceedings{L2cacheCovertChannels,
+author = {Xu, Yunjing and Bailey, Michael and Jahanian, Farnam and Joshi, Kaustubh and Hiltunen, Matti and Schlichting, Richard},
+title = {An Exploration of L2 Cache Covert Channels in Virtualized Environments},
+year = {2011},
+isbn = {9781450310048},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2046660.2046670},
+doi = {10.1145/2046660.2046670},
+abstract = {Recent exploration into the unique security challenges of cloud computing have shown that when virtual machines belonging to different customers share the same physical machine, new forms of cross-VM covert channel communication arise. In this paper, we explore one of these threats, L2 cache covert channels, and demonstrate the limits of these this threat by providing a quantification of the channel bit rates and an assessment of its ability to do harm. Through progressively refining models of cross-VM covert channels from the derived maximums, to implementable channels in the lab, and finally in Amazon EC2 itself we show how a variety of factors impact our ability to create effective channels. While we demonstrate a covert channel with considerably higher bit rate than previously reported, we assess that even at such improved rates, the harm of data exfiltration from these channels is still limited to the sharing of small, if important, secrets such as private keys.},
+booktitle = {Proceedings of the 3rd ACM Workshop on Cloud Computing Security Workshop},
+pages = {29–40},
+numpages = {12},
+keywords = {covert channel, bandwidth},
+location = {Chicago, Illinois, USA},
+series = {CCSW '11}
+}
+
+@inproceedings{ProcessorCovertChannels,
+author = {Wang, Zhenghong and Lee, Ruby B.},
+title = {Covert and Side Channels Due to Processor Architecture},
+year = {2006},
+isbn = {0769527167},
+publisher = {IEEE Computer Society},
+address = {USA},
+url = {https://doi.org/10.1109/ACSAC.2006.20},
+doi = {10.1109/ACSAC.2006.20},
+abstract = {Information leakage through covert channels and side channels is becoming a serious problem, especially when these are enhanced by modern processor architecture features. We show how processor architecture features such as simultaneous multithreading, control speculation and shared caches can inadvertently accelerate such covert channels or enable new covert channels and side channels. We first illustrate the reality and severity of this problem by describing concrete attacks. We identify two new covert channels. We show orders of magnitude increases in covert channel capacities. We then present two solutions, Selective Partitioning and the novel Random Permutation Cache (RPCache). The RPCache can thwart most cache-based software side channel attacks, with minimal hardware costs and negligible performance impact.},
+booktitle = {Proceedings of the 22nd Annual Computer Security Applications Conference},
+pages = {473–482},
+numpages = {10},
+series = {ACSAC '06}
+}
+
+@inproceedings{SshOverCovertChannel,
+author = {Maurice, Clementine and Weber, Manuel and Schwarz, Michael and Giner, Lukas and Gruss, Daniel and Boano, Carlo Alberto and Mangard, Stefan and Römer, Kay},
+year = {2017},
+month = {01},
+pages = {},
+title = {Hello from the Other Side: SSH over Robust Cache Covert Channels in the Cloud},
+doi = {10.14722/ndss.2017.23294}
+}
+
+@inproceedings {ThermalCovertChannel,
+author = {Ramya Jayaram Masti and Devendra Rai and Aanjhan Ranganathan and Christian M{\"u}ller and Lothar Thiele and Srdjan Capkun},
+title = {Thermal Covert Channels on Multi-core Platforms},
+booktitle = {24th {USENIX} Security Symposium ({USENIX} Security 15)},
+year = {2015},
+isbn = {978-1-939133-11-3},
+address = {Washington, D.C.},
+pages = {865--880},
+url = {https://www.usenix.org/conference/usenixsecurity15/technical-sessions/presentation/masti},
+publisher = {{USENIX} Association},
+month = aug,
+}
+
+@inproceedings{MemoryBusMitigation,
+  title={BusMonitor : A Hypervisor-Based Solution for Memory Bus Covert Channels},
+  author={Brendan Saltaformaggio and D. Xu and X. Zhang},
+  year={2013}
+}
+
+
+

@@ -210,10 +210,12 @@ becomes more challenging when there are multiple senders and receivers. In this
 work, we use the system clock for synchronizing communication.  All the
 instances involved in the communication are executing on the same physical
 server and share the server's clock. On AWS, for example, we observe that the
-system clock on lambdas is precise up to nanoseconds. If we assume a
-sub-microsecond drift between different lambdas running on the same server, our
-sampling measurements are limited to milliseconds. As we will see in the
-following second, this is sufficient.
+system clock on lambdas is precise up to nanoseconds. While we have no evidence of 
+it, we assume that the clocks between different lambdas drift only in the order 
+of microseconds. This gives us enough space for synchronization mismatch as we 
+take measurements only on millisecond scales due to noise constraints. 
+We believe this to be a reasonable assumption as we did not observe any 
+synchronization-related noise in our results.
 
 
 \begin{figure}[!t]
@@ -226,7 +228,7 @@ following second, this is sufficient.
 
 \amirian{Anil, this is my proposed fix for moving the final "challenge" out of
 protocol}
-\subsubsection{Broadcasting Collisions}
+\subsubsection{Handling Collisions}
 In the preceeding section, we discussed using a communication channel with
 synchronized time slots. In each time slot, an instance can reliably send
 (broadcast) or receive (listen) a bit by causing or sensing for contention.
@@ -246,8 +248,11 @@ collisions.  Second, even implementing a random or exponential backoff mechanism
 will introduce significant overhead before any meaningful communication occurs.
 This overhead will also increase as the number of instances involved increases.
 Since each time slot could take up to 1 second, this additional overhead can
-make the whole communication very slow. We address this using n-bit timeslots,
-which we discuss in the next section.
+make the whole communication very slow. We address this by designing a 
+specialized communication protocol that allows for collisions but pays a price 
+in terms of expressiveness, as we will see in the next section.
+
+
 
 \subsection{Protocol}
 \label{sec:protocol}

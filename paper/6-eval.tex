@@ -11,7 +11,7 @@
 \end{figure}
 
 In this section, we evaluate the effectiveness of our co-residence detection
-technique with respect realiability and scability, the desirable detection
+technique with respect to reliability and scalability, the desirable detection
 properties mentioned in section~\ref{sec:methodology}.  We run all of our
 experiments with AWS lambdas~\cite{awscloud}. Though we decide to focus on one
 of the cloud providers, we have previously shown in section \ref{sec:methodology} 
@@ -21,7 +21,7 @@ lambdas as it allows pointer arthmetic that is required to access the covert cha
 
 \subsection{Setup}
 \label{subsec:expsetup}
-For each experiment, we deploy a series of instances from an AWS lambda
+For each experiment, we deploy a series of instances from an AWS lambda`
 account. Once deployed, each instance participates in the first phase of the
 protocol as noted in section \ref{sec:protocol:complexity}, thereby learning the
 largest ID of their neighbors. As bit-flip errors are possible, we repeat the
@@ -35,7 +35,7 @@ repeat the experiments for different lambda sizes and in various cloud regions.
 \subsection{Reliability}
 We consider the results of the technique reliable when 1) most of the deployed
 instances successfully see the same result in majority of the independent rounds
-(indicating lesser bit-flip errors) and 2) the resulting co-resided groups we
+(indicating lesser bit-flip errors) and 2) the resulting co-located groups we
 see match the ground truth.  For 1, we ran an experiment with 1000 AWS lambdas
 and compared the error rate across different lambda sizes (the error rate
 indicates the fraction of these 1000 lambdas that did not have a majority
@@ -47,7 +47,7 @@ see a 100\% success rate.
 
 \textbf{Correctness} 
 To determine correctness, we require ground truth on which instances are
-co-resided with one another, which we are able to ascertain by utilizing an AWS
+co-located with one another, which we are able to ascertain by utilizing an AWS
 caching mechanism. After execution, AWS caches the lambda containers to reuse 
 them\cite{awscontainerreuse} for repeat lambdas and mitigate
 "cold start" latencies. For C++ lambdas, we found that the data structures
@@ -68,18 +68,18 @@ containers for true correctness.
   \includegraphics[width=.99\linewidth]{fig/runtimes.pdf}
   \caption{Shows the average runtime of a lambda for co-location runs of different sizes. 
   The run time increases logarithmically with the number of lambdas as it is proportional to
-  the number of bits required to uniquely identify all the lambdas.
+  the number of bits required to uniquely identify all the lambdas. \todo{Get real data.}
 \label{fig:runtimes}}
 \end{figure}
 
 To demonstrate this principle, we run an experiment with 1000 1.5GB cold-started
 lambdas (ID'ed 1 to 1000) in one of densest AWS regions (AWS MiddleEast), which
-resulted in many co-resided groups.  We repeat the experiment within a few
+resulted in many co-located groups.  We repeat the experiment within a few
 seconds, thereby ensuring that all 1000 lambdas are warm-started on the second
 trial (i.e., they use the same set of containers from the previous experiment).
-For each co-resided group of lambdas in the latter experiment, we checked
+For each co-located group of lambdas in the latter experiment, we checked
 whether their predecessor lambdas (that used the same set of containers) in the former one 
-formed a co-resided group a well. \amirian{a bit lost here} \anil{how about now?} 
+formed a co-located group a well. \amirian{a bit lost here} \anil{how about now?} 
 We observed that while the lambdas that used a set of containers differ across 
 both experiments, the results of these experiments agree perfectly on the continer 
 colocation. Figure~\ref{fig:correlation} shows that both experiments saw
