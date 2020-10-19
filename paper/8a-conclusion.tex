@@ -1,20 +1,19 @@
 
 \section{ETHICAL CONSIDERATIONS}
-As with any large scale measurement project, there are ethical considerations to
-take into account. First, there are security and privacy concerns of using this
+As with any large scale measurement project, we discuss the ethical
+considerations. First, there are security and privacy concerns of using this
 technique to uncover other consumer's lambdas. However, since we focus on
 co-operative co-residence detection, we only determine co-residence for the
 lambdas we launched, and do not gain insight into other consumer's lambdas.
-Second, there is concern that our experiments may cause performance issues
-with other lambdas, as we may block their access to the memory bus. We believe
-this concern is small, for a number of reasons. Memory accesses are infrequent
-due to the multiple levels of caches; we would only be affecting a small number
-of operations. Memory accesses and locking operations are FIFO, which
-prevents starvation of any one of the lambdas sharing a machine. Moreover,
-lambdas are generally not recommended for latency-sensitive workloads, due to
-their cold-start latencies. Thus, the small amount of lambdas that we might
-affect should not, in practice, be affected in their longterm computational
-goals. 
+Second, there is concern that our experiments may cause performance issues with
+other lambdas, as we may block their access to the memory bus. We believe this
+concern is small, for a number of reasons. Memory accesses are infrequent due to
+the multiple levels of caches; we would only be affecting a small number of
+operations. Memory accesses and locking operations are FIFO, which prevents
+starvation of any one of the lambdas sharing a machine. Moreover, lambdas are
+generally not recommended for latency-sensitive workloads, due to their
+cold-start latencies. Thus, the small amount of lambdas that we might affect
+should not, in practice, be affected in their longterm computational goals. 
 
 
 \section{CONCLUSION \& FUTURE WORK}
