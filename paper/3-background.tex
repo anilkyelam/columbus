@@ -1,63 +1,61 @@
 \section{Background \& Motivation}
 \label{sec:background}
 
-We begin with a brief background on relevant topics as we motivate 
-the need for fast and scalable co-residence detection in
-enabling covert channels with lambdas.
-
+We begin with a brief background on relevant topics as we motivate the need for
+fast and scalable co-residence detection in lambdas.
 
 \subsection{Lambdas/Serverless Functions} 
 \label{sec:background:lambdas}
 
 We focus on serverless functions in this paper, as they are one of the
-fastest-growing cloud services and are less well-studied from a security 
-standpoint. Offered as lambdas on
-AWS~\cite{awslambda}, and cloud functions on GCP~\cite{gcpfunctions} and 
-Azure~\cite{azurefunctions}, these functions are of interest because they do 
-not require the developer
-to provision, maintain, or administer servers. In addition to this low overhead,
-lambdas are much more cost-efficient than virtual machines (VMs) as they allow
-more efficient packing of functions on servers. Lambdas execute as much smaller
-units than containers and virtual machines, and are more ephemeral. 
-For example, on AWS, the memory 
-of lambdas is capped at 3 GB, with a maximum execution limit of 15 minutes. 
-As with other cloud services, the user has no control over the physical location
-of the server(s) on which their lambdas are spawned.
+fastest-growing cloud services and are less well-studied from a security
+standpoint. Offered as lambdas on AWS~\cite{awslambda}, and as cloud functions
+on GCP~\cite{gcpfunctions} and Azure~\cite{azurefunctions}, these functions are
+of interest because they do not require the developer to provision, maintain, or
+administer servers. In addition to this low overhead, lambdas are much more
+cost-efficient than virtual machines (VMs) as they allow more efficient packing
+of functions on servers. Moreover, lambdas execute as much smaller units  and
+are more ephemeral than containers and virtual machines.  For example, on AWS,
+the memory of lambdas is capped at 3 GB, with a maximum execution limit of 15
+minutes.  As with other cloud services, the user has no control over the
+physical location of the server(s) on which their lambdas are spawned.
 
-While lambdas are limited in the computations they can execute (typically 
-written in high-level languages like Python, C\#, etc), 
-they are conversely incredibly lightweight and
-can be initiated and deleted in a very short amount of time. Cloud providers 
-run lambdas in dedicated containers with limited resources (e.g., Firecracker
-~\cite{firecracker}), which are usually cached and re-used for future lambdas 
-to mitigate cold-start latencies~\cite{awscontainerreuse}. The ephemeral nature of serverless
-functions and their limited flexibility increases the difficulty in detecting 
-co-residency, as we will discuss later. Previous studies that profiled 
-lambdas~\cite{wangusenix2018} focused on the performance aspects like 
-cold start latencies, function instance lifetime, CPU usage, etc. 
-across various clouds, while the security aspects remain relatively understudied.
+While lambdas are limited in the computations they can execute (typically
+written in high-level languages like Python, C\#, etc), they are conversely
+incredibly lightweight and can be initiated and deleted in a very short amount
+of time. Cloud providers run lambdas in dedicated containers with limited
+resources (e.g., Firecracker ~\cite{firecracker}), which are usually cached and
+re-used for future lambdas to mitigate cold-start
+latencies~\cite{awscontainerreuse}. The ephemeral nature of serverless functions
+and their limited flexibility increases the difficulty in detecting
+co-residency, as we will discuss later. While previous studies that profiled
+lambdas~\cite{wangusenix2018} focused on the performance aspects like cold start
+latencies, function instance lifetime, and CPU usage across various clouds,
+the security aspects remain relatively understudied.
 
 
 \subsection{Covert Channels in the Cloud}
 \label{sec:background:covertchannels}
-In our attempt to shed light on the security aspects of lambdas, we focus 
-particularly on the feasiblity of establishing a reliable covert channel 
-in the cloud using lambdas. 
-Covert channels enable a means of transmitting information beween entities 
-that bypasses traditional monitoring or auditing. Typically, this is acheived 
-by communicating data across unintended channels such as signalling bits by 
-causing contention on shared hardware media on the server~\cite{L2cacheCovertChannels,
-ProcessorCovertChannels,ThermalCovertChannel,SshOverCovertChannel,wuusenix2012}. 
-Past work has demonstrated covert channels in virtualized environments like 
-the clouds using various harware such as caches~\cite{ristenpartccs2009,L2cacheCovertChannels},
-memory bus~\cite{wuusenix2012}, and even processor temperature~\cite{ThermalCovertChannel}. \\
+In our attempt to shed light on the security aspects of lambdas, we focus
+particularly on the feasiblity of establishing a reliable covert channel in the
+cloud using lambdas.  Covert channels enable a means of transmitting information
+beween entities that bypasses traditional monitoring or auditing. Typically,
+this is acheived by communicating data across unintended channels such as
+signalling bits by causing contention on shared hardware media on the
+server~\cite{L2cacheCovertChannels,
+ProcessorCovertChannels,ThermalCovertChannel,SshOverCovertChannel,wuusenix2012}.
+Past work has demonstrated covert channels in virtualized environments like the
+clouds using various harware such as
+caches~\cite{ristenpartccs2009,L2cacheCovertChannels}, memory
+bus~\cite{wuusenix2012}, and even processor
+temperature~\cite{ThermalCovertChannel}. \\
 
 \noindent \textbf{Memory bus covert channel} 
 Of particular interest to this work is the covert channel based on memory bus 
 hardware introduced by Wu et al.~\cite{wuusenix2012}. 
 In x86 systems, atomic memory instructions designed to facilitate 
 multi-processor synchronization are supported by cache coherence protocols as
-long as the operands stay within a cache line (generally the case as language
+long as the operands remain within a cache line (generally the case as language
 compilers make sure that operands are aligned). However, if the operand is
 spread across two cache lines (referred to as "exotic" memory operations), x86
 hardware achieves atomicity by locking the memory bus to prevent any other
@@ -68,18 +66,20 @@ contention on the memory bus that could be exploited for covert communication.
 Wu et al. acheived a data rate of 700 bps on the memory bus channel in an 
 ideal laboratory setup.
 
-Cloud environments, however, pose challenges to both establishing  
-such covert channels and using them at their ideal performance. First, in the 
-cloud setting, the sender and receiver entities are not known to be on the same server 
-as this (coresidency) information is hidden from the tenants (even if the entities belong to 
-the same tenant). Second, clouds present a virtualized platform that affects 
-the communication on the covert channel as it introduces scheduling uncertainties
-between the participating entities and interference from other non-partiticpating 
-workloads. While studies generally deal with the latter problem by employing 
-traditional error correction techniques~\cite{wuusenix2012} to overcome errors, 
-the former challenge of establishing the covert channel (by detecting coresidency) 
-in the first place requires a co-residence detection mechansim which the 
-attacker needs to employ to get the sender and receiver on the same machine. 
+\amirian{I think this flows slightly better if it is above memory bus covert
+channel paragraph}
+Cloud environments, however, pose challenges to both establishing such covert
+channels and using them at their ideal performance. First, in a cloud setting,
+co-residency information is hidden, even if the entities belong to the same
+tenant, so it is unclear whether a sender and receiver are on the same server.
+Second, communication on the covert channel may by noisy and affected by
+scheduling uncertainties and interference from other non-participating
+workloads, due to the virualized platform utilized by cloud providers.  Studies
+generally deal with the latter problem by employing traditional error correction
+techniques~\cite{wuusenix2012} to overcome errors.  However, the former
+challenge of establishing the covert channel requires a co-residence detection
+mechansim which the attacker needs to employ to ensure the sender and receiver
+are on the same machine. 
 
 
 \subsection{Co-residence Detection}
@@ -87,26 +87,27 @@ attacker needs to employ to get the sender and receiver on the same machine.
 
 %On previous work on colocation, past techniques and why those techniques would 
 %not work anymore
-Past research has used various strategies to achieve co-residency for demonstrating 
-various covert channel attacks in the cloud. Typically, the attacker launches a 
-large number of cloud instances (VMs, Containers, etc.) following a certain 
-launch strategy and employs a co-residence detection mechanism for detecting if
-any pair of those instances are running on the same machine. 
-Traditionally, the co-residence detection was done based on software runtime information 
-like public/internal IP addresses~\cite{ristenpartccs2009}, files in \textit{procfs} 
-or other environment variables~\cite{wangusenix2018,wuusenix2012} and other such logical
-side-channels~\cite{varad191016,vmplacement} that two instances running on a same
-server might share.
+Past research has used various strategies to achieve co-residency by
+demonstrating various covert channel attacks in the cloud. Typically, the
+attacker launches a large number of cloud instances (VMs, Containers, etc.),
+following a certain launch strategy, and employs a co-residence detection
+mechanism for detecting if any pair of those instances are running on the same
+machine. Traditionally, co-residence detection has been based on software
+runtime information that two instances running on the same server might share,
+like public/internal IP addresses~\cite{ristenpartccs2009}, files in
+\textit{procfs} or other environment
+variables~\cite{wangusenix2018,wuusenix2012}, and other such logical
+side-channels~\cite{varad191016,vmplacement}.
 
-As virtualization platforms move towards stronger isolation between instances
-(e.g. AWS' Firecracker VM~\cite{firecracker}), these logical covert-channels
-have become less effective or infeasible. Furthermore, some of these
-channels were only effective on container-based platforms that shared the
-underlying OS image and were thus less suitable for hypervisor-based platforms.
-This prompted a move towards using hardware-based covert channels, such as the 
-ones discussed in the earlier section, which can bypass software isolation and 
-are usually harder to fix. For example, Varadarajan et al.~\cite{varadarajan2015}
-uses the memory bus covert channel to detect co-residency for EC2 instances. 
-However, as we will show, traditional approaches do not extend well to lambdas 
-as they are too slow or are not scalable. Thus, we set forth to determine a 
-fast and scalable co-residence detection for lambdas.
+As virtualization platforms provide stronger isolation between instances (e.g.
+AWS' Firecracker VM~\cite{firecracker}), these logical covert-channels have
+become less effective or infeasible. Furthermore, some of these channels were
+only effective on container-based platforms that shared the underlying OS image
+and were thus less suitable for hypervisor-based platforms.  This prompted a
+move towards using hardware-based covert channels, such as the ones discussed in
+the earlier section, which can bypass software isolation and are usually harder
+to fix. For example, Varadarajan et al.~\cite{varadarajan2015} use the memory
+bus covert channel to detect co-residency for EC2 instances.  However, as we
+will show, traditional approaches do not extend well to lambdas as they are too
+slow or are not scalable. Thus, we set forth to determine a fast and scalable
+co-residence detection for lambdas.
