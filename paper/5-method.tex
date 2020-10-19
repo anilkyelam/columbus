@@ -210,18 +210,11 @@ becomes more challenging when there are multiple senders and receivers. In this
 work, we use the system clock for synchronizing communication.  All the
 instances involved in the communication are executing on the same physical
 server and share the server's clock. On AWS, for example, we observe that the
-system clock on lambdas is precise up to nanoseconds. \amirian{I would use less
-strong wording here..}While we have no evidence of 
-it, we assume that the clocks between different lambdas drift only in the order 
-of microseconds. This provides us enough space for synchronization mismatch as we 
-sample measurements only on millisecond scales due to noise constraints. 
-We believe this to be a reasonable assumption as we did not observe any 
-synchronization-related noise in our results.
-\amirian{proposed edits}
-Assuming that clocks between different lambdas only contain a drift in the order
+system clock on lambdas is precise up to nanoseconds. 
+Assuming that clocks between different lambdas only exhibit a drift in the order
 of microseconds, sampling at a millisecond scale should provide us a margin for
 synchronization mismatch. Since we do not observe any synchronization-related
-noise in our results, we believe this this a reasonable assumption.
+noise in our results, we believe this is a reasonable assumption.
 
 
 \begin{figure}[!t]
@@ -299,19 +292,17 @@ less expressive, as we will see in the next section.
 \end{algorithmic}
 \end{algorithm}
 
-\amirian{in this paragraph n and k are lowercase where in the next one they are
-upper case...was that intentional?}
 When considering a communication channel for lambda co-residence detection, we
 note that the channel need not be general and expressive as lambdas only need to
 communicate their IDs with one another. Thus, we assume that each instance
-involved has a unique fixed-length (say \emph{n}) bit-string corresponding to
+involved has a unique fixed-length (say \emph{N}) bit-string corresponding to
 its ID that must be communicated.  As such, we propose a communication protocol
 that exchanges these bit-strings while allowing for collisions. We divide the
 running time of the protocol into phases, with each phase executing for an
-interval of \textit{n} bit-slots. Each phase has a set of participating
+interval of \textit{N} bit-slots. Each phase has a set of participating
 instances, which in the first phase would be all of the co-resided instances. In
-each bit-slot \textit{k} of \textit{n} slots in a phase, every participating
-instance broadcasts a bit if the $k^{th}$ bit of its bit-string (ID) is 1,
+each bit-slot \textit{K} of \textit{N} slots in a phase, every participating
+instance broadcasts a bit if the $K^{th}$ bit of its bit-string (ID) is 1,
 otherwise it listens for a 0 or 1. If an instance senses a 1 while listening, it
 stops participating, and listens for the rest of the phase. Thus, only the
 instances with the highest ID among the initial set of participating lambdas
@@ -321,7 +312,7 @@ lambda with the previously highest ID now only listens, allowing the next
 highest instance to advertise its ID, and so on.  Since the IDs are unique,
 there will always be only one instance that broadcasts in every phase. The
 protocol ends after \textit{x} phases (where \textit{x} is number of co-resided
-instances), when none of the instances broadcast for \textit{n} consecutive
+instances), when none of the instances broadcast for \textit{N} consecutive
 bit-slots. The pseudo-code of the protocol is provided in Algorithm
 \ref{alg:protcol}. Note that the protocol itself is channel-agnostic and can be
 extended for other (future) covert channels with similar channel properties.

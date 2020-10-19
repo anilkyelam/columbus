@@ -59,7 +59,7 @@ should have the following properties:
 \begin{itemize}
     \item \textbf{Generic} The technique should be applicable across a wide
     range of server architectures and software runtimes. In practice, the
-    technique would work across most third-party cloud providers and even among different
+    technique would work across most third-party cloud platforms and even among different
     platforms within a cloud.
     \item \textbf{Reliable} The technique should have a reasonable detection success
     with minimal false negatives (co-resident instances not detected) and even 
@@ -77,11 +77,10 @@ should have the following properties:
     for other activities that make use of the resulting co-resident information.
 \end{itemize}
 
-% removed the "and are ubiquitous" phrase here because it didnt make sense
 Given these properties, we decide to investigate harware-based covert channels.
 Hardware-based covert-channels are more difficult to remove and obfuscate than
-software-based covert channels, given that hardware is more homogenous across
-computing platforms than software. 
+software-based covert channels, and are more pervasive, 
+given that hardware is more homogenous across computing platforms than software. 
 
 \subsubsection{Memory bus channel}
 We utilize the memory bus covert channel described in
@@ -90,12 +89,11 @@ hardware vulnerability that is present across all generations of x86 hardware.
 Historically, multiple public cloud services have been vulnerable to this
 channel~\cite{varad191016,zhang2016}, and we ffind that they are still
 vulnerable today. To demonstrate the presence of the vulnerability, we measure
-the latency of atomic operations on a \amirian{Anil, the figure caption says
-8B, this seems to be a discrepancy???}4B memory region as we slide the region
+the latency of atomic operations on a 8B memory region as we slide the region
 from one cacheline into another across the cacheline boundary. We perform this
-experiment on three major cloud providers (AWS, Google and Microsoft Azure) and
+experiment on three major cloud platforms (AWS, Google and Microsoft Azure) and
 show the latencies observed in Figure~\ref{fig:membus_clouds}. From the figure,
-we can see that all three cloud providers still exhibit a significant difference
+we can see that all three cloud platforms still exhibit a significant difference
 in latencies for the "exotic" memory locking operations (where the memory region
 falls across cacheline boundary) when compared to regular memory accesses,
 demonstrating the presence of this covert channel on all of them. Moreover, we
