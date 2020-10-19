@@ -68,7 +68,7 @@ multiple receivers constantly without affecting each other (due to the high
 memory bandwidth), which prevents noise in measurements. This is an important
 attribute, as memory locking receivers must contend with this noise. However,
 bypassing multi-levels of caches in today's servers to perform memory accesses
-with reliable consistency is a challenging task \todo{cite some papers}. Even
+with reliable consistency is a challenging task. Even
 with a reliable cache-bypassing technique, the variety of cache architectures
 and sizes that we encounter on different clouds would make tuning the technique
 to suit these architectures an arduous task while reducing the applicability of
@@ -225,8 +225,6 @@ synchronization-related noise in our results.
 \label{fig:ks_values}}
 \end{figure}
 
-\amirian{Anil, this is my proposed fix for moving the final "challenge" out of
-protocol}
 \subsubsection{Handling Collisions}
 In the preceeding section, we discussed using a communication channel with
 synchronized time slots. In each time slot, an instance can reliably send

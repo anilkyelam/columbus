@@ -1,7 +1,9 @@
 \section{Background \& Motivation}
 \label{sec:background}
 
-We begin with a brief background on relevant topics.
+We begin with a brief background on relevant topics as we motivate 
+the need for fast and scalable co-residence detection in
+enabling covert channels with lambdas.
 
 
 \subsection{Lambdas/Serverless Functions} 
@@ -28,7 +30,7 @@ they are conversely incredibly lightweight and
 can be initiated and deleted in a very short amount of time. Cloud providers 
 run lambdas in dedicated containers with limited resources (e.g., Firecracker
 ~\cite{firecracker}), which are usually cached and re-used for future lambdas 
-to mitigate cold-start latencies\cite{awscontainerreuse}. The ephemeral nature of serverless
+to mitigate cold-start latencies~\cite{awscontainerreuse}. The ephemeral nature of serverless
 functions and their limited flexibility increases the difficulty in detecting 
 co-residency, as we will discuss later. Previous studies that profiled 
 lambdas~\cite{wangusenix2018} focused on the performance aspects like 
@@ -39,8 +41,8 @@ across various clouds, while the security aspects remain relatively understudied
 \subsection{Covert Channels in the Cloud}
 \label{sec:background:covertchannels}
 In our attempt to shed light on the security aspects of lambdas, we focus 
-particularly on the feasiblity of establishing reliable covert channels 
-between lambdas running in the cloud. 
+particularly on the feasiblity of establishing a reliable covert channel 
+in the cloud using lambdas. 
 Covert channels enable a means of transmitting information beween entities 
 that bypasses traditional monitoring or auditing. Typically, this is acheived 
 by communicating data across unintended channels such as signalling bits by 
@@ -48,9 +50,9 @@ causing contention on shared hardware media on the server~\cite{L2cacheCovertCha
 ProcessorCovertChannels,ThermalCovertChannel,SshOverCovertChannel,wuusenix2012}. 
 Past work has demonstrated covert channels in virtualized environments like 
 the clouds using various harware such as caches~\cite{ristenpartccs2009,L2cacheCovertChannels},
-memory bus~\cite{wuusenix2012}, and even processor temperature~\cite{ThermalCovertChannel}.
+memory bus~\cite{wuusenix2012}, and even processor temperature~\cite{ThermalCovertChannel}. \\
 
-\textbf{Memory bus covert channel} 
+\noindent \textbf{Memory bus covert channel} 
 Of particular interest to this work is the covert channel based on memory bus 
 hardware introduced by Wu et al.~\cite{wuusenix2012}. 
 In x86 systems, atomic memory instructions designed to facilitate 
@@ -74,7 +76,7 @@ the same tenant). Second, clouds present a virtualized platform that affects
 the communication on the covert channel as it introduces scheduling uncertainties
 between the participating entities and interference from other non-partiticpating 
 workloads. While studies generally deal with the latter problem by employing 
-traditional error correction techniques\cite{wuusenix2012} to overcome errors, 
+traditional error correction techniques~\cite{wuusenix2012} to overcome errors, 
 the former challenge of establishing the covert channel (by detecting coresidency) 
 in the first place requires a co-residence detection mechansim which the 
 attacker needs to employ to get the sender and receiver on the same machine. 
@@ -91,13 +93,13 @@ large number of cloud instances (VMs, Containers, etc.) following a certain
 launch strategy and employs a co-residence detection mechanism for detecting if
 any pair of those instances are running on the same machine. 
 Traditionally, the co-residence detection was done based on software runtime information 
-like public/internal IP addresses\cite{ristenpartccs2009}, files in \textit{procfs} 
-or other environment variables\cite{wangusenix2018} and other such logical
-side-channels\cite{varad191016,vmplacement} that two instances running on a same
+like public/internal IP addresses~\cite{ristenpartccs2009}, files in \textit{procfs} 
+or other environment variables~\cite{wangusenix2018,wuusenix2012} and other such logical
+side-channels~\cite{varad191016,vmplacement} that two instances running on a same
 server might share.
 
 As virtualization platforms move towards stronger isolation between instances
-(e.g. AWS' Firecracker VM \cite{firecracker}), these logical covert-channels
+(e.g. AWS' Firecracker VM~\cite{firecracker}), these logical covert-channels
 have become less effective or infeasible. Furthermore, some of these
 channels were only effective on container-based platforms that shared the
 underlying OS image and were thus less suitable for hypervisor-based platforms.

@@ -67,12 +67,12 @@ lambdas happen to be co-resident with a single receiving lambda).
 In this paper we address each of these issues in turn and demonstrate
 the feasibility of covert communication entirely in the context of the
 Amazon serverless cloud platform.  In particular, we make three key technical
-contrinbutions:
+contributions:
 \begin{itemize}
-\item{\bf{Fast co-residence detection.}}  Leveraging the memory-bus content
+\item{\bf{Fast co-residence detection.}}  Leveraging the memory-bus contention
   work of Wu et. al~\cite{wuusenix2012}, we develop and implement a
   lambda co-residence detector that is generic, reliable, scalable
-  and, most importantly, fast, executing in a matter of seconds for hundreds of
+  and, most importantly, fast, executing in a matter of seconds for thousands of
   concurrent lambdas.
 \item{\bf{Dynamic neighbor discovery.}}  We extend our co-residence
   detector to enumerate the set of co-resident neighbors, a
@@ -86,131 +86,15 @@ contrinbutions:
   such an approach is practicable.
 \end{itemize}
 
- 
-% generally coresidence implies getting an attacker VM colocated with 
-% a victim VM - we are not doing that 
-% rather we are providing a tool for colocating our own apps 
-% in particular, we are figuring out with certainty which of our apps 
-% are colocated with others
-% 1. we can present it as a tool to aid the isolation, placement 
-% and scheduling studies as software-based strategies become infeasible
-% due to better isolation strategies
-% 2. We prove that an attacker can reliably colocate a bunch of its 
-% instances which may facilitate her in much more targeted DDos attacks 
-% (find some references) 
-% 3. (Speculative) figuring out migration strategies of 
-% VMs/containers if deployed on a larger scale might aid in coordinated attacks 
-% a la power attacks.
-% we present technique as our main contribution for now
-% a better way would be use this technique to get some interesting 
-% new results and present that as the main contribution
-
-
-%% Paragraph 1: Introduce cloud computing and the problem of cartography
-%Cloud computing is a fast growing technology that is widely used around the
-%globe. Major cloud providers like AWS~\cite{awscloud}, Microsoft
-%Azure~\cite{azurecloud} and Google Cloud~\cite{googlecloud} provide a multitude
-%of compute and storage services and have seen immense growth over the past
-%decade. While there are many benefits of using cloud services, like
-%increased scalability and decreased IT costs~\cite{Armbrust}, the cloud also
-%creates new security concerns as multiple tenants share the same underlying
-%physical infrastructure. For example, by multiplexing applications from multipl%e
-%tenants on the same server, cloud computing opens up new avenues and
-%opportunities for cross-tenant or side-channel attacks through shared server 
-%hardware like caches~\cite{meltdown, xuccsw2011}. 
-%While the virtualization platforms used to
-%share the infrastructure have been constantly improving to harden the isolation
-%between the tenants, this process is not flawless and usually comes at the 
-%cost of performance\amirian{better?}\todo{cite}.
-
-
-% Why another coresidence detection technique
-%Traditionally, clouds have relied on hiding their placement mechanisms (i.e.,
-%how they pack tenants onto servers) and co-residence information (i.e., which
-%particular tenants are placed together on a server) as a first line of defense
-%against targeted attacks. By reducing an attacker's ability to identify and
-%target the same server as their victim, attackers may have to execute
-%brute-force mechanisms that can become expensive with low yield. However, a ple%thora of
-%previous work, started by Ristenpart et al.~\cite{ristenpartccs2009}, have
-%exploited various covert channels to break this encapuslation and 
-%achieve co-residency detection on clouds
-%like AWS. These studies then used these channels to demonstrate targeted attack%s
-%or shed light on cloud's internal placement and resource allocation
-%mechanisms\todo{cite}, which further weaken the cloud encapsulation model. Clou%d
-%providers have since promptly fixed many of these covert channels and produced
-%solutions (e.g. containers) that provide better isolation, like AWS
-%Firecracker\cite{firecracker}. However, we find that these encapsulations remain
-%imperfect.
-
-
-% What's special about our technique
-%In this work, we find yet another co-residence detection mechanism among cloud
-%instances by utilizing the memory bus hardware, first introduced by Wu et.
-%al~\cite{wuusenix2012}. Our mechanism is generic, reliable 
-%and scalable, making it useful for co-residence detection in a wide range of 
-%scenarios, including on different clouds and with a variety of cloud services.
-%Unlike software-based covert channels that can be fixed with new releases, 
-%the memory bus channel is inherent to x86 hardware and is harder to fix.  
-%Moreover, being a hardware-based channel, it is more pervasive--we find that it is
-%omni-present on all major cloud providers--, and accessible to different kinds of 
-%(software-based) containers (e.g., virtual machines, serverless functions, etc). 
-%However, while the hardware presents a binary symmetric channel with minimal 
-%noise, communicating data reliably through this channel from software is 
-%complicated by processor scheduling (due to which processes only get random 
-%intermittent access to the channel), and other software mechanisms that 
-%introduce noise. In absence of continuous access to the channel, we propose a 
-%novel sampling-based approach for reliable communication of information 
-%across the channel. We show that such reliable communication is key to 
-%scaling the co-residence detection to thousands of cloud instances, which 
-%is significantly higher compared to previous approaches~\cite{varadarajan2015}.
-
-% Why lambdas
-%In this paper, we focus on serverless functions, which have experienced an
-%increased interest and growth in recent years, but also come with their own
-%unique challenges for coresidence detection. Due to their popularity 
-%(with flexibility in scheduling and low overhead), 
-%most cloud services now provide these serverless functions to
-%developers; AWS calls these serverless functions lambdas~\cite{awslambda} while
-%GCP refers to them as cloud functions~\cite{gcpfunctions}\footnote{Note that in
-%this work, we use the terms lambdas, serverless functions, and cloud instances
-%interchangeably hereafter}.  While the flexibility and low overhead are
-%attributes that appeal to developers, the converse is that information about
-%lambda placement is not readily available, and lambdas have restricted runtimes
-%that limit low-level code often used in co-residency detection, making
-%co-residence detection more difficult. Moreover, lambdas are also more ephemera%l
-%(running for a maximum of 15 minutes on AWS for example), 
-%forcing any potential co-residence
-%detection to be faster than previously known mechanisms. 
-
-%\amirian{this sentence feels awkward}Since other
-%tradition containers are less restrictive, lambda co-location detection can be
-%replicated easily in these other environments.
-
-% Summary of what we did
-%We only focus on \emph{cooperative} coresidence detection, where all the 
-%lambdas are assumed to be in adversary's control. Such co-residence 
-%detection can aid the adversary in many ways. It be used to learn cloud's 
-%internal placement and resource scheduling mechanisms that may aid an attacker 
-%in targeted attacks\cite{ristenpartccs2009,varadarajan2015}. It could help 
-%attacker pack many instances on the same server to perform DDoS attacks. 
-%Moreover, such mechanism aids in studying performance isolation and other 
-%such service guarantees of a cloud using colocated instances\cite{wangusenix2018}.
-%For such cooperative co-residence detection, we propose a neighbor discovery 
-%protocol using which the co-resided lambdas discover each other. 
-%We demonstrate the colocation with 100\% success rate for (bigger) lambdas 
-%and furthermore, we can acheive this within a minute for thousands of them.
-%Finally, we also perform a measurement study on colocation patterns in
-%various AWS regions with some insights on lambda activity. \todo{add more
-%concrete takeaways} Through this, we hope to motivate the need to address the
-%memory bus covert channel in all the three clouds, and prove that encapsulation
-%is an ever changing landscape.
 
 
 % Organization
-The remainder of this paper is organized as follows. Section
-\ref{sec:background} presents some background from the literature. Sections
-\ref{sec:methodology} and \ref{sec:technique} present our co-residence detection
-mechanism in detail. We evaluate the mechanism in section \ref{sec:eval} and
-conclude with a placement study of AWS lambdas using our technique in section
-\ref{sec:study}.  
+The remainder of this paper is organized as follows. In section
+\ref{sec:background}, we present some background and motivate the need for 
+co-residence detection for lambdas. Sections \ref{sec:methodology} and \ref{sec:technique} 
+present our co-residence detection mechanism in detail. 
+We evaluate the mechanism in section \ref{sec:eval} and 
+perform a study of AWS lambda placement density using our technique 
+to demonstrate the practicality of lambda covert channels in section \ref{sec:study}.
+Finally, we conclude with a discussion on \todo{what} in section \ref{sec:discussion}.
 

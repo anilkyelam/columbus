@@ -83,49 +83,8 @@ properties:
 Given these properties, we decide to investigate harware-based covert channels.
 Hardware-based covert-channels are more difficult to remove and obfuscate than
 software-based covert channels, and are also ubiquitous, given that
-hardware is more homogenous in nature than software. 
-% generic
+hardware is more homogenous across computing platforms than software. 
 
-% \subsubsection{RNG Hardware}
-% \amirian{This feels a bit awkward. We might want to move this to discussion}
-% We first examined covert channels based on Random Number Generator (RNG)
-% hardware\cite{evtyushkinccs2016}.  Modern processors support this shared
-% hardware module to generate true random numbers. 
-% % These devices use low level noise signals such as thermal noise and other
-% % quantum phenomena to produce true non deterministic entropy. 
-% To produce true random numbers, information from this module is routed from the
-% host machine to the /dev/random file in the guest virtual machine for
-% cryptographic operations. Since the hardware is shared, if one guest consumes
-% these random bits within an infinite\amirian{does it need to be infinite?} loop,
-% another user could notice a spike in random operations, indicating contention on
-% the machine.
-% \amirian{do we have an old graph to back up this point of being too noisy? to
-% just drive the point home that RNG is not great for these purposes} 
-% However, our experiments on AWS using RNG hardware indicated that this channel
-% is unreliable for lambda co-detection. We hypothesize that perhaps, because
-% causing contention is easy, the channel gets too noisy as a result to accurately
-% use for our purposes.
-
-% In order to get random bits, we used a Python module called rdrand that supports 
-% both rdrand and rdseed instructions. While our initial plan was to run only rdseed 
-% instructions which seemed better suited for our attacker logic, we found that 
-% AWS hosts did not support rdseed. We also observed that rdseed was not supported 
-% by few of the hosts on GCP. Hence, we run a unified program that uses rdseed
-% when available and falls back on rdrand otherwise.\todo{I think we ended up 
-% ditching the rdseed idea and stuck to just rdrand. (confirm just in case)} 
-
-% We ran a simple experiment to determine if RNG techniques would be fruitful 
-% for our goals. In the first run, we labeled lambdas as victims or attackers. 
-% Victim lambdas would take their first set of measurements, sleep for five seconds, 
-% and then take a second set of measurements. Attacker lambdas would sleep for the 
-% first six seconds (long enough to allow victims to sample once without possible contention), 
-% and then start "attacking". In the second run, we simply had victim lambdas run without 
-% any attackers causing possible contention.  We show our results in figure~\todo{add the figure in}, 
-% where the red dots are the victim lambdas that executed with the presence of attacker 
-% lambdas, and the blue dots are victim lambdas that executed alone. There does not appear 
-% to be a significant difference between executions when an attacker does and does not exist, 
-% which indicates that RNG hardware might not be a salient avenue for determining 
-% lambda co-location, as we are not able to differentiate when contention is happening.
 
 \subsubsection{Memory bus channel}
 We chose the memory bus covert channel described in

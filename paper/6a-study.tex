@@ -9,44 +9,82 @@
 %In the section, we explore some ways in
 %which the tool can be used to gain some insights into lambda activity in some
 %AWS regions.  
-Next, we present a variety of measurements on AWS that present this approach as
-practical, across various regions. Unless specified otherwise, all the
+
+In this section, we present a variety of measurements on serverless function 
+density on AWS using our co-residence detector, and the factors that 
+may affect this density. As we discussed earlier, 
+the key challenge in enabling traditional covert channels on the cloud is 
+getting the sender and receiver on the same machine. So we attempt to answer 
+the following question: Assuming that the attacker launches a number of the 
+(sender and receiver) lambdas at a point in time in the expectation that 
+a set of them would end up co-resident, what is the expected number of 
+such co-resident pairs that she might see? We deploy a 
+large number of lambdas on various AWS regions and observe the co-residence density --
+that is, the average number of lambdas that end up co-resident on each server.
+The higher the co-residence density, the easier it is for the attacker to 
+ultimately establish covert channels with lambdas. Unless specified otherwise, all the
 experiments are performed with 1.5 GB lambdas and executed successfully with
-\textbf{a zero percent error rate}. We find that \todo{summary of takeaways from the
-study}.
+\textbf{zero error} in co-residence detection.
 
-% we have not even kicked off any alarms in the clouds - no notifications.
 
-\subsection{Co-residence across AWS regions}
-We deployed our co-residence detection in different AWS regions with 1000 1.5GB
-Lambdas. Figure~\ref{fig:awsregions} is comprised of multiple plots depicting
+\begin{figure*}[!t]
+    \begin{subfigure}{.5\textwidth}
+      \centering
+      \includegraphics[width=.99\linewidth]{fig/different-accounts.pdf}
+    %   \caption{1a}
+    %   \label{fig:sfig1}
+    \end{subfigure}%
+    \begin{subfigure}{.5\textwidth}
+      \centering
+      \includegraphics[width=.99\linewidth]{fig/different-sizes.pdf}
+    %   \caption{1b}
+    %   \label{fig:sfig2}
+    \end{subfigure}
+
+    \caption{The left plot shows the breakdown of co-resided groups (of varying sizes) of lambdas by 
+        two different accounts in an experiment of 1000 lambdas where 500 lambdas are launched from 
+        each account. The uniformity of the split shows that lambda scheduler might be invariant 
+        to the account the lambdas are launched from. Similar results are shown for different lambda 
+        sizes in the right plot. }
+    \label{fig:factors}
+\end{figure*}
+
+
+\subsection{Across AWS regions}
+We ran our co-residence detector with 1000 1.5 GB
+Lambdas in various AWS regions. Figure~\ref{fig:awsregions} comprises of multiple plots depicting
 the co-resided groups per region, with each bar indicating the fraction of
 lambdas that detected a certain number of neighbors (i.e., that belong to a
 co-resided group of a certain size). Plots that skew to the right indicate a
-higher co-resided density when compared to the plots skewed to the left (also
+higher co-residence density when compared to the plots skewed to the left (also
 illustrated in Figure~\ref{fig:density}). We note that, in most regions, almost
-all lambdas recognize at least one neighbor.
-%almost all lambdas see at least one neighbor (smaller or non-existent bar at 0).
-Assuming that the cloud placement scheduler tries to efficiently 
-%bin  -- removed this word because we havent defined it and might confused the
-%reader
-pack lambdas, we hypothesize that the colocation is dependent on the total number
-of servers and the lambda activity in the region, both of which can be assumed
-to be lower in newer AWS regions. We note that plots skewed most to the right
-correspond to the relatively newer AWS regions.  We note that the largest
-co-resided group on a single machine was comprised of 25 lambdas.
-% max is 25 lambdas
-% indicative of lambda activity and size of the region
-% newer regions see less activity or less number of servers
-\todo{any other insights I missed?}
+all lambdas recognize at least one neighbor (indicated by smaller or non-existent first 
+bar in each plot). We hypothesize that the co-residence density is (inversely) dependent on the 
+total number of servers and the lambda activity in the region, both of which can be assumed
+to be lower in newer AWS regions, hence the higher co-residence density in those regions 
+as we can see in Figure~\ref{fig:density}. The ample co-residence in general across all the 
+regions shows that lambdas provide a fertile ground for covert channel attacks.
+%We note that the largest co-resided group on a single machine was comprised of 25 lambdas. 
 
 
-\subsection{Weekly \& Daily Patterns}
-\todo{Run experiments in different times of the day or using 
-different deployment strategies that may affect co-location.}
+\subsection{Other factors}
+We examine how the co-residence is affected by various launch strategies that the 
+attacker may use like deploying lambdas from multiple AWS accounts
+and different lambda sizes. For example, does it matter if the attacker 
+uses one account for sender lambdas and another for the receivers (which is 
+normally the case with covert channels)? Or one lambda size for senders 
+and another for receivers? Do they still get colocated on the same server?
+To answer these questions, we run an experiment with 1000 lambdas of which we 
+launch 500 lambdas from one account (senders) and 500 from other deployed in 
+a random order. The co-residence observed was comparable to the case where all 
+the lambdas were launched from one account. In the left subfigure of Figure~\ref{fig:factors},
+we show the breakdown of co-resided group of lambdas of each size among the two accounts.
+We can see that among the co-resided groups of all sizes, roughly half of 
+lambdas came from either account. This show that lambda scheduler is agnostic 
+to the accounts the lambdas were launched from. We see similar results for 
+different lambda sizes, as shown in the right subfigure of igure~\ref{fig:factors}
 
-
-\subsection{Different accounts}
-\todo{Run experiments with lambdas from different user accounts 
-and see how the colocation is affected between single vs different 
-accounts.}
+From our limited experiments, we also observe that co-residence density in a region 
+barely changes during course of the day or the week (data not shown in any figure).
+This gives the attacker the freedom to attempt the attack at any time and expect 
+similar results.
