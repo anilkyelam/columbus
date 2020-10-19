@@ -1,26 +1,42 @@
 
-\begin{abstract}
-Cloud computing has seen explosive growth in the past decade. While
-efficient sharing of the underlying server infrastructure among tenants 
-has contributed to this growth, the same principles also open avenues for 
-cross-tenant attacks. Providers like AWS and Azure have 
-traditionally relied on obfuscation of coresidency information 
-to prevent such attacks. However, recent works have repeatedly found
-covert channels that allow for breaking this encapsulation and detecting
-co-residency, prompting the providers to harden isolation on their platforms. 
-In this work, we find yet another such technique for detecting coresidency of 
-cloud instances. Our technique uses a hardware covert channel based on the 
-memory bus, which is more pervasive and harder to fix. 
-We show that this channel can be used to perform reliable co-residence detection 
-% reliable and fast go against each other. just doing reliable is easy, as you can 
-% get 100% reliability by letting it run forever. The challenge is to have 
-% something that is fast and yet reliable. I don't know how to convey that nicely 
-one that is fast enough for detecting coresidency for the ephemeral serverless functions,
-or lambdas. We use our technique to perform co-operative co-residence detection 
-for thousands of AWS lambdas within a few seconds, which could aid attackers in 
-performing DDoS attacks or learn cloud's internal mechanisms. 
-In this paper, we present the technique in detail, evaluate it, 
-and use it to perform a measurement study on
-lambda activity across AWS regions.  Through this work, we hope to motivate the
-need to address this covert channel.
+\begin{abstract} 
+
+Cloud computing has seen explosive growth and popularity, especially
+``serverless'' service modalities, such as AWS lambdas. These services are
+lighter-weight and provide more flexibility in scheduling and cost, which
+contributes to their popularity, however the security issues associated with
+serverless computing is not well understood. In this work, we construct a covert
+channel, a means of transmitting data outside of tranditional channels, that is
+practical for AWS lambdas.  We extend the work in Wu et. al to utilize the
+memory-bus to develop a co-residence detector that is generic, reliable, and
+scalable.  This technique performs dynamic neighbor discovery and is incredibly
+fast, executing in a matter of seconds. In addition to this protocol for lambda
+co-residence detection, we also perform and evaluate a series of measurements
+that exemplify the practicality of this approach in a cloud setting. Through
+this work, we show that efforts to secure co-residency detection in cloud
+providers is not yet complete.
+
+%Cloud computing has seen explosive growth in the past decade. While
+%efficient sharing of the underlying server infrastructure among tenants 
+%has contributed to this growth, the same principles also open avenues for 
+%cross-tenant attacks. Providers like AWS and Azure have 
+%traditionally relied on obfuscation of coresidency information 
+%to prevent such attacks. However, recent works have repeatedly found
+%covert channels that allow for breaking this encapsulation and detecting
+%co-residency, prompting the providers to harden isolation on their platforms. 
+%In this work, we find yet another such technique for detecting coresidency of 
+%cloud instances. Our technique uses a hardware covert channel based on the 
+%memory bus, which is more pervasive and harder to fix. 
+%We show that this channel can be used to perform reliable co-residence detection 
+%% reliable and fast go against each other. just doing reliable is easy, as you can 
+%% get 100% reliability by letting it run forever. The challenge is to have 
+%% something that is fast and yet reliable. I don't know how to convey that nicely 
+%one that is fast enough for detecting coresidency for the ephemeral serverless functions,
+%or lambdas. We use our technique to perform co-operative co-residence detection 
+%for thousands of AWS lambdas within a few seconds, which could aid attackers in 
+%performing DDoS attacks or learn cloud's internal mechanisms. 
+%In this paper, we present the technique in detail, evaluate it, 
+%and use it to perform a measurement study on
+%lambda activity across AWS regions.  Through this work, we hope to motivate the
+%need to address this covert channel.
 \end{abstract}

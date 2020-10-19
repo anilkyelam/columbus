@@ -11,7 +11,7 @@
 \end{figure}
 
 In this section, we evaluate the effectiveness of our co-residence detection
-technique with respect realiability and scability, the desirable detection
+technique with respect to reliability and scalability, the desirable detection
 properties mentioned in section~\ref{sec:methodology}.  We run all of our
 experiments with AWS lambdas~\cite{awscloud}. Though we decide to focus on one
 of the cloud providers, we have previously shown in section \ref{sec:methodology} 
@@ -39,7 +39,7 @@ instances successfully see the same result in majority of the independent rounds
 see match the ground truth.  For 1, we ran an experiment with 1000 AWS lambdas
 and compared the error rate across different lambda sizes (the error rate
 indicates the fraction of these 1000 lambdas that did not have a majority
-result). From figure \ref{fig:errorrates}, we can see that smaller lambdas see
+result). From Figure \ref{fig:errorrates}, we can see that smaller lambdas see
 lot more errors. This is expected because, as discussed in section
 \ref{sec:method:noise}, these lambdas experience lossy communication making it
 harder for our technique to sense contention. The lambdas above 1.5 GB, though,
@@ -68,7 +68,7 @@ containers for true correctness.
   \includegraphics[width=.99\linewidth]{fig/runtimes.pdf}
   \caption{Shows the average runtime of a lambda for co-location runs of different sizes. 
   The run time increases logarithmically with the number of lambdas as it is proportional to
-  the number of bits required to uniquely identify all the lambdas.
+  the number of bits required to uniquely identify all the lambdas. \todo{Get real data.}
 \label{fig:runtimes}}
 \end{figure}
 
