@@ -89,15 +89,15 @@
 # display $plot &
 
 
-# Plot run times for various lambda counts
-# data from experiments: 10-16-16-[46 to 58]
-datafile=plots/runtimes.dat
-plot=plots/runtimes.pdf
-python plot.py -xc "Count" -xl "Run Size (Lambda Count)" -yl "Time (secs)" -fs 20  --xstr -z bar \
-    -yc "Protocol Time" -ll none \
-    -o $plot -d $datafile -of pdf
-echo "Plot at: $plot"
-display $plot &
+# # Plot run times for various lambda counts
+# # data from experiments: 10-16-16-[46 to 58]
+# datafile=plots/runtimes.dat
+# plot=plots/runtimes.pdf
+# python plot.py -xc "Count" -xl "Run Size (Lambda Count)" -yl "Time (secs)" -fs 20  --xstr -z bar \
+#     -yc "Protocol Time" -ll none \
+#     -o $plot -d $datafile -of pdf
+# echo "Plot at: $plot"
+# display $plot &
 
 
 # # Plot colocation densities in various regions
@@ -111,29 +111,54 @@ display $plot &
 # display $plot &
 
 
-# # # Get & Plot weekly and other variations in colocation density for regions
-# # # Parse data from runs
-# # (bash show.sh 09-2[6-9] && bash show.sh 09-30 && bash show.sh 10-0[1-7] ) | grep 1000 | grep sa-east-1 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$12} ' > plots/density-sa-east-1.dat
-# # (bash show.sh 09-2[6-9] && bash show.sh 09-30 && bash show.sh 10-0[1-7] ) | grep 1000 | grep us-east-2 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$12} ' > plots/density-us-east-2.dat
-# (bash show.sh 10-*-12 ) | grep 1000 | grep sa-east-1 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$12} ' > plots/density-sa-east-1.dat
-# (bash show.sh 10-*-12 ) | grep 1000 | grep us-east-2 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$12} ' > plots/density-us-east-2.dat
-# plot=plots/weekly-density2.pdf
-# python plot.py -xc "Date" -xl " " -yl "Density" -fs 15 --xstr   \
-#     -d plots/density-sa-east-1.dat -yc "Density" -l "sa-east-1"     \
-#     -d plots/density-us-east-2.dat  -l "us-east-2"     \
+# # Get & Plot daily and hourly variations in colocation density for regions
+# # Daily density
+# (bash show.sh 09-2[6-9] && bash show.sh 09-30) | grep 1000 | grep sa-east-1 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$9} ' > plots/density-sa-east-1-daily1.dat
+# (bash show.sh 09-2[6-9] && bash show.sh 09-30) | grep 1000 | grep us-east-2 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$9} ' > plots/density-us-east-2-daily1.dat
+# (bash show.sh 10-0[2-6] ) | grep 1000 | grep sa-east-1 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$9} ' > plots/density-sa-east-1-daily2.dat
+# (bash show.sh 10-0[2-6] ) | grep 1000 | grep us-east-2 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,5)","$9} ' > plots/density-us-east-2-daily2.dat
+# plot=plots/daily-density.pdf
+# python plot.py -xc "Date" -xl " " -yl "Average Density" -yc "Density" -fs 15 --xstr --ymin 0 --ymax 8 \
+#     -d plots/density-us-east-2-daily1.dat -l "US East, Week 1"     \
+#     -d plots/density-us-east-2-daily2.dat -l "US East, Week 2"     \
+#     -d plots/density-sa-east-1-daily1.dat -l "SA East, Week 1"     \
+#     -d plots/density-sa-east-1-daily2.dat -l "SA East, Week 2"     \
+#     -o $plot -of pdf
+# echo "Plot at: $plot"
+# display $plot &
+
+# # Hourly density
+# bash show.sh 10-15-*-25 | grep "us-east-2" | grep membus1536 | grep 1000 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,8)","$9} ' > plots/density-us-east-2-hourly1.dat
+# bash show.sh 10-16-*-25 | grep "us-east-2" | grep membus1536 | grep 1000 | awk ' BEGIN {  print "Date,Density" } {  print substr($1,1,8)","$9} ' > plots/density-us-east-2-hourly2.dat
+# plot=plots/hourly-density.pdf
+# python plot.py -xc "Date" -xl " " -yl "Avgerage Density" -yc "Density" -fs 15 --xstr --ymin 0 --ymax 5.5  \
+#     -d plots/density-us-east-2-hourly1.dat -l "Day 1"     \
+#     -d plots/density-us-east-2-hourly2.dat -l "Day 2"    \
 #     -o $plot -of pdf
 # echo "Plot at: $plot"
 # display $plot &
 
 
-# # Plot percentage of lambdas in each colocated cluster when different accounts are used
-# two_acc_run=10-08-01-19
-# # python analyze.py -i $two_acc_run --dataaz
-# plot=plots/different-acocunts.pdf
-# python plot.py -xc "Cluster" -xl "Group Size" -yl "Fraction %" -d out/$two_acc_run/accounts.csv -fs 15     \
-#     -yc "Account 0 %" -l "Account 0"    \
-#     -yc "Account 1 %" -l "Account 1"    \
-#     -z barstacked -o $plot -of pdf
-# echo "Plot at: $plot"
-# display $plot &
+# Plot percentage of lambdas in each colocated cluster when different accounts are used
+two_acc_run=10-08-01-19
+python analyze.py -i $two_acc_run --dataaz
+plot=plots/different-accounts.pdf
+python plot.py -xc "Cluster" -xl "Group Size" -yl "Percentage" -d out/$two_acc_run/tags.csv -fs 15 --ymax 125     \
+    -yc "Tag 0 %" -l "Account 0"    \
+    -yc "Tag 1 %" -l "Account 1"    \
+    -z barstacked -o $plot -of pdf
+echo "Plot at: $plot"
+display $plot &
+
+
+# Plot percentage of lambdas in each colocated cluster when different lambda sizes are used
+two_size_run=10-19-02-06
+python analyze.py -i $two_size_run --dataaz
+plot=plots/different-sizes.pdf
+python plot.py -xc "Cluster" -xl "Group Size" -yl "Percentage" -d out/$two_size_run/tags.csv -fs 15  --ymax=125     \
+    -yc "Tag 0 %" -l "1.5 GB Lambdas"    \
+    -yc "Tag 1 %" -l "2 GB Lambdas"     \
+    -z barstacked -o $plot -of pdf
+echo "Plot at: $plot"
+display $plot &
 

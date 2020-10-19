@@ -32,6 +32,12 @@ do
         minute=$(date +%M)
     done
 
+    # Stop after midnight
+    day=$(date +%d)
+    if [[ $day == "17" ]]; then 
+        break 
+    fi
+
     region=us-east-2
     aws configure set region $region
     echo $region

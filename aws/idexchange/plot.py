@@ -175,13 +175,23 @@ def parse_args():
         action='store_true', 
         help='Set X-values as string labels (applies to a bar plot)',
         default=False)
+    
+    parser.add_argument('--xmin', 
+        action='store', 
+        type=float,
+        help='Custom x-axis lower limit')
 
-    parser.add_argument('--xlim', 
+    parser.add_argument('--ymin', 
+        action='store', 
+        type=float,
+        help='Custom y-axis lower limit')
+
+    parser.add_argument('--xmax', 
         action='store', 
         type=float,
         help='Custom x-axis upper limit')
 
-    parser.add_argument('--ylim', 
+    parser.add_argument('--ymax', 
         action='store', 
         type=float,
         help='Custom y-axis upper limit')
@@ -538,13 +548,12 @@ def main():
         
 
         plot_num += 1
-
-        if args.ylim:
-            ax.set_ylim(top=args.ylim)
+        if args.ymin:    ax.set_ylim(ymin=args.ymin)
+        if args.ymax:    ax.set_ylim(ymax=args.ymax)
         ax.set_ylabel(ylabel)
     
-    if args.xlim:
-        axmain.set_xlim(0, args.xlim)
+    if args.xmin:   axmain.set_xlim(xmin=args.xmin)
+    if args.xmax:   axmain.set_xlim(xmax=args.xmax)
     axmain.set_xlabel(xlabel)
     # axmain.set_ylabel(ylabel)
 
