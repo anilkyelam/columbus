@@ -32,13 +32,12 @@
 %   \caption{1b}
 %   \label{fig:sfig2}
 \end{subfigure}
-\caption{From left to right, the plots show the latencies of atomic 
-      memory operations performed on an 8B memory region as we slide it 
-      from one cache line across the boundary into another, on AWS, Azure and 
-      Google (GCP) clouds respectively. The latencies 
-      are orders of magnitude higher when the 8B region falls across the 
-      two cache lines (offsets 0-7B) demonstrating the presence of 
-      the memory bus covert channel on all these clouds. \label{fig:membus_clouds}}
+\caption{The plots show the latencies of atomic memory operations performed on
+        an 8B memory region as we slide from one cache line across the boundary into
+        another on AWS, Azure, and Google (GCP) respectively.  The latencies are orders
+        of magnitude higher when the 8B region falls across the two cache lines (offsets
+        0-7B), demonstrating the presence of the memory bus covert channel on all these
+        cloud providers. \label{fig:membus_clouds}}
 \label{fig:fig}
 \end{figure*}
 
@@ -91,7 +90,8 @@ hardware vulnerability that is present across all generations of x86 hardware.
 Historically, multiple public cloud services have been vulnerable to this
 channel~\cite{varad191016,zhang2016}, and we ffind that they are still
 vulnerable today. To demonstrate the presence of the vulnerability, we measure
-the latency of atomic operations on a 4B memory region as we slide the region
+the latency of atomic operations on a \amirian{Anil, the figure caption says
+8B, this seems to be a discrepancy???}4B memory region as we slide the region
 from one cacheline into another across the cacheline boundary. We perform this
 experiment on three major cloud providers (AWS, Google and Microsoft Azure) and
 show the latencies observed in Figure~\ref{fig:membus_clouds}. From the figure,
