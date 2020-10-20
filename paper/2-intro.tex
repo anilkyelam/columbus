@@ -67,7 +67,7 @@ lambdas happen to be co-resident with one or more receiving lambdas).
 
 In this paper we address each of these issues in turn and demonstrate
 the feasibility of covert communication entirely in the context of the
-Amazon serverless cloud platform.  In particular, we make three key technical
+Amazon's serverless cloud platform.  In particular, we make three key technical
 contributions:
 \begin{itemize}
 \item{\bf{Fast co-residence detection.}}  Leveraging the memory-bus contention
@@ -75,16 +75,18 @@ contributions:
   lambda co-residence detector that is generic, reliable, scalable
   and, most importantly, fast, executing in a matter of seconds for thousands of
   concurrent lambdas.
-\item{\bf{Dynamic neighbor discovery.}}  We extend our co-residence
-  detector to enumerate the set of co-resident neighbors, a
-  requirement to avoid unwanted communication interference between
-  neighbors.
+\item{\bf{Dynamic neighbor discovery.}}  We present a novel protocol for  
+  for the co-resident lambdas to communicate their IDs using memory 
+  bus contention and discover one another. A key enabler of our co-residence detection,
+  the protocol also helps a sender or receiver lambda to enumerate \emph{all} 
+  its co-resident neighbors, a requirement to avoid unwanted communication 
+  interference while performing covert communication.
 \item{\bf{Serverless density measurement.}}  We empirically establish
   measures of serverless function density -- that is, for a given
   number of short-lifetime lambdas launched at a point in time, how
   many would be expected to become co-resident?  We conduct these
   measurements across a range of Amazon data centers to establish that
-  such an approach is practicable.
+  there is ample co-residence of lambdas and covert communication is practicable.
 \end{itemize}
 
 
@@ -97,5 +99,6 @@ present our co-residence detection mechanism in detail.
 We evaluate the mechanism in section~\ref{sec:eval} and 
 perform a study of AWS lambda placement density using our technique 
 to demonstrate the practicality of lambda covert channels in section~\ref{sec:study}.
-Finally, we conclude with a discussion in section~\ref{sec:discussion}.
+We conclude with a discussion on other use cases for the co-residence detector and potential 
+mitigation strategies in section~\ref{sec:discussion}.
 

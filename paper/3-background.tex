@@ -15,7 +15,7 @@ of interest because they do not require the developer to provision, maintain, or
 administer servers. In addition to this low overhead, lambdas are much more
 cost-efficient than virtual machines (VMs) as they allow more efficient packing
 of functions on servers. Moreover, lambdas execute as much smaller units  and
-are more ephemeral than containers and virtual machines.  For example, on AWS,
+are more ephemeral than virtual machines.  For example, on AWS,
 the memory of lambdas is capped at 3 GB, with a maximum execution limit of 15
 minutes.  As with other cloud services, the user has no control over the
 physical location of the server(s) on which their lambdas are spawned.
@@ -88,7 +88,7 @@ are on the same machine.
 %not work anymore
 Past research has used various strategies to achieve co-residency by
 demonstrating various covert channel attacks in the cloud. Typically, the
-attacker launches a large number of cloud instances (VMs, Containers, etc.),
+attacker launches a large number of cloud instances (VMs, Lambdas, etc.),
 following a certain launch strategy, and employs a co-residence detection
 mechanism for detecting if any pair of those instances are running on the same
 machine. Traditionally, co-residence detection has been based on software

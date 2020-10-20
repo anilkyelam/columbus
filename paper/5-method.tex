@@ -169,8 +169,8 @@ the observed sample of latencies from the baseline to establish contention. To
 do this, we use a variant of the two-sample Kolomogorov-Smirinov (KS) test,
 which typically compares the maximum of the absolute difference between
 empirical CDFs of samples (in our variant, we take the \emph{mean} of the
-absolute difference instead of the maximum\amirian{do we know why?}). Using this
-measure, we can categorize a KS-value above a certain threshold as a 1-bit
+absolute difference instead of the maximum to reduce sensitivity to outliers). 
+Using this measure, we can categorize a KS-value above a certain threshold as a 1-bit
 (contention) and a value below the threshold as 0-bit (baseline).
 
 To determine the KS-threshold, we deploy a large number of lambdas across AWS
@@ -252,7 +252,7 @@ less expressive, as we will see in the next section.
 
 
 \begin{algorithm}[!t]
-\caption{ID exchange protocol \todo{Improve pseudo-code}}
+\caption{Neighbor discovery protocol}
 \label{alg:protcol}
 \begin{algorithmic}[1]
 \STATE $sync\_point \leftarrow$ {Start time for all instances}
