@@ -2,35 +2,35 @@
 # set -e  # stop on error
 
 
-# # Plot colocation clusters for each experiment
-# # Current candidates for the paper: 09-22-15-08, 09-22-15-15, 09-22-15-18, 09-22-15-21, 09-22-15-24, 09-22-01-34, 09-17-14-13
-# prefix=$1
-# if [ -z "$prefix" ];  then    prefix=$(date +"%m-%d");    fi    # today
-# for f in `ls -d out/${prefix}*/stats.json`
-# do
-#     echo $f
-#     dir=`dirname $f`
-#     region=`jq '.Region' $f | tr -d '"'`
-#     count=`jq '.Count' $f`
-#     clusters=`jq '.Clusters' $f`
-#     errorrate=`jq '."Error Rate"' $f`
-#     sizes=`jq '.Sizes[]' $f`
-#     errors=`echo $count $errorrate | awk '{print $1*$2/100.0}'`
-#     echo "Size" > $dir/clusters
-#     echo "$sizes" >> $dir/clusters
-#     echo $region, $count, $clusters, $errorrate
+# Plot colocation clusters for each experiment
+# Current candidates for the paper: 09-22-15-08, 09-22-15-15, 09-22-15-18, 09-22-15-21, 09-22-15-24, 09-22-01-34, 09-17-14-13
+prefix=$1
+if [ -z "$prefix" ];  then    prefix=$(date +"%m-%d");    fi    # today
+for f in `ls -d out/${prefix}*/stats.json`
+do
+    echo $f
+    dir=`dirname $f`
+    region=`jq '.Region' $f | tr -d '"'`
+    count=`jq '.Count' $f`
+    clusters=`jq '.Clusters' $f`
+    errorrate=`jq '."Error Rate"' $f`
+    sizes=`jq '.Sizes[]' $f`
+    errors=`echo $count $errorrate | awk '{print $1*$2/100.0}'`
+    echo "Size" > $dir/clusters
+    echo "$sizes" >> $dir/clusters
+    echo $region, $count, $clusters, $errorrate
     
-#     # Plot
-#     plot=${dir}/colocation-$region.pdf
-#     python plot.py -z hist -l $region -fs 25 \
-#         -yc "Size" \
-#         -yl " " \
-#         -xl "Number of neighbors" \
-#         -o $plot -d ${dir}/clusters -of pdf
-#     echo "Plot at: $plot"
-#     cp $plot plots/
-#     display $plot &
-# done
+    # Plot
+    plot=${dir}/colocation-$region.pdf
+    python plot.py -z hist -l $region -fs 25 --xmax=15 \
+        -yc "Size" \
+        -yl " % of lambdas " \
+        -xl "Number of neighbors" \
+        -o $plot -d ${dir}/clusters -of pdf
+    echo "Plot at: $plot"
+    cp $plot plots/
+    display $plot &
+done
 
 
 # # Plot error rates for different lambda sizes
@@ -139,26 +139,26 @@
 # display $plot &
 
 
-# Plot percentage of lambdas in each colocated cluster when different accounts are used
-two_acc_run=10-08-01-19
-python analyze.py -i $two_acc_run --dataaz
-plot=plots/different-accounts.pdf
-python plot.py -xc "Cluster" -xl "Group Size" -yl "Percentage" -d out/$two_acc_run/tags.csv -fs 15 --ymax 125     \
-    -yc "Tag 0 %" -l "Account 0"    \
-    -yc "Tag 1 %" -l "Account 1"    \
-    -z barstacked -o $plot -of pdf
-echo "Plot at: $plot"
-display $plot &
+# # Plot percentage of lambdas in each colocated cluster when different accounts are used
+# two_acc_run=10-08-01-19
+# python analyze.py -i $two_acc_run --dataaz
+# plot=plots/different-accounts.pdf
+# python plot.py -xc "Cluster" -xl "Group Size" -yl "Percentage" -d out/$two_acc_run/tags.csv -fs 15 --ymax 125     \
+#     -yc "Tag 0 %" -l "Account 0"    \
+#     -yc "Tag 1 %" -l "Account 1"    \
+#     -z barstacked -o $plot -of pdf
+# echo "Plot at: $plot"
+# display $plot &
 
 
-# Plot percentage of lambdas in each colocated cluster when different lambda sizes are used
-two_size_run=10-19-02-06
-python analyze.py -i $two_size_run --dataaz
-plot=plots/different-sizes.pdf
-python plot.py -xc "Cluster" -xl "Group Size" -yl "Percentage" -d out/$two_size_run/tags.csv -fs 15  --ymax=125     \
-    -yc "Tag 0 %" -l "1.5 GB Lambdas"    \
-    -yc "Tag 1 %" -l "2 GB Lambdas"     \
-    -z barstacked -o $plot -of pdf
-echo "Plot at: $plot"
-display $plot &
+# # Plot percentage of lambdas in each colocated cluster when different lambda sizes are used
+# two_size_run=10-19-02-06
+# python analyze.py -i $two_size_run --dataaz
+# plot=plots/different-sizes.pdf
+# python plot.py -xc "Cluster" -xl "Group Size" -yl "Percentage" -d out/$two_size_run/tags.csv -fs 15  --ymax=125     \
+#     -yc "Tag 0 %" -l "1.5 GB Lambdas"    \
+#     -yc "Tag 1 %" -l "2 GB Lambdas"     \
+#     -z barstacked -o $plot -of pdf
+# echo "Plot at: $plot"
+# display $plot &
 

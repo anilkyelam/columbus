@@ -16,7 +16,7 @@ from enum import Enum
 import scipy.stats as scstats
 
 
-colors = ['r', 'b', 'g', 'brown', 'c','k', 'orange', 'm','orangered','y']
+colors = ['b', 'g', 'r', 'brown', 'c','k', 'orange', 'm','orangered','y']
 linetypes = ['g-','g--','g-+']
 markers = ['x','+','o','s','+', '|', '^']
 
