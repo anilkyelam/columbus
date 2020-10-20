@@ -4,10 +4,10 @@
 Co-residence detection for lambdas must be quick, as lambdas are ephemeral by
 nature. As noted earlier, co-residence detection is faster when co-residing
 instances on each server communicate among themselves and discover each other.
-Assuming that the instances have unique IDs, co-resided instances can exchange
+Assuming that the instances have unique IDs, co-resident instances can exchange
 integer IDs with each other using the memory bus channel as a transmission
 medium, which allows us to scale co-residency detection.  In this section, we
-present a communication protocol that the co-resided instances can use to
+present a communication protocol that the co-resident instances can use to
 achieve communication in a fast and reliable way. We first discuss the
 challenges we faced in making the channel reliable before examining the protocol
 itself.
@@ -57,13 +57,9 @@ Of these two methods, we decide to use the memory locking receiver for our
 experiments.  Previous studies~\cite{wuusenix2012,varadarajan2015} have
 established that both memory probing and memory locking receivers experience
 significant latency overhead during memory bus contention, making them both
-viable avenues for sensing the covert-channel. Memory probing involves regular
-(un-cached) memory accesses, which is universal, unlike the locking operations
-which are rarely used, if at all, by standard applications. This makes memory
-probing the only viable option for \textbf{non-cooperative} co-residence
-detection, where receivers are not under the senders's control and cannot be
-assumed to perform locking operations.  Furthermore, memory probing can be done
-on multiple receivers constantly without affecting each other (due to the high
+viable avenues for sensing the covert-channel. 
+Since memory probing involves regular (un-cached) memory accesses, it can be done
+on multiple receivers concurrently without affecting each other (due to the high
 memory bandwidth), which prevents noise in measurements. This is an important
 attribute, as memory locking receivers must contend with this noise. However,
 bypassing multi-levels of caches in today's servers to perform memory accesses
@@ -115,7 +111,7 @@ sample the bus at the same time, with high probability. We achieve this by
 using large intervals between successive samples and a poisson-sampling to
 prevent time-locking of receivers. We determined that a millisecond poisson gap
 between samples is reasonable to minimize noise due to collisions in receiver
-sampling~\ref{fig:membus_clouds}, assuming ten co-resided receivers and a few
+sampling~\ref{fig:membus_clouds}, assuming ten co-resident receivers and a few
 microsecond sampling time.
 
 \subsubsection{Sample Size} 
@@ -181,7 +177,7 @@ To determine the KS-threshold, we deploy a large number of lambdas across AWS
 regions. Some of these lambdas cause contention (aka senders) while others
 observe contention by collecting samples of latencies (aka receivers). Each of
 the samples may or may not have observed contention depending on whether the
-receiver was co-resided with a sender lambda (an unknown at this point). We then
+receiver was co-resident with a sender lambda (an unknown at this point). We then
 calculate the KS-value for each sample against the baseline and plot a CDF of
 these values for lambdas of different sizes in Figure~\ref{fig:ks_values}.
 Ideally, we expect a bimodal distribution (stepped CDF) with the upper and
@@ -300,7 +296,7 @@ its ID that must be communicated.  As such, we propose a communication protocol
 that exchanges these bit-strings while allowing for collisions. We divide the
 running time of the protocol into phases, with each phase executing for an
 interval of \textit{N} bit-slots. Each phase has a set of participating
-instances, which in the first phase would be all of the co-resided instances. In
+instances, which in the first phase would be all of the co-resident instances. In
 each bit-slot \textit{K} of \textit{N} slots in a phase, every participating
 instance broadcasts a bit if the $K^{th}$ bit of its bit-string (ID) is 1,
 otherwise it listens for a 0 or 1. If an instance senses a 1 while listening, it
@@ -311,7 +307,7 @@ its full ID to the rest of the (now listening) lambdas. In the next cycle, the
 lambda with the previously highest ID now only listens, allowing the next
 highest instance to advertise its ID, and so on.  Since the IDs are unique,
 there will always be only one instance that broadcasts in every phase. The
-protocol ends after \textit{x} phases (where \textit{x} is number of co-resided
+protocol ends after \textit{x} phases (where \textit{x} is number of co-resident
 instances), when none of the instances broadcast for \textit{N} consecutive
 bit-slots. The pseudo-code of the protocol is provided in Algorithm
 \ref{alg:protcol}. Note that the protocol itself is channel-agnostic and can be
@@ -332,15 +328,15 @@ to be $\log_2N$ bits to uniquely identify each instance. If a maximum \textit{K}
 of those instances are launched on the same server, the protocol executes for
 \textit{K} phases of $\log_2N$ bit-slots each, taking $(K+1)*\log_2N$ bit-slots
 for the whole operation. For example, assuming 10,000 deployed lambdas and a
-maximum of 10 co-resided instances on each server, the entire  co-residence
+maximum of 10 co-resident instances on each server, the entire  co-residence
 detection requires around four minutes to fully execute (with 1-second time
 slots). In fact, it is not necessary to run the protocol for all \textit{K}
-phases. After the first phase, all the co-resided instances would know one of
+phases. After the first phase, all the co-resident instances would know one of
 their neighbors (as each phase reveals the ID of the biggest participating
 instance to others).  If we use IDs that are globally unique, all the
-co-resided instances will see the same ID. The instances can then exchange these IDs
+co-resident instances will see the same ID. The instances can then exchange these IDs
 offline (e.g., through the network) to infer the rest of their neighbors. This
-simplification removes the dependency on number of co-resided instances
+simplification removes the dependency on number of co-resident instances
 (\textit{K}) and decreases the complexity to $O(\log_2N)$, allowing the entire
 protocol to finish within a minute instead of four.
 

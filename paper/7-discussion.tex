@@ -9,10 +9,10 @@ scenarios where such tool can be (ab)used, of which we provide some examples.
     locate their victims in the cloud, it can aid them in performing devastating 
     DDOS attacks once by concentrating a number of attack instances on the victim 
     machine. Also, the attacker could try to gain a wider surface area for 
-    targeted attacks in a cost-effective way by turning on/off her co-resided 
+    targeted attacks in a cost-effective way by turning on/off her co-resident 
     instances as necessary. 
     \item Previous studies on performance aspects of lambdas (like performance 
-    isolation)~\cite{wangusenix2018} generally need a way to find co-resided
+    isolation)~\cite{wangusenix2018} generally need a way to find co-resident
     lambdas. As software-level logical channels begin to disappear, our tool 
     might provide a reliable alternative.
     \item Burst parallel frameworks~\cite{234886} that orchestrate lambdas can
@@ -29,7 +29,8 @@ generation of servers and is not practical for existing infrastructure. An
 easier solution, one that is only practical with lambdas, is to disable the
 lambda support for low-level languages (or unsafe versions of high-level
 languages) by the cloud providers. This will prevent pointer arithmetic that is
-required to activate this channel. If that is not an option, clouds may look at
+required to activate this channel. If that is not an option, cloud providers may look at
 more expensive solutions like BusMonitor~\cite{MemoryBusMitigation} that isolate
-memory bus usage for different tenants. We leave such exploration to future
+memory bus usage for different tenants by trapping the atomic operations to the 
+hypervisor. Cloud platforms    We leave such exploration to future
 work.

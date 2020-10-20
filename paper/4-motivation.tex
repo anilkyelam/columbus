@@ -45,7 +45,7 @@
 Our goal is to determine a (co-operative) co-residence detection mechanism for
 lambdas. In other words, given a series of spawned lambdas in a
 certain region of a cloud service, how can we determine the lambdas that are
-co-resided on the same machines?  In this section, we discuss the details of
+co-resident on the same machines?  In this section, we discuss the details of
 such a mechanism, previous solutions to this problem, and the unique challenges
 we faced with lambda co-residence.
 
@@ -66,7 +66,7 @@ should have the following properties:
     less false positives (non co-resident instances categorized as co-resident).
     \item \textbf{Scalable} A launch strategy may require hundreds or even
     thousands of instances to be deployed, and must scale such that the
-    technique will detect all co-resided pairs at a reasonable cost.
+    technique will detect all co-resident pairs at a reasonable cost.
 \end{itemize}
 
 \noindent We add another property to that list which is relevant to lambdas:
@@ -114,11 +114,11 @@ memory bus (locking process) for a certain duration (\textasciitilde 10 seconds)
 while the receiver samples the memory for any spike in access latencies (probing
 process). If all the deployed instances try the detection i.e., locking and
 probing at once, (some of) the receivers may see locking effects, but there
-would be no way of knowing which or how many senders co-resided with a
+would be no way of knowing which or how many senders are co-resident with a
 particular receiver and caused the locking. This provides no information about
 the number of physical servers that ran these instances or the amount of
 co-residence. The only information we can deduce is that receivers were probably
-co-resided with at least a single sender.
+co-resident with at least a single sender.
 
 An alternative method is to try pair-wise detection where one sender instance
 locks and one receiver instance probes at a time, revealing co-residence of this
@@ -152,7 +152,7 @@ the sender instances.
 Given that previous work utilized the memory bus channel to exchange more
 complex information like keys~\cite{wuusenix2012}, it appears that the memory
 bus can be used to exchange information, such as unique IDs, between the
-co-resided instances, allowing us to ascertain receiver/sender pairs.  However,
+co-resident instances, allowing us to ascertain receiver/sender pairs.  However,
 the previous work assumes that there is only one sender and one receiver that
 know exactly how and when to communicate. As we will see in the next section,
 this model is not sustainable when there exist many parties that have no
@@ -160,7 +160,7 @@ knowledge of each other but try to communicate on the same channel.
 
 To solve some of the challenges mentioned previously, we propose a protocol in
 which we use the memory bus covert channel to exchange information between the
-instances that have access to the channel. Using the protocol, co-resided
+instances that have access to the channel. Using the protocol, co-resident
 instances can reliably exchange their unique IDs with each other to discover
 their neighbors. The protocol takes time on the order of number of instances
 involved, which is limited by the maximum number of co-located instances on a

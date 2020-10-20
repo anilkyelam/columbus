@@ -28,13 +28,14 @@ higher levels of statistical multiplexing and thus can offer significant cost
 savings to customers whose needs are able to match this model (e.g.,
 event-driven computations with embedded state).  However, the security issues
 associated with serverless computing are far less well understood than their
-heavier weight brethren.  While the transient and dynamic nature of service
+heavier weight brethren.  While the transient and dynamic nature of serverless
 computing pose inherent challenges for attackers, their low-cost and
 light-weight isolation potentially present offer new points of purchase as well.
 
 In our work, we explore these issues through the lens of a singular question:
 can a practical covert channel be constructed entirely from existing
-``serverless'' cloud services?
+``serverless'' cloud services? (We will use the term lambdas to stand for all 
+such services going forward)
 
 Covert channels, as a general matter, provide a means of transmitting
 data that bypasses traditional monitoring or auditing -- typically by
@@ -62,7 +63,7 @@ co-resident must be able to quickly determine this fact, and then use the
 balance of their limited lifetimes to effect communications.  Finally, since
 rendezvous in a serverless system is inherently statistical, any such protocol
 must anticipate the potential for interference (i.e., when multiple sending
-lambdas happen to be co-resident with a single receiving lambda).
+lambdas happen to be co-resident with one or more receiving lambdas).
 
 In this paper we address each of these issues in turn and demonstrate
 the feasibility of covert communication entirely in the context of the
