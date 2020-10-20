@@ -1,23 +1,36 @@
 \section{DISCUSSION}
 \label{sec:discussion}
-\todo{}
-What are some hypothetical usecases?
-- Frameworks like gg can use our tool as locality indicator to place 
-take advantage of locality in burst workloads. 
-- the precise information can be used by attacker to gain wider 
-attack area and turn off other instances to make attacks cost-effective
-- While the co-operative coresidence detection itself 
-does not directly help attackers locate their victims, it can 
-help attackers perform highly sophisticated DDOS attacks once 
-they did find the victim. e.g., power surge attacks?
-- as previous host based approach like /procfs info do not work anymore,
-papers like "peeking .." cannot perform tenant isolation and other such 
-studies that require precise colocation information. i.e., Helps performance isolation 
-studies such as \cite{wangusenix2018}.
+\textbf{Alternate use cases}
+Our main motivation behind proposing a co-residence detector for lambdas is
+demonstrating the feasibility of a covert channel. However, there are other
+scenarios where such tool can be (ab)used, of which we provide some examples. 
+\begin{itemize}
+    \item While our co-residence detector does not directly help attackers
+    locate their victims in the cloud, it can aid them in performing devastating 
+    DDOS attacks once by concentrating a number of attack instances on the victim 
+    machine. Also, the attacker could try to gain a wider surface area for 
+    targeted attacks in a cost-effective way by turning on/off her co-resident 
+    instances as necessary. 
+    \item Previous studies on performance aspects of lambdas (like performance 
+    isolation)~\cite{wangusenix2018} generally need a way to find co-resident
+    lambdas. As software-level logical channels begin to disappear, our tool 
+    might provide a reliable alternative.
+    \item Burst parallel frameworks~\cite{234886} that orchestrate lambdas can
+    use our co-residence detector as a locality indicator to take advantage of
+    server locality.
+\end{itemize}
 
-What are some limitations of the technique?
-
-
-How can clouds prevent this?
-- one solution \cite{MemoryBusMitigation}
-- limiting runtimes
+\textbf{Mitigation}
+In previous section, we showed that our co-residence detector makes the covert
+channels practical with lambdas, so it is important that clouds address this
+issue. One way to disable our co-residence detector is to fix the underlying
+memory bus channel that it employs. However, this only works for newer
+generation of servers and is not practical for existing infrastructure. An
+easier solution, one that is only practical with lambdas, is to disable the
+lambda support for low-level languages (or unsafe versions of high-level
+languages) by the cloud providers. This will prevent pointer arithmetic that is
+required to activate this channel. If that is not an option, cloud providers may look at
+more expensive solutions like BusMonitor~\cite{MemoryBusMitigation} that isolate
+memory bus usage for different tenants by trapping the atomic operations to the 
+hypervisor. Cloud platforms    We leave such exploration to future
+work.

@@ -1,38 +1,28 @@
 
 \section{ETHICAL CONSIDERATIONS}
-As with any large scale measurement project, there are ethical considerations to
-take into account. First, there are security and privacy concerns of using this
+As with any large scale measurement project, we discuss the ethical
+considerations. First, there are security and privacy concerns of using this
 technique to uncover other consumer's lambdas. However, since we focus on
 co-operative co-residence detection, we only determine co-residence for the
 lambdas we launched, and do not gain insight into other consumer's lambdas.
-Second, there is concern that our experiments may cause performance issues
-with other lambdas, as we may block their access to the memory bus. We believe
-this concern is small, for a number of reasons. Memory accesses are infrequent
-due to the multiple levels of caches; we would only be affecting a small number
-of operations. And memory accesses and locking operations are FIFO, which
-prevents starvation to the multiple processes sharing a machine. Moreover,
-lambdas are generally not recommended for latency-sensitive workloads, due to
-their cold-start latencies. Thus, the small amount of lambdas that we might
-affect should not, by definition, be affected in their longterm computational
-goals. 
+Second, there is concern that our experiments may cause performance issues with
+other lambdas, as we may block their access to the memory bus. We believe this
+concern is small, for a number of reasons. Memory accesses are infrequent due to
+the multiple levels of caches; we would only be affecting a small number of
+operations. Memory accesses and locking operations are FIFO, which prevents
+starvation of any one of the lambdas sharing a machine. Moreover, lambdas are
+generally not recommended for latency-sensitive workloads, due to their
+cold-start latencies. Thus, the small amount of lambdas that we might affect
+should not, in practice, be affected in their longterm computational goals. 
 
 
 \section{CONCLUSION \& FUTURE WORK}
 \label{sec:conclusion}
-\todo{Copied abstract} 
-Cloud computing has seen explosive growth in the past decade. This is made
-possible by efficient sharing of infrastructure among tenants, which
-unfortunately also raises security challenges like preventing side-channel
-attacks. Providers, like AWS and Azure, have traditionally relied on hiding the
-co-residency information to prevent targeted attacks in their clouds. But recent
-works have repeatedly found co-residence detection techniques that break this
-encapsulation, prompting the providers to address them and harden isolation on
-their platforms. In this work, we find yet another such technique based on a
-memory bus covert channel that is more pervasive, reliable and harder to fix. We
-show that we can use this technique to reliably perform co-operative
-co-residence detection for thousands of AWS lambdas within a few seconds, which
-opens a way for attackers to perform DDoS attacks or learn cloud's internal
-mechanisms. We present this technique in detail, evaluate it and use it to
-perform a small study on lambda activity across a few AWS regions.  Through this
-work, we hope to motivate the need to address this covert channel in the cloud.
+In this paper, we have demonstrated techniques to build robust, scalable and 
+efficient covert channels entirely using serverless cloud functions such as 
+AWS lambdas. To achieve this goal, we developed a fast and reliable co-residence 
+detector for lambdas, and evaluated it for correctness and scalability.
+Finally, we have empirically demonstrated the practicality of such covert 
+channels by studying the co-residence density of lambdas on various AWS regions. 
+
 
