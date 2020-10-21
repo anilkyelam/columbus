@@ -64,9 +64,23 @@
         "set": "cpp",
         "future": "cpp",
         "mutex": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "cfenv": "cpp",
+        "codecvt": "cpp",
+        "complex": "cpp",
+        "csetjmp": "cpp",
+        "csignal": "cpp",
+        "cuchar": "cpp",
+        "forward_list": "cpp",
+        "unordered_set": "cpp",
+        "filesystem": "cpp",
+        "scoped_allocator": "cpp",
+        "shared_mutex": "cpp",
+        "typeindex": "cpp",
+        "valarray": "cpp",
+        "charconv": "cpp"
     },
-    "python.pythonPath": "/usr/bin/python2.7",
+    "python.pythonPath": "/usr/bin/python3",
     "C_Cpp.default.includePath": [],
     "cmake.configureOnOpen": false
 }

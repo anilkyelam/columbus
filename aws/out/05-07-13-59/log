@@ -1,0 +1,32 @@
+clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555560eabe
+    	Baseline sample: Size- 500, Mean- 7217
+    	[Lambda- 11] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda- 11]   0         9    0     0     0       500      7311     5909    37928     4962       7217     5781 0.799357382847225
+    	[Lambda- 11]   0         8    0     0     0       500      7004     5573    35016     4990       7217     5781 0.553233061128648
+    	[Lambda- 11]   0         7    0     0     0       500      7054     5522    39394     4988       7217     5781 0.648571838380054
+    	[Lambda- 11]   0         6    0     0     0       451      7116     5587    37870     5046       7217     5781 0.784286845755799
+    	[Lambda- 11]   0         5    0     0     0       482      7448     6302    38906     4992       7217     5781 0.550031784934109
+    	[Lambda- 11]   0         4    0     0     0       500      7372     6638    83056     5016       7217     5781 0.693873805170449
+    	[Lambda- 11]   0         3    1     1     1       500         0        0        0        0       7217     5781 0.693873805170449
+    	[Lambda- 11]   0         2    0     0     0       485      6745     4627    37056     5038       7217     5781 0.156876130246007
+    	[Lambda- 11]   0         1    1     1     1       485         0        0        0        0       7217     5781 0.156876130246007
+    	[Lambda- 11]   0         0    1     1     1       485         0        0        0        0       7217     5781 0.156876130246007
+    	[Lambda-11] Phase 0, Id read: 11
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555556115fe
+    	Baseline sample: Size- 500, Mean- 6612
+    	[Lambda-  1] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Mean, Base Lat, PValue
+    	[Lambda-  1]   0         9    0     0     0       497      7054     5591    40480     4920       6612     4727 0.178145948911627
+    	[Lambda-  1]   0         8    0     0     0       500      6771     5527    52914     4966       6612     4727 0.625074905835100
+    	[Lambda-  1]   0         7    0     0     0       489      6850     5277    41960     4990       6612     4727 0.455560681341471
+    	[Lambda-  1]   0         6    0     0     0       485      6914     5345    52240     4962       6612     4727 0.348410261522675
+    	[Lambda-  1]   0         5    0     0     0       483      7214     6396    59442     5006       6612     4727 0.094612290314949
+    	[Lambda-  1]   0         4    0     0     0       495      6472     4314    35320     4952       6612     4727 0.625658654896456
+    	[Lambda-  1]   0         3    0     0     0       500      6968     5513    64992     4918       6612     4727 0.273352143021364
+    	[Lambda-  1]   0         2    0     0     0       431      7072     6101    74444     5018       6612     4727 0.204254764625416
+    	[Lambda-  1]   0         1    0     0     0       477      7457     6055    48722     4992       6612     4727 0.015565459028893
+    	[Lambda-  1]   0         0    1     1     1       477         0        0        0        0       6612     4727 0.015565459028893
+    	[Lambda-1] Phase 0, Id read: 1

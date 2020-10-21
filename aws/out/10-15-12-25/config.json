@@ -1,0 +1,12 @@
+{
+    "Name": "10-15-12-25",
+    "Comments": "hourly pattern runs",
+    "Lambda Name": "membus1536",
+    "Lambda URL": "https://zynasgps6i.execute-api.us-east-2.amazonaws.com/latest/membus",
+    "Lambda Count": 1000,
+    "Phases": 3,
+    "Bit Duration (secs)": 1,
+    "Num bits": 10,
+    "Outdir": "out/10-15-12-25",
+    "Region": "us-east-2"
+}

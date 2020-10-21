@@ -1,0 +1,180 @@
+Starting lambda 7 (GUID: 10-15-22-32-7) at 2020-10-16 05:32:15	C++11
+    	Added object temp to s3 bucket lambda-cpp-us-east-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555eb6f7c
+    	[Lambda-  7] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-  7]   0         9    0     0     0      1000      6101     3092    35746     5004        998       6567      5743 0.228875608965932
+    	[Lambda-  7]   0         8    0     0     0       955      6266     4020    44100     4988        998       6567      5743 0.558309930702552
+    	[Lambda-  7]   0         7    0     0     0      1000      6776     4869    44924     5010        998       6567      5743 0.336771327776389
+    	[Lambda-  7]   0         6    0     0     0       965      6353     3864    39872     5012        998       6567      5743 0.126854662274907
+    	[Lambda-  7]   0         5    0     0     0       961      6560     4617    43550     5058        998       6567      5743 0.100555615934281
+    	[Lambda-  7]   0         4    0     0     0      1000      6561     5016    73990     4968        998       6567      5743 0.518167757254448
+    	[Lambda-  7]   0         3    0     0     0       967      6572     4621    49750     5026        998       6567      5743 0.139243191625254
+    	[Lambda-  7]   0         2    1     1     1       967         0        0        0        0        998       6567      5743 0.139243191625254
+    	[Lambda-  7]   0         1    1     1     1       967         0        0        0        0        998       6567      5743 0.139243191625254
+    	[Lambda-  7]   0         0    1     1     1       967         0        0        0        0        998       6567      5743 0.139243191625254
+    	[Lambda-7] Phase 0, Id read: 7
+    	Calculating CPU CPI took 34.84 seconds
+Starting lambda 6 (GUID: 10-15-22-32-6) at 2020-10-16 05:32:15	C++11
+    	Added object temp to s3 bucket lambda-cpp-us-east-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555715c93c
+    	[Lambda-  6] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-  6]   0         9    0     0     0       952      7229     5989    78644     5154        967       7368     13819 0.501780415881511
+    	[Lambda-  6]   0         8    0     0     0       928      7639    11621   294356     5132        967       7368     13819 0.143705329403959
+    	[Lambda-  6]   0         7    0     0     0      1000     17746   327977 10376844     5120        967       7368     13819 0.183747504015940
+    	[Lambda-  6]   0         6    0     0     0       953      7319     6342    80712     5136        967       7368     13819 0.308313262843150
+    	[Lambda-  6]   0         5    0     0     0       986      7708    14509   302398     5142        967       7368     13819 0.321005793609429
+    	[Lambda-  6]   0         4    0     0     0      1000      8458    19978   399016     5108        967       7368     13819 0.329781327992025
+    	[Lambda-  6]   0         3    0     0     0       977      7858    16961   350004     5102        967       7368     13819 0.227098101548806
+    	[Lambda-  6]   0         2    1     1     1       977         0        0        0        0        967       7368     13819 0.227098101548806
+    	[Lambda-  6]   0         1    1     1     1       977         0        0        0        0        967       7368     13819 0.227098101548806
+    	[Lambda-  6]   0         0    0     0     0      1000      6722     6854   177006     5172        967       7368     13819 0.445986785244523
+    	[Lambda-6] Phase 0, Id read: 6
+    	Calculating CPU CPI took 34.79 seconds
+Starting lambda 2 (GUID: 10-15-22-32-2) at 2020-10-16 05:32:15	C++11
+    	Added object temp to s3 bucket lambda-cpp-us-east-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555574dbfc
+    	[Lambda-  2] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-  2]   0         9    0     0     0      1000      6630     4628    52776     5112        992       6512      4179 0.530338528402534
+    	[Lambda-  2]   0         8    0     0     0      1000      6599     4392    51974     5120        992       6512      4179 0.635374574096179
+    	[Lambda-  2]   0         7    0     0     0       998      6870     5109    59528     5098        992       6512      4179 0.163277856163212
+    	[Lambda-  2]   0         6    0     0     0       937      7228    22409   680324     5100        992       6512      4179 0.312533365502375
+    	[Lambda-  2]   0         5    0     0     0      1000      7277    13140   392538     5100        992       6512      4179 0.566462947644841
+    	[Lambda-  2]   0         4    0     0     0       900     17676   329734  9897846     5094        992       6512      4179 0.199376311313583
+    	[Lambda-  2]   0         3    0     0     0       959      7213     5313    38572     5146        992       6512      4179 0.297702055514572
+    	[Lambda-  2]   0         2    0     0     0       983      6840     4996    52948     5116        992       6512      4179 0.146165629260185
+    	[Lambda-  2]   0         1    1     1     1       983         0        0        0        0        992       6512      4179 0.146165629260185
+    	[Lambda-  2]   0         0    0     0     0      1000      7101     5473    44258     5172        992       6512      4179 0.449692669740263
+    	[Lambda-2] Phase 0, Id read: 2
+    	Calculating CPU CPI took 35.04 seconds
+Starting lambda 4 (GUID: 10-15-22-32-4) at 2020-10-16 05:32:15	C++11
+    	Added object temp to s3 bucket lambda-cpp-us-east-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555667993c
+    	[Lambda-  4] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-  4]   0         9    0     0     0      1000     17478   323728 10233308     5098       1000       6834      4706 0.238107698584065
+    	[Lambda-  4]   0         8    0     0     0       991      7184     5481    51328     5128       1000       6834      4706 0.211723729688989
+    	[Lambda-  4]   0         7    0     0     0       981      6840     5009    53372     5150       1000       6834      4706 0.308462806572982
+    	[Lambda-  4]   0         6    0     0     0       993      6593     4362    58532     5112       1000       6834      4706 0.154962381309442
+    	[Lambda-  4]   0         5    0     0     0       974      6791     4895    53082     5146       1000       6834      4706 0.338933132587443
+    	[Lambda-  4]   0         4    0     0     0       934      6747     4545    55214     5140       1000       6834      4706 0.417064629840772
+    	[Lambda-  4]   0         3    0     0     0       983      6646     4285    51034     5116       1000       6834      4706 0.490081914256996
+    	[Lambda-  4]   0         2    1     1     1       983         0        0        0        0       1000       6834      4706 0.490081914256996
+    	[Lambda-  4]   0         1    0     0     0       996      6743     4967    52900     5128       1000       6834      4706 0.223073705102980
+    	[Lambda-  4]   0         0    0     0     0       966      6856     5561    87808     5104       1000       6834      4706 0.382394999661582
+    	[Lambda-4] Phase 0, Id read: 4
+    	Calculating CPU CPI took 35.01 seconds
+Starting lambda 8 (GUID: 10-15-22-32-8) at 2020-10-16 05:32:15	C++11
+    	Added object temp to s3 bucket lambda-cpp-us-east-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555565e5bc
+    	[Lambda-  8] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-  8]   0         9    0     0     0       946      6860     5680    80334     5006        946       6547      4559 0.139738461162436
+    	[Lambda-  8]   0         8    0     0     0      1000      7163     5677    64282     5012        946       6547      4559 0.384973752285663
+    	[Lambda-  8]   0         7    0     0     0       975      6748     5639    72780     5026        946       6547      4559 0.183074367609944
+    	[Lambda-  8]   0         6    0     0     0      1000      6777     5152    40956     5010        946       6547      4559 0.107806089846335
+    	[Lambda-  8]   0         5    0     0     0      1000      7235     5714    41592     5080        946       6547      4559 0.682713737706031
+    	[Lambda-  8]   0         4    0     0     0       984     16946   325361 10211762     5094        946       6547      4559 0.183500248491665
+    	[Lambda-  8]   0         3    1     1     1       984         0        0        0        0        946       6547      4559 0.183500248491665
+    	[Lambda-  8]   0         2    0     0     0      1000      6574     4634    43886     5018        946       6547      4559 0.246094462114843
+    	[Lambda-  8]   0         1    0     0     0       999      6396     3947    48900     5020        946       6547      4559 0.306123534970204
+    	[Lambda-  8]   0         0    0     0     0       996      6583     4822    72092     5096        946       6547      4559 0.409006953227393
+    	[Lambda-8] Phase 0, Id read: 8
+    	Calculating CPU CPI took 34.87 seconds
+Starting lambda 1 (GUID: 10-15-22-32-1) at 2020-10-16 05:32:15	C++11
+    	Added object temp to s3 bucket lambda-cpp-us-east-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556d3ccfc
+    	[Lambda-  1] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-  1]   0         9    0     0     0       991      7020     5925    77112     4940        966       7020      5601 0.098419132552041
+    	[Lambda-  1]   0         8    0     0     0       990      7139     6306    99938     5008        966       7020      5601 0.258137371993384
+    	[Lambda-  1]   0         7    0     0     0       947      6889     5226    41824     4990        966       7020      5601 0.339754451170775
+    	[Lambda-  1]   0         6    0     0     0       957      6702     5038    52658     4954        966       7020      5601 0.296681621132534
+    	[Lambda-  1]   0         5    0     0     0      1000      6647     4669    52606     5040        966       7020      5601 0.414064267190735
+    	[Lambda-  1]   0         4    0     0     0      1000      6744     5144    53242     4964        966       7020      5601 0.178233241026325
+    	[Lambda-  1]   0         3    0     0     0       994      6934     5459    58702     4990        966       7020      5601 0.179119879836580
+    	[Lambda-  1]   0         2    0     0     0       978      6743     5061    59762     5016        966       7020      5601 0.529514478948080
+    	[Lambda-  1]   0         1    0     0     0      1000      6564     4422    58190     5004        966       7020      5601 0.599849281415779
+    	[Lambda-  1]   0         0    1     1     1      1000         0        0        0        0        966       7020      5601 0.599849281415779
+    	[Lambda-1] Phase 0, Id read: 1
+    	Calculating CPU CPI took 35.07 seconds
+Starting lambda 9 (GUID: 10-15-22-32-9) at 2020-10-16 05:32:15	C++11
+    	Added object temp to s3 bucket lambda-cpp-us-east-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555712e53c
+    	[Lambda-  9] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-  9]   0         9    0     0     0       973      6133     3582    62456     5070        982       6330      4268 0.217579964129506
+    	[Lambda-  9]   0         8    0     0     0       973      6000     2670    33814     5068        982       6330      4268 0.302087862518378
+    	[Lambda-  9]   0         7    0     0     0       965      6248     3683    48538     5024        982       6330      4268 0.243118925211684
+    	[Lambda-  9]   0         6    0     0     0       937      6435     5734   141952     5074        982       6330      4268 0.152609025555493
+    	[Lambda-  9]   0         5    0     0     0       982      6631     4707    52030     5078        982       6330      4268 0.156596925149094
+    	[Lambda-  9]   0         4    0     0     0       985     16503   326425 10250392     5002        982       6330      4268 0.406560156446709
+    	[Lambda-  9]   0         3    1     1     1       985         0        0        0        0        982       6330      4268 0.406560156446709
+    	[Lambda-  9]   0         2    0     0     0      1000      6648     4624    39702     5048        982       6330      4268 0.527681973437184
+    	[Lambda-  9]   0         1    0     0     0       989      6946     8690   220004     5022        982       6330      4268 0.315870475221507
+    	[Lambda-  9]   0         0    1     1     1       989         0        0        0        0        982       6330      4268 0.315870475221507
+    	[Lambda-9] Phase 0, Id read: 9
+    	Calculating CPU CPI took 34.79 seconds
+Starting lambda 10 (GUID: 10-15-22-32-10) at 2020-10-16 05:32:15	C++11
+    	Added object temp to s3 bucket lambda-cpp-us-east-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556821cbc
+    	[Lambda- 10] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda- 10]   0         9    0     0     0       933      6952    12179   354132     4990        972       6877      5328 0.229183246369079
+    	[Lambda- 10]   0         8    0     0     0       912      6642     4898    50238     5000        972       6877      5328 0.198049282171853
+    	[Lambda- 10]   0         7    0     0     0       993      6322     3784    49984     5000        972       6877      5328 0.295126167249489
+    	[Lambda- 10]   0         6    0     0     0      1000      6429     4345    54136     5002        972       6877      5328 0.175561513734880
+    	[Lambda- 10]   0         5    0     0     0       968      6704     4364    46374     5030        972       6877      5328 0.381044694255162
+    	[Lambda- 10]   0         4    0     0     0       970      6976    15791   471858     5020        972       6877      5328 0.148304958426880
+    	[Lambda- 10]   0         3    1     1     1       970         0        0        0        0        972       6877      5328 0.148304958426880
+    	[Lambda- 10]   0         2    0     0     0       938      6600     4842    55518     5000        972       6877      5328 0.185689110105367
+    	[Lambda- 10]   0         1    1     1     1       938         0        0        0        0        972       6877      5328 0.185689110105367
+    	[Lambda- 10]   0         0    0     0     0      1000      6840    13638   404686     5012        972       6877      5328 0.188746494772699
+    	[Lambda-10] Phase 0, Id read: 10
+    	Calculating CPU CPI took 34.99 seconds
+Starting lambda 3 (GUID: 10-15-22-32-3) at 2020-10-16 05:32:15	C++11
+    	Added object temp to s3 bucket lambda-cpp-us-east-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555568571fc
+    	[Lambda-  3] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-  3]   0         9    0     0     0       952      6492     3839    39678     5164       1000       6453      3641 0.248118255521742
+    	[Lambda-  3]   0         8    0     0     0       955      6691     4792    53930     5160       1000       6453      3641 0.210401913913746
+    	[Lambda-  3]   0         7    0     0     0      1000      6417     3701    42618     5184       1000       6453      3641 0.301947439341684
+    	[Lambda-  3]   0         6    0     0     0       935     17434   337091 10313198     5166       1000       6453      3641 0.204282944409103
+    	[Lambda-  3]   0         5    0     0     0       976      6388     3713    51882     5148       1000       6453      3641 0.207659663667064
+    	[Lambda-  3]   0         4    0     0     0      1000      6295     3587    52562     5212       1000       6453      3641 0.397047410424750
+    	[Lambda-  3]   0         3    0     0     0      1000      6280     3486    41836     5138       1000       6453      3641 0.253346501850726
+    	[Lambda-  3]   0         2    0     0     0      1000      6889     5325    77442     5180       1000       6453      3641 0.309046955170246
+    	[Lambda-  3]   0         1    1     1     1      1000         0        0        0        0       1000       6453      3641 0.309046955170246
+    	[Lambda-  3]   0         0    1     1     1      1000         0        0        0        0       1000       6453      3641 0.309046955170246
+    	[Lambda-3] Phase 0, Id read: 3
+    	Calculating CPU CPI took 34.93 seconds
+Starting lambda 5 (GUID: 10-15-22-32-5) at 2020-10-16 05:32:15	C++11
+    	Added object temp to s3 bucket lambda-cpp-us-east-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555567088bc
+    	[Lambda-  5] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-  5]   0         9    0     0     0       982      6365     3676    36642     5122       1000       6375      4209 0.216707065039795
+    	[Lambda-  5]   0         8    0     0     0       952      6634     8452   239356     5156       1000       6375      4209 0.291412075147483
+    	[Lambda-  5]   0         7    0     0     0      1000      6550     4180    42616     5154       1000       6375      4209 0.620877814972479
+    	[Lambda-  5]   0         6    0     0     0       940      6673     4892    53078     5100       1000       6375      4209 0.162090341544648
+    	[Lambda-  5]   0         5    0     0     0       968      6530     4337    64562     5112       1000       6375      4209 0.602671804096973
+    	[Lambda-  5]   0         4    0     0     0       926      6379     4128    56524     5138       1000       6375      4209 0.259923998729189
+    	[Lambda-  5]   0         3    0     0     1       981     22054   322992 10086638     5286       1000       6375      4209 6.089629588014935
+    	[Lambda-  5]   0         2    1     0     0      1000      6457     4456    71644     5132       1000       6375      4209 0.418077629753136
+    	[Lambda-  5]   0         1    0     0     1       962     11904    29708   888990     5222       1000       6375      4209 5.891779475439799
+    	[Lambda-  5]   0         0    1     0     0       995      6438     4209    72338     5134       1000       6375      4209 0.229542373692336
+    	[Lambda-5] Phase 0, Id read: 10
+    	Calculating CPU CPI took 34.66 seconds

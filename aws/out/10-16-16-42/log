@@ -1,0 +1,95 @@
+Starting lambda 5 (GUID: 10-16-16-42-5) at 2020-10-16 23:42:04	C++11
+    	Added object temp to s3 bucket lambda-cpp-us-east-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555821dfc
+    	[Lambda-  5] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-  5]   0         9    0     0     0       902      6294     4643    43966     4986        983       6003      3707 0.128175078589659
+    	[Lambda-  5]   0         8    0     0     0       927      5937     3467    43800     5018        983       6003      3707 0.103743455748460
+    	[Lambda-  5]   0         7    0     0     0       939      6224     6617   159614     5024        983       6003      3707 0.272931005210383
+    	[Lambda-  5]   0         6    0     0     0       865      6077     3966    52474     4986        983       6003      3707 0.183072183743275
+    	[Lambda-  5]   0         5    0     0     0       947      6735     6492   128464     5058        983       6003      3707 0.520945326290851
+    	[Lambda-  5]   0         4    0     0     0       944      6305     4319    47022     5018        983       6003      3707 0.185196905309758
+    	[Lambda-  5]   0         3    0     0     0       963      6044     3962    51960     4960        983       6003      3707 0.146403849537449
+    	[Lambda-  5]   0         2    1     1     1       963         0        0        0        0        983       6003      3707 0.146403849537449
+    	[Lambda-  5]   0         1    0     0     0       984      5878     3235    44286     5018        983       6003      3707 0.247241474134619
+    	[Lambda-  5]   0         0    1     1     1       984         0        0        0        0        983       6003      3707 0.247241474134619
+    	[Lambda-5] Phase 0, Id read: 5
+    	The protocol ran for 11.04 seconds.
+    	Calculating CPU CPI took 3.84 seconds
+Starting lambda 2 (GUID: 10-16-16-42-2) at 2020-10-16 23:42:03	C++11
+    	Added object temp to s3 bucket lambda-cpp-us-east-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555e019fc
+    	[Lambda-  2] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-  2]   0         9    0     0     0       920      5860     1984    56780     5210        917       5741      1800 0.598391241719156
+    	[Lambda-  2]   0         8    0     0     0       889      5760      615    18676     5216        917       5741      1800 0.624126340688917
+    	[Lambda-  2]   0         7    0     0     0       981      5824     1180    33172     5214        917       5741      1800 0.833910059725131
+    	[Lambda-  2]   0         6    0     0     0      1000      5948     2273    36078     5156        917       5741      1800 0.542682329934975
+    	[Lambda-  2]   0         5    0     0     0       960      5843     2217    54346     5170        917       5741      1800 0.093299888215759
+    	[Lambda-  2]   0         4    0     0     0       958      5848     2149    55330     5186        917       5741      1800 0.366617618260237
+    	[Lambda-  2]   0         3    0     0     0       902      5891     2453    57402     5108        917       5741      1800 0.426242850970137
+    	[Lambda-  2]   0         2    0     0     0       952      5868     1808    36488     5200        917       5741      1800 0.598270833653300
+    	[Lambda-  2]   0         1    1     1     1       952         0        0        0        0        917       5741      1800 0.598270833653300
+    	[Lambda-  2]   0         0    0     0     0       901      5904     1968    49548     5184        917       5741      1800 0.546765056593028
+    	[Lambda-2] Phase 0, Id read: 2
+    	The protocol ran for 11.00 seconds.
+    	Calculating CPU CPI took 3.84 seconds
+Starting lambda 3 (GUID: 10-16-16-42-3) at 2020-10-16 23:42:04	C++11
+    	Added object temp to s3 bucket lambda-cpp-us-east-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555569cbdfc
+    	[Lambda-  3] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-  3]   0         9    0     0     0       936      6519     4408    43888     5134        941       6189      3221 0.172235532205867
+    	[Lambda-  3]   0         8    0     0     0       880    165826  4718794 139988752     5188        941       6189      3221 0.241446266142033
+    	[Lambda-  3]   0         7    0     0     0       913      6699     5171    44096     5170        941       6189      3221 0.570617987666093
+    	[Lambda-  3]   0         6    0     0     0       919      6660     5170    61540     5204        941       6189      3221 0.166061961814377
+    	[Lambda-  3]   0         5    0     0     0       918      6505     4436    42062     5206        941       6189      3221 0.185884030841150
+    	[Lambda-  3]   0         4    0     0     0       942      6686     4434    51664     5266        941       6189      3221 0.708092894121977
+    	[Lambda-  3]   0         3    0     0     0       932      6252     3334    43436     5192        941       6189      3221 0.415487056712732
+    	[Lambda-  3]   0         2    0     0     0       887      6209     3349    51530     5320        941       6189      3221 0.261042331461270
+    	[Lambda-  3]   0         1    1     1     1       887         0        0        0        0        941       6189      3221 0.261042331461270
+    	[Lambda-  3]   0         0    1     1     1       887         0        0        0        0        941       6189      3221 0.261042331461270
+    	[Lambda-3] Phase 0, Id read: 3
+    	The protocol ran for 10.98 seconds.
+    	Calculating CPU CPI took 3.84 seconds
+Starting lambda 4 (GUID: 10-16-16-42-4) at 2020-10-16 23:42:04	C++11
+    	Added object temp to s3 bucket lambda-cpp-us-east-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555571d7dfc
+    	[Lambda-  4] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-  4]   0         9    0     0     0       913      6384     4633    41926     5100        908       5966      3513 0.113866312661632
+    	[Lambda-  4]   0         8    0     0     0       914      6394     5378    69182     5076        908       5966      3513 0.385128041770963
+    	[Lambda-  4]   0         7    0     0     0       968      6380     4669    56494     5092        908       5966      3513 0.104223861923713
+    	[Lambda-  4]   0         6    0     0     0       918      6474     5159    52486     5030        908       5966      3513 0.168751781705659
+    	[Lambda-  4]   0         5    0     0     0      1000      6396     4995    64862     5000        908       5966      3513 0.348861455694310
+    	[Lambda-  4]   0         4    0     0     0       978    149615  4480963 140139402     4986        908       5966      3513 0.210939990848694
+    	[Lambda-  4]   0         3    0     0     0       922      6877     5642    43974     5060        908       5966      3513 0.192144820676954
+    	[Lambda-  4]   0         2    1     1     1       922         0        0        0        0        908       5966      3513 0.192144820676954
+    	[Lambda-  4]   0         1    0     0     0       888      5731     2165    36034     5008        908       5966      3513 0.256138515390247
+    	[Lambda-  4]   0         0    0     0     0       910    148868  4313973 130142056     5068        908       5966      3513 0.249752302751273
+    	[Lambda-4] Phase 0, Id read: 4
+    	The protocol ran for 11.02 seconds.
+    	Calculating CPU CPI took 3.84 seconds
+Starting lambda 1 (GUID: 10-16-16-42-1) at 2020-10-16 23:42:04	C++11
+    	Added object temp to s3 bucket lambda-cpp-us-east-2
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555ea6dfc
+    	[Lambda-  1] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-  1]   0         9    0     0     0       894      5800     1197    34884     5220        939       5964      2903 0.622038423680761
+    	[Lambda-  1]   0         8    0     0     0       988      5850     1383    26800     5232        939       5964      2903 0.751261949263165
+    	[Lambda-  1]   0         7    0     0     0       990      5761      950    26958     5204        939       5964      2903 0.480587793826048
+    	[Lambda-  1]   0         6    0     0     0       910      5995     2445    36166     5134        939       5964      2903 0.382986283583473
+    	[Lambda-  1]   0         5    0     0     0       884      5952     2786    54382     5158        939       5964      2903 0.248038416092907
+    	[Lambda-  1]   0         4    0     0     0       906      5897     2186    48072     5142        939       5964      2903 0.566936788400757
+    	[Lambda-  1]   0         3    0     0     0       893      5842     1801    37030     5194        939       5964      2903 0.429826365456208
+    	[Lambda-  1]   0         2    0     0     0      1000      5840     1707    35540     5164        939       5964      2903 0.384629999087855
+    	[Lambda-  1]   0         1    0     0     0       931      5859     1466    26668     5166        939       5964      2903 0.563878613873248
+    	[Lambda-  1]   0         0    1     1     1       931         0        0        0        0        939       5964      2903 0.563878613873248
+    	[Lambda-1] Phase 0, Id read: 1
+    	The protocol ran for 10.98 seconds.
+    	Calculating CPU CPI took 3.82 seconds
