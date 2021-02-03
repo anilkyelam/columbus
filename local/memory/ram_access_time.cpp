@@ -4,8 +4,6 @@
 // results16.out is better with 1.2^x datapoints 
 // Taking median result.
 
-#define _GNU_SOURCE
-#define N (1024*4)
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -54,7 +52,6 @@ unsigned long rand_xorshf96(void) {          //period 2^96-1
     return z;
 }
 
-
 int main()
 {
     uint64_t start, end;
@@ -85,7 +82,8 @@ int main()
 
     fptr = fopen("time_caches", "w");
     fprintf(fptr,"Time\n");
-    for(int trials = 0; trials<10000; trials++)
+    printf("===");
+    for(int trials = 0; trials<1000; trials++)
     {
         rdtsc();
         for(int i = 0; i < 10; i++) {
