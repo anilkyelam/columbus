@@ -1,0 +1,12 @@
+{
+    "Name": "02-03-13-34",
+    "Comments": "measuring channel errors; bps = 10; threshold=10500 mus",
+    "Lambda Name": "membus1536",
+    "Lambda URL": "https://m6e0lqe9sd.execute-api.me-south-1.amazonaws.com/latest/membus",
+    "Lambda Count": 100,
+    "Phases": 3,
+    "Bit Duration (secs)": 1,
+    "Num bits": 10,
+    "Outdir": "out/02-03-13-34",
+    "Region": "me-south-1"
+}

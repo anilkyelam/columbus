@@ -1,0 +1,1181 @@
+Starting lambda 1 (GUID: 02-03-19-49-1) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556c92f3c
+    	[Lambda-  1] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-1] Phase 0, Id read: 37
+    	[Lambda-1] Phase 1, Id read: 1
+    	[Lambda-1] Phase 2, Id read: 0
+    	The protocol ran for 30.96 seconds.
+    	Setting up channel between lambdas 37 and 1!
+    	Lambda 1: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 94 (GUID: 02-03-19-49-94) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555574d5dbc
+    	[Lambda- 94] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-94] Phase 0, Id read: 97
+    	[Lambda-94] Phase 1, Id read: 94
+    	[Lambda-94] Phase 2, Id read: 38
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 97 and 94!
+    	Lambda 94: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 84 (GUID: 02-03-19-49-84) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555564438fc
+    	[Lambda- 84] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-84] Phase 0, Id read: 84
+    	[Lambda-84] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 45 (GUID: 02-03-19-49-45) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555591187c
+    	[Lambda- 45] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-45] Phase 0, Id read: 45
+    	[Lambda-45] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 40 (GUID: 02-03-19-49-40) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556d322fc
+    	[Lambda- 40] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-40] Phase 0, Id read: 82
+    	[Lambda-40] Phase 1, Id read: 40
+    	[Lambda-40] Phase 2, Id read: 17
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 82 and 40!
+    	Lambda 40: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 83 (GUID: 02-03-19-49-83) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555bcfd7c
+    	[Lambda- 83] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-83] Phase 0, Id read: 83
+    	[Lambda-83] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 8 (GUID: 02-03-19-49-8) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555f6fe7c
+    	[Lambda-  8] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-8] Phase 0, Id read: 86
+    	[Lambda-8] Phase 1, Id read: 63
+    	[Lambda-8] Phase 2, Id read: 53
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 92 (GUID: 02-03-19-49-92) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555557193f7c
+    	[Lambda- 92] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-92] Phase 0, Id read: 92
+    	[Lambda-92] Phase 1, Id read: 87
+    	[Lambda-92] Phase 2, Id read: 72
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 92 and 87!
+    	Lambda 92: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 62 (GUID: 02-03-19-49-62) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555756b7fc
+    	[Lambda- 62] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-62] Phase 0, Id read: 62
+    	[Lambda-62] Phase 1, Id read: 0
+    	The protocol ran for 20.98 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.33 seconds
+Starting lambda 97 (GUID: 02-03-19-49-97) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555756a9bc
+    	[Lambda- 97] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-97] Phase 0, Id read: 97
+    	[Lambda-97] Phase 1, Id read: 94
+    	[Lambda-97] Phase 2, Id read: 38
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 97 and 94!
+    	Lambda 97: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 43 (GUID: 02-03-19-49-43) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555571a1bfc
+    	[Lambda- 43] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-43] Phase 0, Id read: 55
+    	[Lambda-43] Phase 1, Id read: 52
+    	[Lambda-43] Phase 2, Id read: 43
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 49 (GUID: 02-03-19-49-49) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555728d3bc
+    	[Lambda- 49] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-49] Phase 0, Id read: 54
+    	[Lambda-49] Phase 1, Id read: 49
+    	[Lambda-49] Phase 2, Id read: 42
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 54 and 49!
+    	Lambda 49: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 65 (GUID: 02-03-19-49-65) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556959ebc
+    	[Lambda- 65] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-65] Phase 0, Id read: 98
+    	[Lambda-65] Phase 1, Id read: 90
+    	[Lambda-65] Phase 2, Id read: 65
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 20 (GUID: 02-03-19-49-20) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555fe643c
+    	[Lambda- 20] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-20] Phase 0, Id read: 97
+    	[Lambda-20] Phase 1, Id read: 94
+    	[Lambda-20] Phase 2, Id read: 38
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 77 (GUID: 02-03-19-49-77) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555f304bc
+    	[Lambda- 77] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-77] Phase 0, Id read: 77
+    	[Lambda-77] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 15 (GUID: 02-03-19-49-15) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555ca5e7c
+    	[Lambda- 15] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-15] Phase 0, Id read: 21
+    	[Lambda-15] Phase 1, Id read: 15
+    	[Lambda-15] Phase 2, Id read: 0
+    	The protocol ran for 30.98 seconds.
+    	Setting up channel between lambdas 21 and 15!
+    	Lambda 15: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 9 (GUID: 02-03-19-49-9) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555572a43bc
+    	[Lambda-  9] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-9] Phase 0, Id read: 27
+    	[Lambda-9] Phase 1, Id read: 9
+    	[Lambda-9] Phase 2, Id read: 0
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 27 and 9!
+    	Lambda 9: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 76 (GUID: 02-03-19-49-76) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555645b9bc
+    	[Lambda- 76] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-76] Phase 0, Id read: 76
+    	[Lambda-76] Phase 1, Id read: 70
+    	[Lambda-76] Phase 2, Id read: 5
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 76 and 70!
+    	Lambda 76: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 31 (GUID: 02-03-19-49-31) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556b9a0bc
+    	[Lambda- 31] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-31] Phase 0, Id read: 31
+    	[Lambda-31] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 28 (GUID: 02-03-19-49-28) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555557480ebc
+    	[Lambda- 28] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-28] Phase 0, Id read: 28
+    	[Lambda-28] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 24 (GUID: 02-03-19-49-24) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556a1bd7c
+    	[Lambda- 24] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-24] Phase 0, Id read: 92
+    	[Lambda-24] Phase 1, Id read: 87
+    	[Lambda-24] Phase 2, Id read: 72
+    	The protocol ran for 30.98 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 93 (GUID: 02-03-19-49-93) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555564ca73c
+    	[Lambda- 93] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-93] Phase 0, Id read: 93
+    	[Lambda-93] Phase 1, Id read: 39
+    	[Lambda-93] Phase 2, Id read: 26
+    	The protocol ran for 30.98 seconds.
+    	Setting up channel between lambdas 93 and 39!
+    	Lambda 93: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.34 seconds
+Starting lambda 7 (GUID: 02-03-19-49-7) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555575a33bc
+    	[Lambda-  7] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-7] Phase 0, Id read: 59
+    	[Lambda-7] Phase 1, Id read: 7
+    	[Lambda-7] Phase 2, Id read: 0
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 59 and 7!
+    	Lambda 7: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 80 (GUID: 02-03-19-49-80) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555569aa4bc
+    	[Lambda- 80] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-80] Phase 0, Id read: 80
+    	[Lambda-80] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 25 (GUID: 02-03-19-49-25) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555557618e7c
+    	[Lambda- 25] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-25] Phase 0, Id read: 93
+    	[Lambda-25] Phase 1, Id read: 39
+    	[Lambda-25] Phase 2, Id read: 26
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 87 (GUID: 02-03-19-49-87) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555594ad7c
+    	[Lambda- 87] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-87] Phase 0, Id read: 92
+    	[Lambda-87] Phase 1, Id read: 87
+    	[Lambda-87] Phase 2, Id read: 72
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 92 and 87!
+    	Lambda 87: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 56 (GUID: 02-03-19-49-56) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555598c67c
+    	[Lambda- 56] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-56] Phase 0, Id read: 67
+    	[Lambda-56] Phase 1, Id read: 58
+    	[Lambda-56] Phase 2, Id read: 56
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 5 (GUID: 02-03-19-49-5) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555c85ffc
+    	[Lambda-  5] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-5] Phase 0, Id read: 76
+    	[Lambda-5] Phase 1, Id read: 70
+    	[Lambda-5] Phase 2, Id read: 5
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 88 (GUID: 02-03-19-49-88) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555910d3c
+    	[Lambda- 88] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-88] Phase 0, Id read: 88
+    	[Lambda-88] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 100 (GUID: 02-03-19-49-100) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555f100bc
+    	[Lambda-100] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-100] Phase 0, Id read: 100
+    	[Lambda-100] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 78 (GUID: 02-03-19-49-78) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555570b563c
+    	[Lambda- 78] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-78] Phase 0, Id read: 78
+    	[Lambda-78] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 10 (GUID: 02-03-19-49-10) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556f2bd7c
+    	[Lambda- 10] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-10] Phase 0, Id read: 60
+    	[Lambda-10] Phase 1, Id read: 10
+    	[Lambda-10] Phase 2, Id read: 0
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 60 and 10!
+    	Lambda 10: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 96 (GUID: 02-03-19-49-96) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555564759bc
+    	[Lambda- 96] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-96] Phase 0, Id read: 96
+    	[Lambda-96] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 81 (GUID: 02-03-19-49-81) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555566d48bc
+    	[Lambda- 81] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-81] Phase 0, Id read: 81
+    	[Lambda-81] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 35 (GUID: 02-03-19-49-35) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556471c3c
+    	[Lambda- 35] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-35] Phase 0, Id read: 35
+    	[Lambda-35] Phase 1, Id read: 0
+    	The protocol ran for 21.00 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 50 (GUID: 02-03-19-49-50) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555e474bc
+    	[Lambda- 50] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-50] Phase 0, Id read: 74
+    	[Lambda-50] Phase 1, Id read: 50
+    	[Lambda-50] Phase 2, Id read: 11
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 74 and 50!
+    	Lambda 50: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 41 (GUID: 02-03-19-49-41) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556b96bfc
+    	[Lambda- 41] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-41] Phase 0, Id read: 48
+    	[Lambda-41] Phase 1, Id read: 41
+    	[Lambda-41] Phase 2, Id read: 0
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 48 and 41!
+    	Lambda 41: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 17 (GUID: 02-03-19-49-17) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556c8debc
+    	[Lambda- 17] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-17] Phase 0, Id read: 82
+    	[Lambda-17] Phase 1, Id read: 40
+    	[Lambda-17] Phase 2, Id read: 17
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 13 (GUID: 02-03-19-49-13) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555a832fc
+    	[Lambda- 13] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-13] Phase 0, Id read: 13
+    	[Lambda-13] Phase 1, Id read: 0
+    	The protocol ran for 20.97 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 55 (GUID: 02-03-19-49-55) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556f4bd3c
+    	[Lambda- 55] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-55] Phase 0, Id read: 55
+    	[Lambda-55] Phase 1, Id read: 36
+    	[Lambda-55] Phase 2, Id read: 43
+    	The protocol ran for 30.97 seconds.
+    	Setting up channel between lambdas 55 and 36!
+    	Lambda 55: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 52 (GUID: 02-03-19-49-52) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555610e2fc
+    	[Lambda- 52] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-52] Phase 0, Id read: 52
+    	[Lambda-52] Phase 1, Id read: 0
+    	The protocol ran for 20.96 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 14 (GUID: 02-03-19-49-14) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556098ebc
+    	[Lambda- 14] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-14] Phase 0, Id read: 19
+    	[Lambda-14] Phase 1, Id read: 14
+    	[Lambda-14] Phase 2, Id read: 0
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 19 and 14!
+    	Lambda 14: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 38 (GUID: 02-03-19-49-38) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555571462fc
+    	[Lambda- 38] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-38] Phase 0, Id read: 97
+    	[Lambda-38] Phase 1, Id read: 94
+    	[Lambda-38] Phase 2, Id read: 38
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 47 (GUID: 02-03-19-49-47) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555755857c
+    	[Lambda- 47] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-47] Phase 0, Id read: 51
+    	[Lambda-47] Phase 1, Id read: 47
+    	[Lambda-47] Phase 2, Id read: 23
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 51 and 47!
+    	Lambda 47: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 11 (GUID: 02-03-19-49-11) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555570b54bc
+    	[Lambda- 11] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-11] Phase 0, Id read: 74
+    	[Lambda-11] Phase 1, Id read: 50
+    	[Lambda-11] Phase 2, Id read: 11
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 73 (GUID: 02-03-19-49-73) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555a46c3c
+    	[Lambda- 73] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-73] Phase 0, Id read: 73
+    	[Lambda-73] Phase 1, Id read: 0
+    	The protocol ran for 20.98 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 68 (GUID: 02-03-19-49-68) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555573f3cfc
+    	[Lambda- 68] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-68] Phase 0, Id read: 68
+    	[Lambda-68] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 44 (GUID: 02-03-19-49-44) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555573599bc
+    	[Lambda- 44] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-44] Phase 0, Id read: 44
+    	[Lambda-44] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 22 (GUID: 02-03-19-49-22) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555be72fc
+    	[Lambda- 22] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-22] Phase 0, Id read: 92
+    	[Lambda-22] Phase 1, Id read: 87
+    	[Lambda-22] Phase 2, Id read: 72
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 95 (GUID: 02-03-19-49-95) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555564031fc
+    	[Lambda- 95] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-95] Phase 0, Id read: 95
+    	[Lambda-95] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 16 (GUID: 02-03-19-49-16) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555edff3c
+    	[Lambda- 16] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-16] Phase 0, Id read: 29
+    	[Lambda-16] Phase 1, Id read: 16
+    	[Lambda-16] Phase 2, Id read: 6
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 29 and 16!
+    	Lambda 16: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 66 (GUID: 02-03-19-49-66) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555564f0ebc
+    	[Lambda- 66] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-66] Phase 0, Id read: 66
+    	[Lambda-66] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 12 (GUID: 02-03-19-49-12) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556894ebc
+    	[Lambda- 12] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-12] Phase 0, Id read: 98
+    	[Lambda-12] Phase 1, Id read: 90
+    	[Lambda-12] Phase 2, Id read: 65
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 59 (GUID: 02-03-19-49-59) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555568f553c
+    	[Lambda- 59] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-59] Phase 0, Id read: 59
+    	[Lambda-59] Phase 1, Id read: 7
+    	[Lambda-59] Phase 2, Id read: 0
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 59 and 7!
+    	Lambda 59: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.33 seconds
+Starting lambda 90 (GUID: 02-03-19-49-90) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555557383b7c
+    	[Lambda- 90] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-90] Phase 0, Id read: 98
+    	[Lambda-90] Phase 1, Id read: 90
+    	[Lambda-90] Phase 2, Id read: 65
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 98 and 90!
+    	Lambda 90: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 30 (GUID: 02-03-19-49-30) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555569ecd3c
+    	[Lambda- 30] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-30] Phase 0, Id read: 34
+    	[Lambda-30] Phase 1, Id read: 32
+    	[Lambda-30] Phase 2, Id read: 30
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 6 (GUID: 02-03-19-49-6) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555638887c
+    	[Lambda-  6] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-6] Phase 0, Id read: 29
+    	[Lambda-6] Phase 1, Id read: 16
+    	[Lambda-6] Phase 2, Id read: 6
+    	The protocol ran for 30.96 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 4 (GUID: 02-03-19-49-4) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555db60fc
+    	[Lambda-  4] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-4] Phase 0, Id read: 54
+    	[Lambda-4] Phase 1, Id read: 49
+    	[Lambda-4] Phase 2, Id read: 42
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 75 (GUID: 02-03-19-49-75) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555570ee63c
+    	[Lambda- 75] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-75] Phase 0, Id read: 75
+    	[Lambda-75] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 91 (GUID: 02-03-19-49-91) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555624cebc
+    	[Lambda- 91] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-91] Phase 0, Id read: 91
+    	[Lambda-91] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 99 (GUID: 02-03-19-49-99) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555564bad3c
+    	[Lambda- 99] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-99] Phase 0, Id read: 99
+    	[Lambda-99] Phase 1, Id read: 0
+    	The protocol ran for 20.98 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 85 (GUID: 02-03-19-49-85) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555569c1ebc
+    	[Lambda- 85] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-85] Phase 0, Id read: 85
+    	[Lambda-85] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.33 seconds
+Starting lambda 71 (GUID: 02-03-19-49-71) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555755febc
+    	[Lambda- 71] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-71] Phase 0, Id read: 71
+    	[Lambda-71] Phase 1, Id read: 18
+    	[Lambda-71] Phase 2, Id read: 0
+    	The protocol ran for 30.98 seconds.
+    	Setting up channel between lambdas 71 and 18!
+    	Lambda 71: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.33 seconds
+Starting lambda 48 (GUID: 02-03-19-49-48) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555988ebc
+    	[Lambda- 48] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-48] Phase 0, Id read: 48
+    	[Lambda-48] Phase 1, Id read: 41
+    	[Lambda-48] Phase 2, Id read: 0
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 48 and 41!
+    	Lambda 48: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 74 (GUID: 02-03-19-49-74) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556e391bc
+    	[Lambda- 74] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-74] Phase 0, Id read: 74
+    	[Lambda-74] Phase 1, Id read: 50
+    	[Lambda-74] Phase 2, Id read: 11
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 74 and 50!
+    	Lambda 74: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 32 (GUID: 02-03-19-49-32) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555556a0ebc
+    	[Lambda- 32] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-32] Phase 0, Id read: 34
+    	[Lambda-32] Phase 1, Id read: 32
+    	[Lambda-32] Phase 2, Id read: 30
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 34 and 32!
+    	Lambda 32: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 26 (GUID: 02-03-19-49-26) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555729fd7c
+    	[Lambda- 26] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-26] Phase 0, Id read: 93
+    	[Lambda-26] Phase 1, Id read: 39
+    	[Lambda-26] Phase 2, Id read: 26
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 61 (GUID: 02-03-19-49-61) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555567bf9bc
+    	[Lambda- 61] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-61] Phase 0, Id read: 61
+    	[Lambda-61] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 58 (GUID: 02-03-19-49-58) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555f503bc
+    	[Lambda- 58] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-58] Phase 0, Id read: 67
+    	[Lambda-58] Phase 1, Id read: 58
+    	[Lambda-58] Phase 2, Id read: 56
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 67 and 58!
+    	Lambda 58: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 42 (GUID: 02-03-19-49-42) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555560c79bc
+    	[Lambda- 42] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-42] Phase 0, Id read: 54
+    	[Lambda-42] Phase 1, Id read: 49
+    	[Lambda-42] Phase 2, Id read: 42
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 29 (GUID: 02-03-19-49-29) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555a06b3c
+    	[Lambda- 29] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-29] Phase 0, Id read: 29
+    	[Lambda-29] Phase 1, Id read: 16
+    	[Lambda-29] Phase 2, Id read: 6
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 29 and 16!
+    	Lambda 29: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 53 (GUID: 02-03-19-49-53) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556cc277c
+    	[Lambda- 53] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-53] Phase 0, Id read: 86
+    	[Lambda-53] Phase 1, Id read: 63
+    	[Lambda-53] Phase 2, Id read: 53
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 67 (GUID: 02-03-19-49-67) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555676a63c
+    	[Lambda- 67] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-67] Phase 0, Id read: 67
+    	[Lambda-67] Phase 1, Id read: 58
+    	[Lambda-67] Phase 2, Id read: 56
+    	The protocol ran for 30.98 seconds.
+    	Setting up channel between lambdas 67 and 58!
+    	Lambda 67: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 18 (GUID: 02-03-19-49-18) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555677c3c
+    	[Lambda- 18] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-18] Phase 0, Id read: 71
+    	[Lambda-18] Phase 1, Id read: 18
+    	[Lambda-18] Phase 2, Id read: 0
+    	The protocol ran for 30.96 seconds.
+    	Setting up channel between lambdas 71 and 18!
+    	Lambda 18: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 89 (GUID: 02-03-19-49-89) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556406bfc
+    	[Lambda- 89] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-89] Phase 0, Id read: 89
+    	[Lambda-89] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.30 seconds
+Starting lambda 57 (GUID: 02-03-19-49-57) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555b4a9bc
+    	[Lambda- 57] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-57] Phase 0, Id read: 57
+    	[Lambda-57] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 79 (GUID: 02-03-19-49-79) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555e8347c
+    	[Lambda- 79] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-79] Phase 0, Id read: 79
+    	[Lambda-79] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 23 (GUID: 02-03-19-49-23) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555566699bc
+    	[Lambda- 23] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-23] Phase 0, Id read: 51
+    	[Lambda-23] Phase 1, Id read: 47
+    	[Lambda-23] Phase 2, Id read: 23
+    	The protocol ran for 30.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 27 (GUID: 02-03-19-49-27) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555560039bc
+    	[Lambda- 27] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-27] Phase 0, Id read: 27
+    	[Lambda-27] Phase 1, Id read: 9
+    	[Lambda-27] Phase 2, Id read: 0
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 27 and 9!
+    	Lambda 27: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 72 (GUID: 02-03-19-49-72) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555739173c
+    	[Lambda- 72] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-72] Phase 0, Id read: 92
+    	[Lambda-72] Phase 1, Id read: 87
+    	[Lambda-72] Phase 2, Id read: 72
+    	The protocol ran for 30.98 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 86 (GUID: 02-03-19-49-86) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555563a59bc
+    	[Lambda- 86] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-86] Phase 0, Id read: 86
+    	[Lambda-86] Phase 1, Id read: 63
+    	[Lambda-86] Phase 2, Id read: 53
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 86 and 63!
+    	Lambda 86: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 63 (GUID: 02-03-19-49-63) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556f7f43c
+    	[Lambda- 63] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-63] Phase 0, Id read: 86
+    	[Lambda-63] Phase 1, Id read: 63
+    	[Lambda-63] Phase 2, Id read: 53
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 86 and 63!
+    	Lambda 63: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 51 (GUID: 02-03-19-49-51) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555556995bc
+    	[Lambda- 51] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-51] Phase 0, Id read: 51
+    	[Lambda-51] Phase 1, Id read: 47
+    	[Lambda-51] Phase 2, Id read: 23
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 51 and 47!
+    	Lambda 51: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 19 (GUID: 02-03-19-49-19) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555560071fc
+    	[Lambda- 19] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-19] Phase 0, Id read: 19
+    	[Lambda-19] Phase 1, Id read: 14
+    	[Lambda-19] Phase 2, Id read: 0
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 19 and 14!
+    	Lambda 19: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 69 (GUID: 02-03-19-49-69) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555573d03bc
+    	[Lambda- 69] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-69] Phase 0, Id read: 69
+    	[Lambda-69] Phase 1, Id read: 0
+    	The protocol ran for 20.99 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 64 (GUID: 02-03-19-49-64) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555617e1bc
+    	[Lambda- 64] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-64] Phase 0, Id read: 64
+    	[Lambda-64] Phase 1, Id read: 0
+    	The protocol ran for 20.96 seconds.
+    	No neighbors to talk to or not selected as channel participant
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 82 (GUID: 02-03-19-49-82) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x55555602217c
+    	[Lambda- 82] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-82] Phase 0, Id read: 82
+    	[Lambda-82] Phase 1, Id read: 40
+    	[Lambda-82] Phase 2, Id read: 17
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 82 and 40!
+    	Lambda 82: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 2 (GUID: 02-03-19-49-2) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556b04e7c
+    	[Lambda-  2] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-2] Phase 0, Id read: 46
+    	[Lambda-2] Phase 1, Id read: 2
+    	[Lambda-2] Phase 2, Id read: 0
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 46 and 2!
+    	Lambda 2: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 3 (GUID: 02-03-19-49-3) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555f4f3bc
+    	[Lambda-  3] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-3] Phase 0, Id read: 33
+    	[Lambda-3] Phase 1, Id read: 3
+    	[Lambda-3] Phase 2, Id read: 0
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 33 and 3!
+    	Lambda 3: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 33 (GUID: 02-03-19-49-33) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555556cfc67c
+    	[Lambda- 33] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-33] Phase 0, Id read: 33
+    	[Lambda-33] Phase 1, Id read: 3
+    	[Lambda-33] Phase 2, Id read: 0
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 33 and 3!
+    	Lambda 33: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 46 (GUID: 02-03-19-49-46) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555564cd87c
+    	[Lambda- 46] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-46] Phase 0, Id read: 46
+    	[Lambda-46] Phase 1, Id read: 2
+    	[Lambda-46] Phase 2, Id read: 0
+    	The protocol ran for 30.96 seconds.
+    	Setting up channel between lambdas 46 and 2!
+    	Lambda 46: I'm a sender!
+    	Sending bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
+Starting lambda 36 (GUID: 02-03-19-49-36) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555991bfc
+    	[Lambda- 36] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-36] Phase 0, Id read: 55
+    	[Lambda-36] Phase 1, Id read: 36
+    	[Lambda-36] Phase 2, Id read: 59
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 55 and 36!
+    	Lambda 36: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 70 (GUID: 02-03-19-49-70) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x555555dc6ebc
+    	[Lambda- 70] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-70] Phase 0, Id read: 76
+    	[Lambda-70] Phase 1, Id read: 70
+    	[Lambda-70] Phase 2, Id read: 5
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 76 and 70!
+    	Lambda 70: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.31 seconds
+Starting lambda 39 (GUID: 02-03-19-49-39) at 2021-02-04 03:49:29	C++11
+    	Added object temp to s3 bucket lambda-cpp-me-south-1
+    	clock precision level: 3
+    	Cache line size: 64 B
+    	Found an address that falls on two cache lines: 0x5555562174fc
+    	[Lambda- 39] Phase, Position, Bit, Sent, Read, Lat Size, Lat Mean, Lat Std, Lat Max, Lat Min, Base Size, Base Mean, Base Std, KSValue
+    	[Lambda-39] Phase 0, Id read: 93
+    	[Lambda-39] Phase 1, Id read: 39
+    	[Lambda-39] Phase 2, Id read: 26
+    	The protocol ran for 30.99 seconds.
+    	Setting up channel between lambdas 93 and 39!
+    	Lambda 39: I'm a receiver!
+    	Receiving bits.. bit interval=500 mus, threshold=10800
+    	Calculating CPU CPI took 0.32 seconds
