@@ -19,6 +19,8 @@ import subprocess
 import re
 import statistics
 import random
+import copy
+import numpy as np
 
 
 MAX_CONCURRENT = 1500
@@ -26,6 +28,19 @@ req_q = Queue(MAX_CONCURRENT * 2)
 data_q = Queue(MAX_CONCURRENT * 2)
 order_q = Queue(MAX_CONCURRENT * 2)
 samples = False
+
+# Endpoint of the covert channel
+class ChannelInfo:
+    id = None
+    sender_id = None
+    receiver_id = None
+    rate_bps = None
+    bits_xmited = None
+    sender_erasures = None      # erasures detected on sender
+    receiver_erasures = None      # erasures detected on receiver
+    sent_data = None
+    rcvd_data = None
+    error_rate = None
 
 # Find majority elements in a list
 def find_majority(arr): 
@@ -71,7 +86,9 @@ def worker():
     global last_updated
 
     while True:
-        (url, id, guid, syncpt, phases, bits_in_id, bit_duration, start_delay, use_s3, s3bucket, s3prefix, tmpdir, aws_profile, retrys3, shared_lock) = req_q.get()
+        (url, id, guid, syncpt, phases, bits_in_id, bit_duration, start_delay, 
+        use_s3, s3bucket, s3prefix, tmpdir, aws_profile, retrys3, shared_lock, 
+        channel, chrate, chthresh) = req_q.get()
 
         s3file = guid
         body = { 
@@ -84,7 +101,11 @@ def worker():
             "samples": samples, 
             "s3bucket": s3bucket if use_s3 else "", 
             "s3key": s3file if use_s3 else "",
-            "guid": guid
+            "guid": guid,
+            "channel": channel,
+            "repeat_phases": False if channel else True,
+            "rate": chrate,
+            "threshold": chthresh
         }
 
         # Invoke lambda (unless this is a follow-up run that just downloads resuts of an earlier experiment)
@@ -94,7 +115,7 @@ def worker():
 
         # Wait for the results
         if use_s3:
-            S3_FILE_CHECK_TIMEOUT_SECS = 150
+            S3_FILE_CHECK_TIMEOUT_SECS = 10     # 150 FIXME
             timeout_secs = start_delay + phases*(bits_in_id+1)*bit_duration + S3_FILE_CHECK_TIMEOUT_SECS if not retrys3 else S3_FILE_CHECK_TIMEOUT_SECS
             start = time.time()
             timeout = time.time() + timeout_secs
@@ -197,6 +218,9 @@ def main():
     parser.add_argument('-seq', '--sequence', action='store_true', help='invoke lambdas sequentially one after another (requires huge start-up delay)', default=False)
     parser.add_argument('--useapi', action='store_true', help='Use response returned by API for data rather than writing to storage account', default=False)
     parser.add_argument('--retrys3', action='store_true', help='Do not invoke lambdas, just retry downloading results from S3 for an earlier experiment (provided with --outdir)', default=False)
+    parser.add_argument('-ch', '--channel', action='store_true', help='Setup covert channel between two neighbors and measure bandwidth', default=False)
+    parser.add_argument('-chr', '--chrate', action='store', type=int,  help='Send data on the channel at this rate in bps', default=1000)
+    parser.add_argument('-cht', '--chthresh', action='store', type=int,  help='Custom threshold to use to classify 0 and 1 bits in the receiver', default=10500)
     
     # Launch lambdas from another account (make sure the credentials are added as a profile as directed in: https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-profiles.html)
     parser.add_argument('-sa', '--secaccount', action='store', help='profile name of the second account if we want to some launch lambdas from a different account, expects URL in cache')
@@ -289,14 +313,16 @@ def main():
             tag = accountid if args.secaccount else (args.name if args.secname else "DEFAULT")
             print("Invoking lambda {0} with tag {1}".format(id, tag))
             req_q.put((args.url, id, guid, sync_point, phases, args.idbits, args.bitduration, args.delay,
-                not args.useapi, s3bucket, s3prefix, tmpdir, None, args.retrys3, shared_lock))
+                not args.useapi, s3bucket, s3prefix, tmpdir, None, args.retrys3, shared_lock, 
+                args.channel, args.chrate, args.chthresh))
             lambda_tags[id] = tag
         else:
             # if second account if provided, use it for every other lambda
             tag = secaccountid if args.secaccount else (args.secname if args.secname else "SECOND")
             print("Invoking lambda {0} with tag {1}".format(id, tag))
             req_q.put((args.securl, id, guid, sync_point, phases, args.idbits, args.bitduration, args.delay,
-                not args.useapi, s3bucket_sec, s3prefix, tmpdir, args.secaccount, args.retrys3, shared_lock))
+                not args.useapi, s3bucket_sec, s3prefix, tmpdir, args.secaccount, args.retrys3, shared_lock,
+                args.channel, args.chrate, args.chthresh))
             lambda_tags[id] = tag
 
         if args.sequence:
@@ -317,6 +343,8 @@ def main():
     respath = os.path.join(resdir, args.out)
     statspath = os.path.join(resdir, "stats.json")
     configpath = os.path.join(resdir, "config.json")
+    chanpath = os.path.join(resdir, "channels.csv")
+    chanstatspath = os.path.join(resdir, "channelstats.json")
 
     # Save configuration        
     config = {
@@ -337,6 +365,8 @@ def main():
     # Parse responses and organize results into files
     first = True
     idstats = {}
+    chaninfo = {}
+    chanid = 0
     with open(respath, 'w') as csvfile:
         with open(logpath, "w") as logfile:
             while not data_q.empty():
@@ -394,6 +424,35 @@ def main():
                     id = int(item_d["Id"])
                     item_d["Tag"] = lambda_tags[id]
 
+                if "Channel" in item_d:
+                    cinfo = item_d["Channel"]
+                    # print(cinfo)
+                    role = cinfo["Role"]
+                    sender_id = int(cinfo["Sender Id"])
+                    if sender_id not in chaninfo:
+                        chanid += 1
+                        chaninfo[sender_id] = {}
+                        chaninfo[sender_id]["Id"] = chanid
+                        chaninfo[sender_id]["Sender"] = sender_id
+                        chaninfo[sender_id]["Receiver"] = cinfo["Receiver Id"]
+                        chaninfo[sender_id]["Rate"] = cinfo["Rate"]
+                        chaninfo[sender_id]["Bits"] = cinfo["Bits"]
+                        chaninfo[sender_id]["Sent Data"] = None
+                        chaninfo[sender_id]["Rcvd Data"] = None
+                        chaninfo[sender_id]["Sender Erasures"] = None
+                        chaninfo[sender_id]["Receiver Erasures"] = None
+                    if role == "Sender":    
+                        chaninfo[sender_id]["Sent Data"] = cinfo["Data"]
+                        chaninfo[sender_id]["SErasures"] = cinfo["Erasures"]
+                    else:                   
+                        chaninfo[sender_id]["Rcvd Data"] = cinfo["Data"]
+                        chaninfo[sender_id]["RErasures"] = cinfo["Erasures"]
+                    item_d["Channel"] = chaninfo[sender_id]["Id"]
+                else:
+                    item_d["Channel"] = "-"
+                item_d["Bit-0 Pvalue"] = "-"        # TODO: Remove
+                item_d["Bit-1 Pvalue"] = "-"        # TODO: Remove
+
                 # Write col headers
                 if first:
                     writer = csv.DictWriter(csvfile, fieldnames=list(item_d.keys()))
@@ -431,10 +490,10 @@ def main():
 
                         line += format_str.format(post_val)
 
-                if first:
-                    print("")
-                    print(firstline)
-                print(line)
+                # if first:
+                #     print("============== LAMBDAS ===================")
+                #     print(firstline)
+                # print(line)
 
                 first = False
 
@@ -461,16 +520,102 @@ def main():
             "Count": args.count,
             "Clusters": len([k for k in clusters.keys() if k != errorsk]),
             "Error Rate": len(clusters[errorsk])*100/args.count if errorsk in clusters else 0,
-            "Mean": statistics.mean(sizes),
-            "Median": statistics.median(sizes),
-            "Min": min(sizes),
-            "Max": max(sizes),
+            "Mean": statistics.mean(sizes) if sizes else 0,
+            "Median": statistics.median(sizes) if sizes else 0,
+            "Min": min(sizes) if sizes else 0,
+            "Max": max(sizes) if sizes else 0,
             "Sizes": sizes
         }
 
-        print(stats_)
+        # print(stats_)
         with open(statspath, 'w', encoding='utf-8') as f:
             json.dump(stats_, f, ensure_ascii=False, indent=4)
+
+    # Analyze covert channel bandwidth info
+    if chaninfo:
+        error_list = []
+        error1_list = []
+        error0_list = []
+        count = 0
+        rate = 0
+        with open(chanpath, 'w') as csvfile:
+            first = True
+            for sender_id, channel in chaninfo.items():
+
+                # Calculate errors
+                errors = 0
+                bit1errors = 0
+                bit0errors = 0
+                ones = 0
+                zeroes = 0
+                nbits = int(channel["Bits"])
+                sent_data = channel["Sent Data"]
+                rcvd_data = channel["Rcvd Data"]
+                if not sent_data or not rcvd_data:
+                    print("ERROR with channel {}", sender_id)
+                    continue
+                for i in range(nbits):
+                    if sent_data[i] != rcvd_data[i]:    errors += 1
+                    if sent_data[i] == "1" and sent_data[i] != rcvd_data[i]:    bit1errors += 1
+                    if sent_data[i] == "0" and sent_data[i] != rcvd_data[i]:    bit0errors += 1
+                    if sent_data[i] == "1":             ones += 1
+                    if sent_data[i] == "0":             zeroes += 1
+                channel["Errors"] = errors
+                channel["Error %"] = errors * 100 / nbits
+                error_list.append(errors * 100 / nbits)
+                channel["Ones"] = ones
+                channel["OneErrs"] = bit1errors
+                channel["OneErr%"] = int(bit1errors * 100 / ones) if ones else "-"
+                if ones:    error1_list.append(bit1errors * 100 / ones)
+                channel["Zeroes"] = zeroes
+                channel["ZeroErrs"] = bit0errors
+                channel["ZeroErr%"] = int(bit0errors * 100 / zeroes) if zeroes else "-"
+                if zeroes:  error0_list.append(bit0errors * 100 / zeroes)
+                rate = int(channel["Rate"])
+
+                # Write to file
+                if first:
+                    writer = csv.DictWriter(csvfile, fieldnames=list(channel.keys()))
+                    writer.writeheader()
+                # append row to results
+                writer.writerow(channel)
+
+                # Print stdout
+                cols = ["Id", "Sender", "Receiver", "Rate", "Bits", "Errors", "Ones", "OneErrs", "OneErr%", 
+                        "Zeroes", "ZeroErrs", "ZeroErr%", "SErasures", "RErasures", "Confidence"]
+
+                firstline = ""
+                line = ""
+                for k in cols:
+                    format_str = "{:<10}"
+                    if k in channel:
+                        if first:   firstline += format_str.format(k)       # col headers
+                        line += format_str.format(copy.deepcopy(channel[k]))
+
+                if first:
+                    print("========== CHANNELS ===============")
+                    print(firstline)
+                print(line)
+                count += 1
+                first = False
+
+        error_mean = np.mean(error_list)
+        channel_stats = {
+            "Channel Count": count,
+            "Channel Rate": rate,
+            "Effective Channel Rate": rate - (2 * error_mean * rate / 100),
+            "Channel Threshold": args.chthresh,
+            "Errors Mean": np.mean(error_list), 
+            "Errors Std" : np.std(error_list),
+            "1-bit Errors Mean": np.mean(error1_list), 
+            "1-bit Errors Std" : np.std(error1_list),
+            "0-bit Errors Mean": np.mean(error0_list), 
+            "0-bit Errors Std" : np.std(error0_list),
+        }
+        print(channel_stats)
+        with open(chanstatspath, 'w', encoding='utf-8') as f:
+            json.dump(channel_stats, f, ensure_ascii=False, indent=4)
+        print("Channel info at: ", chanpath)
 
 
 if __name__ == '__main__':

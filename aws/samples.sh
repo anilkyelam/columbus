@@ -17,15 +17,15 @@ function plot_each() {
     #     # echo "$i $base"
     # done <<< "$files"
 
-    labelincr=1
-    files=$(find $outdir -name 'bit0_samples*')
-    while read -r i; do
-        base=$(basename $i)
-        label=${base/#"samples"} 
-        fileparam="$fileparam -d $i -l $label -cmi $labelincr -li $labelincr"
-        labelincr=0
-        # echo "$i $base"
-    done <<< "$files"
+    # labelincr=1
+    # files=$(find $outdir -name 'bit0_samples*')
+    # while read -r i; do
+    #     base=$(basename $i)
+    #     label=${base/#"samples"} 
+    #     fileparam="$fileparam -d $i -l $label -cmi $labelincr -li $labelincr"
+    #     labelincr=0
+    #     # echo "$i $base"
+    # done <<< "$files"
 
     labelincr=1
     files=$(find $outdir -name 'bit1_samples*')
@@ -41,7 +41,7 @@ function plot_each() {
     mkdir -p plots
     if [ -z "$plotname" ];  then    plotname=`basename $outdir`;    fi
     plot=plots/${plotname}.pdf
-    python plot.py -z cdf $fileparam -xl "Latency (Cycles)" -yc "Latencies" -o $plot -nm -nt 5 -ll none
+    python plot.py -z cdf $fileparam -xl "Latency (Cycles)" -yc "Latencies" -o $plot -nm -nt 10 -ll none
     echo "Plot at: $plot"
     display $plot &
 }
@@ -105,6 +105,41 @@ function plot_each_ks() {
 }
 
 
+# Plot base 0-bit & 1-bit samples statistics
+function plot_each_stats() {
+    outdir=$1
+    plotname=$2
+    expname=$3
+        
+    # Do KS-statistic analysis for the experiment
+    # this prepares re-classified samples
+    python analyze.py -i $expname -ss; 
+
+    plots=""
+    basestats="$outdir/basestats.csv"
+    bit0stats="$outdir/bit0stats.csv"
+    bit1stats="$outdir/bit1stats.csv"
+    # if [ -f "$basestats" ]; then    plots="$plots -dyc $basestats Mean -l BaseMean";        fi
+    # if [ -f "$basestats" ]; then    plots="$plots -dyc $basestats Median -l BaseMedian";        fi
+    # if [ -f "$bit0stats" ]; then    plots="$plots -dyc $bit0stats Mean -l Bit0_Mean";        fi
+    # if [ -f "$bit0stats" ]; then    plots="$plots -dyc $bit0stats Median -l Bit0_Median";        fi
+    # if [ -f "$bit0stats" ]; then    plots="$plots -dyc $bit0stats 80tile -l Bit0_80tile";        fi
+    # if [ -f "$bit0stats" ]; then    plots="$plots -dyc $bit0stats 90tile -l Bit0_90tile";        fi
+    if [ -f "$bit1stats" ]; then    plots="$plots -dyc $bit1stats Mean -l Bit1_Mean";        fi
+    # if [ -f "$bit1stats" ]; then    plots="$plots -dyc $bit1stats Median -l Bit1_Median";        fi
+    # if [ -f "$bit1stats" ]; then    plots="$plots -dyc $bit1stats 80tile -l Bit1_80tile";        fi
+    # if [ -f "$bit0stats" ]; then    plots="$plots -dyc $bit0stats 90tile -l Bit0_90tile";        fi
+
+    # Plot regular samples
+    mkdir -p plots
+    if [ -z "$plotname" ];  then    plotname=`basename $outdir`;    fi
+    plot=plots/${plotname}.pdf
+    python plot.py -z cdf $plots -xl "Latency (Cycles)"  -o $plot -nt 1
+    echo "Plot at: $plot"
+    display $plot &
+}
+
+
 # Plot base & 1-bit latencies, one CDF curve
 function combine() {
     outdir=$1
@@ -156,8 +191,9 @@ function combine() {
 # Find 
 expname=$1
 if [ -z "$expname" ];  then  expname=$(ls -t out/ | head -n1);    fi
-plot_each "out/$expname" "samples_$expname"
+# plot_each "out/$expname" "samples_$expname"
 # plot_each_ks "out/$expname" "ks_samples_$expname" "$expname"
+plot_each_stats "out/$expname" "samples_stats_$expname" "$expname"
 
 
 # # Final plot for context switching

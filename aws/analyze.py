@@ -12,6 +12,7 @@ import glob
 import math 
 from shutil import copyfile
 import numpy as np
+import statistics as ss
 
 
 # Constants
@@ -327,6 +328,60 @@ def kstest_samples_analysis(expname, entries):
                 copyfile(os.path.join(expdir, "bit1_samples{0}".format(e.id)), os.path.join(outdir, outfile_name))
 
 
+# Analyze collected latency samples and calculate stats
+def prepare_samples_stats(expname):
+    datafile = "log"
+    expdir = os.path.join("out", expname)
+
+    # Base sample stats
+    outfile = "basestats.csv"
+    outpath = os.path.join("out", expname, outfile)
+    count = 0
+    base_files = glob.glob("{0}/base_samples*".format(expdir))
+    with open(outpath, 'w') as csvfile:
+        fieldnames = ["Mean", "Median", "50tile", "80tile", "90tile"]
+        writer = csv.writer(csvfile)
+        writer.writerow(fieldnames)     # Write header
+        for path in base_files:
+            samples = [int(l) for l in open(path).readlines()[1:]]
+            if len(samples) > 0:
+                writer.writerow([ss.mean(samples), ss.median(samples), np.percentile(samples, 50), np.percentile(samples, 80), np.percentile(samples, 90)])
+                count += 1
+    print("Wrote stats for {} base sample entries in {}".format(count, outpath))
+
+    # Bit 0 sample stats
+    outfile = "bit0stats.csv"
+    outpath = os.path.join("out", expname, outfile)
+    count = 0
+    base_files = glob.glob("{0}/bit0_samples*".format(expdir))
+    with open(outpath, 'w') as csvfile:
+        fieldnames = ["Mean", "Median", "50tile", "80tile", "90tile"]
+        writer = csv.writer(csvfile)
+        writer.writerow(fieldnames)     # Write header
+        for path in base_files:
+            samples = [int(l) for l in open(path).readlines()[1:]]
+            if len(samples) > 0:
+                writer.writerow([ss.mean(samples), ss.median(samples), np.percentile(samples, 50), np.percentile(samples, 80), np.percentile(samples, 90)])
+                count += 1
+    print("Wrote stats for {} base sample entries in {}".format(count, outpath))
+
+    # Bit 1 sample stats
+    outfile = "bit1stats.csv"
+    outpath = os.path.join("out", expname, outfile)
+    count = 0
+    base_files = glob.glob("{0}/bit1_samples*".format(expdir))
+    with open(outpath, 'w') as csvfile:
+        fieldnames = ["Mean", "Median", "50tile", "80tile", "90tile"]
+        writer = csv.writer(csvfile)
+        writer.writerow(fieldnames)     # Write header
+        for path in base_files:
+            samples = [int(l) for l in open(path).readlines()[1:]]
+            if len(samples) > 0:
+                writer.writerow([ss.mean(samples), ss.median(samples), np.percentile(samples, 50), np.percentile(samples, 80), np.percentile(samples, 90)])
+                count += 1
+    print("Wrote stats for {} base sample entries in {}".format(count, outpath))
+
+
 # Estimates Kolmogoroc-Smirnov statistic as a measure of difference between two samples
 # Assumes that number of samples ~ O(1000) and values are all between MIN_VALUE and MAX_VALUE.
 # https://en.wikipedia.org/wiki/Kolmogorov%E2%80%93Smirnov_test
@@ -588,6 +643,7 @@ def main():
     parser.add_argument('-cc', '--cluster_correlation', action='store_true', help='do cluster correlation between two different runs taking warm start into account', default=False)
     parser.add_argument('-cci', '--cc_expname', action='store', help='second run to perform cluster correlation against')
     parser.add_argument('-da', '--dataaz', action='store_true', help='do analysis on data collected about lambdas for colocated groups', default=False)
+    parser.add_argument('-ss', '--samplestats', action='store_true', help='prepare some statistics from the samples files', default=False)
     args = parser.parse_args()
     
     entries = parse_results_file(args.expname)
@@ -612,6 +668,9 @@ def main():
 
     if args.dataaz:
         data_analysis(args.expname, entries)
+
+    if args.samplestats:
+        prepare_samples_stats(args.expname)
 
 if __name__ == "__main__":
     main()
