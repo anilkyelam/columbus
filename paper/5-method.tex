@@ -1,7 +1,6 @@
-\section{Neighbor Discovery Protocol}
-\label{sec:technique}
+
  
-Co-residence detection for lambdas must be quick, as lambdas are ephemeral by
+\del{Co-residence detection for lambdas must be quick, as lambdas are ephemeral by
 nature. As noted earlier, co-residence detection is faster when co-residing
 instances on each server communicate among themselves and discover each other.
 Assuming that the instances have unique IDs, co-resident instances can exchange
@@ -10,7 +9,7 @@ medium, which allows us to scale co-residency detection.  In this section, we
 present a communication protocol that the co-resident instances can use to
 achieve communication in a fast and reliable way. We first discuss the
 challenges we faced in making the channel reliable before examining the protocol
-itself.
+itself.}
 
 \begin{algorithm}[!t]
 \caption{Writing 1-bit from the sender}
@@ -27,6 +26,7 @@ itself.
 \end{algorithm}
 
 \subsection{Reliable Transmission}
+\todo{fix flow from previous section}
 First, we must determine how to reliably transmit information between the sender
 and receiver. Senders and receivers can accurately communicate 0-bits and 1-bits
 by causing contention on the memory bus. Consider the simple scenario where
@@ -112,7 +112,7 @@ using large intervals between successive samples and a poisson-sampling to
 prevent time-locking of receivers. We determined that a millisecond poisson gap
 between samples is reasonable to minimize noise due to collisions in receiver
 sampling~\ref{fig:membus_clouds}, assuming ten co-resident receivers and a few
-microsecond sampling time.
+microsecond sampling time. \todo{R1 needed clarification}
 
 \subsubsection{Sample Size} 
 \label{sec:method:samplingdur}
@@ -148,6 +148,7 @@ samples to make up for lost communication due to scheduling.
   more context switching, whereas the 1 GB and 3 GB lambdas see progressively
   more contention compared to the baseline, which we attribute to their relative
   stability on the underlying physical cores. 
+  \todo{make it print friendly}
 \label{fig:context_switching}}
 \end{figure}
 
@@ -222,6 +223,7 @@ noise in our results, we believe this is a reasonable assumption.
 \end{figure}
 
 \subsubsection{Handling Collisions}
+\todo{This belongs in the next section}
 In the preceeding section, we discussed using a communication channel with
 synchronized time slots. In each time slot, an instance can reliably send
 (broadcast) or receive (listen) a bit by causing or sensing for contention.
@@ -247,7 +249,7 @@ less expressive, as we will see in the next section.
 
 
 
-\subsection{Protocol}
+\subsection{Neighbor Discovery Protocol}
 \label{sec:protocol}
 
 
@@ -288,6 +290,8 @@ less expressive, as we will see in the next section.
 \end{algorithmic}
 \end{algorithm}
 
+\todo{Fix flow from previous section}
+\todo{separate challenges from previous section more clearly and move some text here}
 When considering a communication channel for lambda co-residence detection, we
 note that the channel need not be general and expressive as lambdas only need to
 communicate their IDs with one another. Thus, we assume that each instance
@@ -318,6 +322,7 @@ extended for other (future) covert channels with similar channel properties.
   \includegraphics[width=.99\linewidth]{fig/errorrates.pdf}
   \caption{This figure presents the error rate (as a fraction of 1000 lambdas
   deployed) for different lambda sizes in the AWS Middle-East region. 
+  \todo{make it print friendly}
 \label{fig:errorrates}}
 \end{figure}
 

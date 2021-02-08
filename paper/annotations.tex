@@ -51,8 +51,13 @@
 \definecolor{amcolor}{rgb}{0.5,0,0.5}
 \newcommand\amirian[1]{\nbc{Ariana}{#1}{amcolor}}
 
-\definecolor{kgcolor}{rgb}{0.5,0.2,0.2}
-\newcommand\keerthana[1]{\nbc{KG}{#1}{kgcolor}}
+\definecolor{rcolor}{rgb}{0.1,0.1,0.7}
+\newcommand\rough[1]{ 
+	{\colorbox{rcolor}{\bfseries\sffamily\scriptsize\textcolor{white}{Rough}}}
+	{\textcolor{rcolor}{\sf\small$\blacktriangleright$}}
+	#1
+	{\textcolor{rcolor}{\sf\small$\blacktriangleleft$}}
+}
 
 %\definecolor{ascolor}{rgb}{0.96,0.02,0.83}				% Alex's comments
 %\newcommand\alex[1]{\nbc{Name!}{#1}{ascolor}}

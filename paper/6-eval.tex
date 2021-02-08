@@ -8,6 +8,7 @@
   containers. The perfect correlation shows that both runs depict the co-residence 
   status of those containers regardless of the lambdas that ran on them, providing
   evidence for the correctness of our approach.
+  \todo{make it print friendly}
 \label{fig:correlation}}
 \end{figure}
 
@@ -45,8 +46,10 @@ more errors.  This is expected because, as discussed in section
 \ref{sec:method:noise}, these lambdas experience lossy communication making it
 harder for our technique to sense contention. Lambdas that are 1.5 GB and
 larger, though, exhibit a 100\% success rate.
+\todo{rebuttal: clarify false postives and negatives}
 
 \textbf{Correctness} 
+\todo{promised clarity here in rebuttal}
 To determine correctness, we require ground truth on which instances are
 co-resident with one another. While such information is not available, we are
 able to ascertain correctness of our approach by utilizing an AWS caching
@@ -168,3 +171,6 @@ cost per lambda scales logarithmically, making neighbor detection cost-effective
 %\paragraph{Generality}
 %\todo{We only implemented it on AWS. This requires us to implement it on 
 %Azure and GCP, and report some results. \textbf{Needs considerable effort}}
+
+\subsection{Covert Channel Capacity}
+\todo{}
