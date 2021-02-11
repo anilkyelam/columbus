@@ -79,20 +79,19 @@ should have the following properties:
     for other activities that make use of the resulting co-resident information.
 \end{itemize}
 
-\todo{note about how reliability and scalability will lead to generic and fast
-solution}
-
 Given these properties, we decide to investigate harware-based covert channels.
 Hardware-based covert-channels are more difficult to remove and obfuscate than
-software-based covert channels, and are more pervasive, 
-given that hardware is more homogenous across computing platforms than software. 
+software-based covert channels, and are more pervasive, given that hardware is
+more homogenous across computing platforms than software.  We discuss our use of
+hardware-based covert channels and how producing a reliable and scalable
+mechanism also fulfills the need for a generic and fast protocol.
 
 \subsection{The Path to Scalability Using Membus}
 We utilize the memory bus covert channel described in
 section~\ref{sec:background:covertchannels} as it exploits a fundamental
 hardware vulnerability that is present across all generations of x86 hardware.
 Historically, multiple public cloud services have been vulnerable to this
-channel~\cite{varad191016,zhang2016}, and we ffind that they are still
+channel~\cite{varad191016,zhang2016}, and we find that they are still
 vulnerable today. To demonstrate the presence of the vulnerability, we measure
 the latency of atomic operations on a 8B memory region as we slide the region
 from one cacheline into another across the cacheline boundary. We perform this
