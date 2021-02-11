@@ -1,12 +1,16 @@
 {
     "Channel Count": 18,
     "Channel Rate": 100,
-    "Effective Channel Rate": 75.06666666666666,
-    "Channel Threshold": 13500,
+    "Effective Rate": 75.06666666666666,
+    "Effective Rate 95per": 36.178107937909445,
+    "Effective Rate 99per": 24.90042590656985,
+    "Channel Threshold": 10800,
     "Errors Mean": 12.466666666666667,
     "Errors Std": 9.722139682189306,
+    "Byte Errors Mean": 55.11463844797177,
+    "Byte Errors Std": 31.27429737340921,
     "1-bit Errors Mean": 1.6398338150263077,
     "1-bit Errors Std": 1.8190089931675375,
-    "0-bit Errors Mean": 29.683289684635888,
-    "0-bit Errors Std": 3.794668110530036
+    "0-bit Errors Mean": 29.683289684635884,
+    "0-bit Errors Std": 3.7946681105300355
 }
