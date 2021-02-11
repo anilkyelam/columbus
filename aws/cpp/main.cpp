@@ -161,7 +161,41 @@ unsigned int good_seed(int id)
    random_seed = random_seed xor (getpid() << 16);
    random_seed = random_seed xor (id  << 16);
    return random_seed;
-} 
+}
+
+/*hex string to bool array */
+const char* hex_char_to_bin(char c)
+{
+    // TODO handle default / error
+    switch(toupper(c))
+    {
+        case '0': return "0000";
+        case '1': return "0001";
+        case '2': return "0010";
+        case '3': return "0011";
+        case '4': return "0100";
+        case '5': return "0101";
+        case '6': return "0110";
+        case '7': return "0111";
+        case '8': return "1000";
+        case '9': return "1001";
+        case 'A': return "1010";
+        case 'B': return "1011";
+        case 'C': return "1100";
+        case 'D': return "1101";
+        case 'E': return "1110";
+        case 'F': return "1111";
+    }
+}
+
+std::string hex_str_to_bin_str(const std::string& hex)
+{
+    // TODO use a loop from <algorithm> or smth
+    std::string bin;
+    for(unsigned i = 0; i != hex.length(); ++i)
+       bin += hex_char_to_bin(hex[i]);
+    return bin;
+}
 
 
 /* Check if program is not past specified time yet */
@@ -439,7 +473,7 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
 /************************** COVERT CHANNEL IMPLEMENTATION ******************************************************/
 /* Define everything related to data transmission over the covert channel here */
 
-#define CHANNEL_COMMUNICATION_DURATION_SECS           5           // Transfer data for 5 secs                
+#define DEFAULT_CHANNEL_UPTIME_SECS                   5           // Transfer data for 5 secs                
 #define CHANNEL_BIT_INTERVAL_MUS                      1000        // Spend 5ms per bit
 #define ATOMIC_OPS_BATCH_SIZE                         10          // do 10 ops before checking timeout
 #define MEM_ACCESS_LATENCY_WITH_LOCKING_THRESHOLD     200         // affect on regular memory accesses by membus locking
@@ -766,10 +800,10 @@ invocation_response my_handler(invocation_request const& request, const std::sha
    int id, max_phases, max_bits, bit_duration_secs;
    long start_time_secs;
    bool success = true, sysinfo, return_data, setup_channel, repeat_phases;
-   std::string error, s3bucket, s3key, guid;
+   std::string error, s3bucket, s3key, guid, chdata;
    result_t* result = NULL;
    double protocol_time = 0;
-   int erasures, num_bits, sender_id, receiver_id, rate_bps, access_threshold;
+   int erasures, num_bits, sender_id, receiver_id, rate_bps, access_threshold, chdatalen;
    bool channel_created = false;
    std::vector<bool> data;
 
@@ -803,6 +837,8 @@ invocation_response my_handler(invocation_request const& request, const std::sha
       setup_channel = body["channel"].as<bool>(false);      // setup covert channel and measure its bandwidth after identifying neighbors 
       rate_bps = body["rate"].as<int>(1000000/CHANNEL_BIT_INTERVAL_MUS);      // covert channel rate. default is 1000 bps
       access_threshold = body["threshold"].as<int>(ATOMIC_OPS_LATENCY_WITH_LOCKING_THRESHOLD);      // threshold at which we call a received bit a 1 or 0
+      chdata = body["data"].as<std::string>("");            // custom data to send on the covert channel
+      chdatalen = body["datalen"].as<int>(0);               // length of custom data (IN BITS) to send on the covert channel
    }
    catch(std::exception& e){
       success = false;
@@ -846,12 +882,19 @@ invocation_response my_handler(invocation_request const& request, const std::sha
                "(i.e., max_phases >= 2 and repeat_phases=false)\n");
    }
     
-   if (setup_channel && (rate_bps <= 0 || 1000000 % rate_bps != 0)) {
+   // if (setup_channel && (rate_bps <= 0 || 1000000 % rate_bps != 0)) {
+   if (setup_channel && (rate_bps <= 0)) {
       success = false;
       error = "INVALID_CHANNEL_RATE";
       lprintf("Channel rate must be a positive number and a factor of 10^6. Rate provided: %d bps\n", rate_bps);
    }
-   
+
+   if (setup_channel && chdata.size() != chdatalen) {
+      lprintf("Provided channel data length %d does not match the actual length of the data %lu", chdatalen, chdata.size());
+      error = "INVALID_CHANNEL_DATA";
+      success = false;
+   }
+
    seconds now = duration_cast<seconds>(Clock::now().time_since_epoch());
    if (success && start_time_secs <= now.count()) {    // Unix time in secs
       success = false;
@@ -919,20 +962,29 @@ invocation_response my_handler(invocation_request const& request, const std::sha
                receiver_id = result->ids[1];
                lprintf("Setting up channel between lambdas %d and %d!\n", sender_id, receiver_id);   
 
+               num_bits = chdatalen == 0 ? DEFAULT_CHANNEL_UPTIME_SECS * rate_bps : chdatalen;
                base_readings_len = bit0_readings_len = bit1_readings_len = 0;       // FIXME: HACK to get some latency samples
-               num_bits = CHANNEL_COMMUNICATION_DURATION_SECS * rate_bps;
                int channel_start_time = start_time_secs + (max_phases * max_bits * bit_duration_secs) + 5;
                microseconds start_time_mus = duration_cast<microseconds>(seconds(channel_start_time));
 
                if (sender){
                   /* Allocate a big buffer for regular memory accesses */
                   const size_t DUMMY_BUF_SIZE = pow(2,29);		// 1GB
-                  void* dummy_buffer = malloc(DUMMY_BUF_SIZE + sizeof(uint64_t));   
-                  memset(dummy_buffer, 1, DUMMY_BUF_SIZE);     // this is necessary to actually allocate memory
-
+                  void* dummy_buffer = NULL; //malloc(DUMMY_BUF_SIZE + sizeof(uint64_t));   
+                  // memset(dummy_buffer, 1, DUMMY_BUF_SIZE);     // this is necessary to actually allocate memory
                   lprintf("Lambda %d: I'm a sender!\n", id);
-                  int percent_ones = std::rand() % 10;
-                  for(int i = 0; i < num_bits; i++)   data.push_back((std::rand() % 10) <= percent_ones);    // generate random data to send (with random number of ones)
+
+                  /* Use custom data if provided; else generate random data to send */
+                  if (chdata.empty()) {
+                     int percent_ones = std::rand() % 10;
+                     for(int i = 0; i < num_bits; i++)   data.push_back((std::rand() % 10) <= percent_ones);    // generate random data to send (with random number of ones)
+                  }
+                  else {
+                     // Custom data is provided ias bit string, covert to vector bool
+                     lprintf("Received custom data to send of length %lu\n", chdata.size())
+                     for (char const &c: chdata)   data.push_back(c == '1');
+                  }
+
                   erasures = send_data(data, num_bits, 1000000 / rate_bps, start_time_mus, addr, dummy_buffer, DUMMY_BUF_SIZE, access_threshold);
                }
                if (receiver){     
@@ -1009,7 +1061,7 @@ invocation_response my_handler(invocation_request const& request, const std::sha
       body["Channel"]["Sender Id"] = sender_id;
       body["Channel"]["Receiver Id"] = receiver_id;
       body["Channel"]["Bits"] = num_bits;
-      body["Channel"]["Rate"] = num_bits / CHANNEL_COMMUNICATION_DURATION_SECS;
+      body["Channel"]["Rate"] = rate_bps;
       body["Channel"]["Erasures"] = erasures;
       
       /* Encode sent/received data */
