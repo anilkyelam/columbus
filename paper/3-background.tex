@@ -1,5 +1,7 @@
-\section{Background \& Motivation}
+\section{Background \& Related Work}
 \label{sec:background}
+
+\todo{merge Related work and Background}
 
 We begin with a brief background on relevant topics as we motivate the need for
 fast and scalable co-residence detection in lambdas.
@@ -116,6 +118,40 @@ slow or are not scalable. \del{Thus, we set forth to determine a fast and scalab
 co-residence detection for lambdas.}
 
 
-\section{Threat Model}
-\label{sec:threatmodel}
-\todo{}
+\section{Attack Strategy}
+\label{sec:attackstrategy}
+\subsection{Attack Model}
+\subsection{Enabling Covert Communication}
+
+\ins{<SUPER ROUGH> Our goal is to figure out a feasible covert communication mechanism for lambdas.
+As mentioned earlier, there are few unique challenges to extend traditional covert 
+channel work to the cloud: First, we need a co-residence detector to co-locate both 
+sender and receiver on same server. Second, statistical multiplexing introduces both 
+noisy neighbors and inconsistent access to the channel that is dependant on the scheduler 
+behavior. Both these challenges has been handled for VMs independently in previous work.
+For example, in case of VMs, sender and receiver can be colocated using co-residence strategies 
+like \cite{varadarajan2015}. Once colocated, they can communicate information using one of the 
+traditional covert channels, but improved to address scheduler interruptions and other noise 
+using error detection and correction techniques\cite{wuusenix2012}.}
+
+\ins{Lambdas, however, are different from other container platforms like VMs in that 
+they have very short lifetime and a covert channel communication between two co-resident 
+lambdas cannot last very long. But what they lack in persistence, they make up for 
+in numbers -- lambdas are usually deployed in large numbers. So, any practical design for 
+covert channel targeting lambdas must exploit this fact and perform communication 
+over multiple channels in parallel to acheive high bandwidth. 
+Based on the threat model, it follows that an attacker attempting to 
+maximize covert communication with lambdas would deploy a large number of sender and 
+receiver lambdas in the Cloud hoping to acheive multiple rendezvous points for 
+covert communication. Lambdas are also densely packed, which we will show later, that 
+exacerbates the noisy neighbor problem if the other neighbors are not properly detected}
+
+\ins{<SUPER DUPER ROUGH> This brings us to our contributions in this paper. Where lambdas are similar to 
+VMs, we use the previous work. Where they are different and present new challenges, 
+we focus on addressing these. The ephemeral, numerous and dense nature of lambdas require (respectively) 
+a fast, scalable and reliable co-residence detector which is going to be the main contribution of 
+our work. Once colocated, our detector allows us to pick any just two lambdas on any given machine 
+and use the covert channel without interference from neighbors. At this point, covert channel works
+for VMs like Wu et. al.\cite{wuusenix2012}  can be comfortably used for covert communication 
+with lambdas as well. In the next section, we propose and evaluate our coresidence detector 
+and show how it enables covert communication with lambdas.}

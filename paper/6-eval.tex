@@ -1,4 +1,7 @@
 \subsection{EVALUATION}
+\amirian{I think it makes more sense to pair all the analysis parts together and
+keep it separate from the theory. So take EVALUATION and FEASIBILITY study and
+but them under their own section}
 \label{sec:eval}
 
 \begin{figure}[!t]
@@ -20,7 +23,8 @@ one of the cloud providers as a case study, we have previously shown in
 section~\ref{sec:methodology} that this covert channel exists on the other
 clouds, and thus these experiments can be replicated on their serverless
 functions as well. We use the C++ runtime in AWS lambdas as it allows pointer
-arthmetic that is required to access the covert channel.
+arthmetic that is required to access the covert channel.\todo{add note about
+this fulfilling fast requirement?}
 
 \subsection{Setup}
 \label{subsec:expsetup}
@@ -33,6 +37,7 @@ record the ID seen by this instance.  If all three rounds result in different
 IDs, we classify this instance as erroneous and report it in the error rate. We
 group all the instances that saw the same ID as successful and neighbors. We
 repeat the experiments for different lambda sizes and in various cloud regions.
+\todo{add cost here}
 
 \subsection{Reliability}
 We consider the results of the technique reliable when 1) most of the deployed
@@ -151,6 +156,7 @@ each lambda can find its neighbors within a minute of its invocation, leaving
 ample time for the attacker to then establish the covert channel and use it to 
 send information. The logarithmic scale of our method also indicates that the 
 cost per lambda scales logarithmically, making neighbor detection cost-effective.
+\todo{note here about sublinear time?}
 % mention cost of one run?
 
 
