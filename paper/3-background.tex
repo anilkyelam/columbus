@@ -16,7 +16,7 @@ administer servers. In addition to this low overhead, lambdas are much more
 cost-efficient than virtual machines (VMs) as they allow more efficient packing
 of functions on servers. Moreover, lambdas execute as much smaller units  and
 are more ephemeral than virtual machines.  For example, on AWS,
-the memory of lambdas is capped at 3 GB, with a maximum execution limit of 15
+the memory of lambdas is restricted to 3 GB, with a maximum execution limit of 15
 minutes.  As with other cloud services, the user has no control over the
 physical location of the server(s) on which their lambdas are spawned.
 
@@ -52,7 +52,7 @@ machine, not only that the lambdas experience co-residency.
 %understudied. 
 
 
-\subsection{Covert Channels and Cloud Attacks}
+\subsection{Covert Channels, Cloud Attacks, and Co-residence}
 \label{sec:background:covertchannels}
 In our attempt to shed light on the security aspects of lambdas, we focus
 particularly on the feasiblity of establishing a reliable covert channel in the
@@ -69,7 +69,15 @@ bus~\cite{wuusenix2012}, and even processor
 temperature~\cite{ThermalCovertChannel}. 
 
 Initial papers in co-residency detection utilized host information and network
-addresses arising due to imperfect virtualization~\cite{ristenpartccs2009}.
+addresses arising due to imperfect virtualization~\cite{ristenpartccs2009} and
+utilized files in \textit{procfs}, other environment
+variables~\cite{wangusenix2018,wuusenix2012}, and other logical
+side-channels~\cite{varad191016,vmplacement}.  Much of this work has been
+further extended to examine co-residence in active traffic
+analysis~\cite{bates2012}, as well as determining placement vulnerabilities in
+multi-tenant Public Platform-as-a-Service systems~\cite{varad191016,
+zhangpaas2016}. 
+
 However, these channels are now obsolete, as cloud provides have strengthened
 virtualization and introduced Virtual Private Clouds~\cite{awsvpc}. Later work
 used cache-based channels in various levels of the cache~\cite{xuccsw2011,
@@ -84,8 +92,7 @@ susceptible to power attacks from adjacent containers~\cite{gao2017}.
 \noindent \textbf{Memory bus covert channel} 
 Of particular interest to this work is the covert channel based on memory bus
 hardware introduced by Wu et al.~\cite{wuusenix2012} and subsequently used for
-co-residency detection on VMs and
-containers~\cite{compstudycoresidency,varad191016}. In x86 systems, atomic
+co-residency detection on VMs~\cite{varad191016}. In x86 systems, atomic
 memory instructions designed to facilitate multi-processor synchronization are
 supported by cache coherence protocols as long as the operands remain within a
 cache line (generally the case as language compilers make sure that operands are
@@ -109,14 +116,14 @@ could be exploited for covert communication.  Wu et al. acheived a data rate of
 Achieving such ideal performance, however, is generally not possible in cloud
 environments, as they pose challenges to both establishing such covert channels
 and using them at their ideal performance. 
-%\del{First, in a cloud setting,
-%co-residency information is hidden, even if the entities belong to the same
-%tenant, so it is unclear whether a sender and receiver are on the same server.}
+%\del{First, in a cloud setting, co-residency information is hidden, even if the
+%entities belong to the same tenant, so it is unclear whether a sender and
+%receiver are on the same server.}
 Communication on the covert channel may be affected by scheduling uncertainties
 and interference from other non-participating workloads due to statistical
 multiplexing by the cloud providers.  Studies generally deal with this problem
 by employing traditional error correction techniques~\cite{wuusenix2012} to
-overcome errors.  
+overcome errors. 
 
 %\del{However, the former
 %challenge of establishing the covert channel requires a co-residence detection
@@ -124,49 +131,47 @@ overcome errors.
 %are on the same machine.}
 
 
-\subsection{Co-residence Detection \& Covert Communication}
-\label{sec:background:pastwork}
-
-
-%On previous work on colocation, past techniques and why those techniques would 
-%not work anymore
-%as a sender and receiver
-%on the same machine can access the covert channel and share information.
-Co-residence detection can enable covert communication however, a challenge is
-locating the sender and receiver, as this co-residency information is often
-hidden, even if entities belong to the same tenant.  Typically, the attacker
-launches a large number of cloud instances (VMs, Lambdas, etc.), following a
-certain launch pattern, and employs a co-residence detection mechanism for
-detecting if any pair of those instances are running on the same machine.
-Traditionally, co-residence detection has been based on software runtime
-information that two instances running on the same server might share, like
-public/internal IP addresses~\cite{ristenpartccs2009}, files in \textit{procfs}
-or other environment variables~\cite{wangusenix2018,wuusenix2012}, and other
-such logical side-channels~\cite{varad191016,vmplacement}. Much of this work has
-been further extended to examine co-residence in active traffic
-analysis~\cite{bates2012}, as well as determining placement vulnerabilities in
-multi-tenant Public Platform-as-a-Service systems~\cite{varadarajan2015,
-zhangpaas2016}. 
-
-%Zhang et al. also demonstrated a technique to detect VM
-%co-residency detection via side-channel analyses~\cite{zhang2011}. 
-%One of the first pieces of literature in detecting VM co-residency was
-%introduced by Ristenpart et al., who demonstrated that VM co-residency detection
-%was possible and that these techniques could be used to gather information about
-%the victim machine (such as keystrokes and network
-%usage)~\cite{ristenpartccs2009}. This initial work was further expanded in
-%subsequent years 
-As virtualization platforms moved towards stronger isolation between instances
-(e.g.  AWS' Firecracker VM~\cite{firecracker}), these logical covert-channels
-have become less effective or infeasible. Furthermore, some of these channels
-were only effective on container-based platforms that shared the underlying OS
-image and were thus less suitable for hypervisor-based platforms.  This prompted
-a move towards using hardware-based covert channels, such as the ones discussed
-in the earlier section, which can bypass software isolation and are usually
-harder to fix. For example, Varadarajan et al.~\cite{varadarajan2015} use the
-memory bus covert channel to detect co-residency for EC2 instances.  However, as
-we will show, traditional approaches do not extend well to lambdas as they are
-either too slow or are not scalable.
+%\subsection{Co-residence Detection}
+%\label{sec:background:pastwork}
+%
+%
+%%On previous work on colocation, past techniques and why those techniques would 
+%%not work anymore
+%%as a sender and receiver
+%%on the same machine can access the covert channel and share information.
+%Co-residence detection can enable covert communication however, a challenge is
+%locating the sender and receiver, as this co-residency information is often
+%hidden, even if entities belong to the same tenant.  Typically, the attacker
+%launches a large number of cloud instances (VMs, Lambdas, etc.), following a
+%certain launch pattern, and employs a co-residence detection mechanism for
+%detecting if any pair of those instances are running on the same machine.
+%Traditionally, co-residence detection has been based on software runtime
+%information that two instances running on the same server might share, like
+%public/internal IP addresses~\cite{ristenpartccs2009}, files in \textit{procfs}
+%or other environment variables~\cite{wangusenix2018,wuusenix2012}, and other
+%such logical side-channels~\cite{varad191016,vmplacement}. 
+%
+%Much of this work has been further extended to examine co-residence in active
+%traffic analysis~\cite{bates2012}, as well as determining placement
+%vulnerabilities in multi-tenant Public Platform-as-a-Service
+%systems~\cite{varad191016, zhangpaas2016}. 
+%
+%%Zhang et al. also demonstrated a technique to detect VM
+%%co-residency detection via side-channel analyses~\cite{zhang2011}. 
+%%One of the first pieces of literature in detecting VM co-residency was
+%%introduced by Ristenpart et al., who demonstrated that VM co-residency detection
+%%was possible and that these techniques could be used to gather information about
+%%the victim machine (such as keystrokes and network
+%%usage)~\cite{ristenpartccs2009}. This initial work was further expanded in
+%%subsequent years 
+%As virtualization platforms moved towards stronger isolation between instances
+%(e.g.  AWS' Firecracker VM~\cite{firecracker}), these logical covert-channels
+%have become less effective or infeasible. Furthermore, some of these channels
+%were only effective on container-based platforms that shared the underlying OS
+%image and were thus less suitable for hypervisor-based platforms.  This prompted
+%a move towards using hardware-based covert channels, such as the ones discussed
+%in the earlier section, which can bypass software isolation and are usually
+%harder to fix. 
 
 
 \section{Threat Model}
