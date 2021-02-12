@@ -1,7 +1,4 @@
-\subsection{EVALUATION}
-\amirian{I think it makes more sense to pair all the analysis parts together and
-keep it separate from the theory. So take EVALUATION and FEASIBILITY study and
-but them under their own section}
+\section{EVALUATION}
 \label{sec:eval}
 
 \begin{figure}[!t]
@@ -15,18 +12,22 @@ but them under their own section}
 \label{fig:correlation}}
 \end{figure}
 
-In this section, we evaluate the effectiveness of our co-residence detection
-technique with respect to reliability and scalability, the desirable detection
-properties mentioned in section~\ref{sec:methodology}.  We run all of our
-experiments with AWS lambdas~\cite{awscloud}. Though we decide to focus on only
-one of the cloud providers as a case study, we have previously shown in
+In this section, we evaluate the effectiveness of both our co-residence detection
+technique and our covert channel.
+
+\subsection{Co-residence protocol}
+First, we examine our co-residence detector with respect to reliability and
+scalability, the desirable detection properties mentioned in
+section~\ref{sec:methodology}.  We run all of our experiments with AWS
+lambdas~\cite{awscloud}. Though we decide to focus on only one of the cloud
+providers as a case study, we have previously shown in
 section~\ref{sec:methodology} that this covert channel exists on the other
 clouds, and thus these experiments can be replicated on their serverless
 functions as well. We use the C++ runtime in AWS lambdas as it allows pointer
 arthmetic that is required to access the covert channel.\todo{add note about
 this fulfilling fast requirement?}
 
-\subsection{Setup}
+\subsubsection{Setup}
 \label{subsec:expsetup}
 For each experiment, we deploy a series of instances from an AWS lambda
 account. Once deployed, each instance participates in the first phase of the
@@ -39,7 +40,7 @@ group all the instances that saw the same ID as successful and neighbors. We
 repeat the experiments for different lambda sizes and in various cloud regions.
 \todo{add cost here}
 
-\subsection{Reliability}
+\subsubsection{Reliability}
 We consider the results of the technique reliable when 1) most of the deployed
 instances successfully see the same result in majority of the independent rounds
 (indicating lesser bit-flip errors) and 2) the resulting co-resident groups we
@@ -146,7 +147,7 @@ perfectly on the continer colocation. Figure~\ref{fig:correlation} shows that
 both experiments saw the same number of co-residing groups of different sizes.
 This proves the correctness of the results of our mechansim.
 
-\subsection{Scalability}
+\subsubsection{Scalability}
 One of the key properties of this technique is its execution speed. Since
 communicating each binary bit of the ID takes one second, we are able to scale
 the technique logarithmically with the number of lambdas involved.
