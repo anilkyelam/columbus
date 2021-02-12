@@ -85,10 +85,10 @@ to the tenants. Such software identifiers present the fastest and perhaps most
 reliable(\anil{reliable as in trustworthy information}) way for co-residence detection 
 as all it takes is for each lambda to quickly
 "read" the identifier and communicate this information with all other lambdas 
-(through the network or shared remote storage) to quickly identify the 
+(through the network or shared remote storage) to identify the 
 neighbors. However, such information can be easily obfuscated by platform providers;
-currently there is no such identifier available for AWS lambdas. So we turn to 
-hardware-based covert channels that are, by definition, also accessible to all the 
+for example, currently there is no such identifier available for AWS lambdas. 
+So we turn to hardware-based covert channels that are, by definition, also accessible to all the 
 tenants. They are also generally more difficult to remove, and more pervasive too, 
 given that hardware is more homogenous across computing platforms than software. 
 %We discuss our use of
@@ -162,10 +162,10 @@ bit-string corresponding to its ID that must be communicated.
 In regards to the covert channel, we only assume that any lambda with access to the 
 channel can choose to either send or listen for a bit, and if at least one lambda 
 chooses to send a 1-bit, all the listeners would record a 1-bit. 
-We also assume that lambdas can synchronize themselves to send or listen for each bit 
-in time slots. We show both these assumptions to be reasonable in the next section.
+We also assume that lambdas can synchronize themselves between sending or listening 
+a bit in each time slot. We show both these assumptions to be reasonable in the next section.
 As such, we propose a communication protocol that efficiently broadcasts 
-just these bit-strings on channel with such properties.
+just these bit-strings on channel with such restricted properties.
 
 We divide the total running time of the protocol into phases, with each phase executing for an
 interval of \textit{N} bit-slots. Each phase has a set of participating
@@ -221,6 +221,7 @@ simplification removes the dependency on number of co-resident lambdas
 
 
 \subsection{Implementation}
+\label{sec:method:impl}
 We implemented the above protocol using a covert channel based on memory bus hardware 
 that is available for lambdas. We show how we used the hardware to reliably send and 
 listen for bits in order to meet the requirements for the protocol. 
@@ -266,10 +267,10 @@ covert channel across different kinds of cloud instances as well.
 Senders and receivers can accurately communicate 0-bits and 1-bits
 by causing contention on the memory bus. To communicate a 1-bit, the sender 
 instance causes contention on the memory bus by locking it using the special memory locking operations
-(discussed in section~\ref{sec:background:membus}). 
+(discussed in section~\ref{sec:background:covertchannels}). 
 Pseudo-code for the sender instance is shown in Algorithm~\ref{alg:sender}.
 
-\subsubsection{Listening for a bit: Mechanism} 
+\subsubsection{Listening for a bit}
 The receiver can simply sample the memory bus for contention, inferring whether 
 the communication is a 1-bit (when contention is observed) or a 0-bit 
 (when contention is not observed). There are two ways to listen for contetion. 
@@ -284,7 +285,7 @@ receiver) to probe the memory bus. Since only one processor core can lock the
 memory bus at a given time, any other concurrent locking operation will see
 higher latency. 
 
-Of these two methods, we decide to use the memory locking receiver for our
+\textbf{Mechanism} Of these two methods, we decide to use the memory locking receiver for our
 experiments.  Previous studies~\cite{wuusenix2012,varadarajan2015} have
 established that both memory probing and memory locking receivers experience
 significant latency overhead during memory bus contention, making them both
@@ -326,7 +327,8 @@ co-residence detection mechanism.
 \end{algorithm}
 
 
-\subsubsection{Listening for a bit: Sampling frequency}
+\textbf{Sampling frequency}
+\label{sec:method:listen:freq}
 Another challenge for our protocol is determining an adequate sampling
 frequency. Ideally, a memory locking receiver would loop locking operations and
 determine contention in real-time by identifying a decrease in the moving
@@ -345,7 +347,7 @@ between samples is reasonable to minimize noise due to collisions in receiver
 sampling~\ref{fig:membus_clouds}, assuming ten co-resident receivers and a few
 microsecond sampling time. \todo{R1 needed clarification}
 
-\subsubsection{Listening for a bit: Sample Size} 
+\textbf{Sample Size} 
 \label{sec:method:samplingdur}
 In addition to adequate sampling frequency, we must also determine sample size.  
 A receiver can confirm contention with high confidence with only a
@@ -383,7 +385,7 @@ samples to make up for lost communication due to scheduling.
 \label{fig:context_switching}}
 \end{figure}
 
-\subsubsection{Listening for a bit: Overcoming noise} 
+\textbf{Overcoming noise} 
 \label{sec:method:noise}
 Along with context switching and sensing noise, there are other imperfections in
 the measurement apparatus that may cause noise. For example, we use the

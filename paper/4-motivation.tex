@@ -1,13 +1,13 @@
 
 \section{Motivation}
-\label{sec:attackstrategy}
+\label{sec:motivation}
 
 We discuss the covert channel attack scenario that we are targetting, the challenges 
 lambdas would pose in enabling such an attack and motivate the need for a 
 co-residence detector for lambdas which is going to be our main focus in the rest of 
 the paper. 
 
-\subsubsection{Threat Model}
+\textbf{Threat Model}
 Covert channel attacks require an "insider" to send the data over a covert 
 medium for exfiltration. We assume that the attacker uses social engineering 
 techniques or some other means (beyond the scope of this work) to introduce  
@@ -16,9 +16,6 @@ in the lambda itself or in a system that controls lambda deployments for an
 organization; and already possesses the sensitive data that needs to be exfiltrated. 
 We further assume that the attacker has the knowledge of the cloud region 
 where the victim is operating and can deploy lambdas under its own account.
-\anil{the abilities we assume on the part of the attacker to perform a succesful 
-attack may sound far-fetched; was always afraid of this, but hey, the paper already 
-got in! :D}
 
 In a typical attack, the attacker launches a set of  lambdas (receivers) in the 
 cloud region where the victim lambdas 
