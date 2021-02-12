@@ -1,14 +1,5 @@
-\subsection{Covert Channel Practicality}
+\section{Practicality of Covert Communication}
 \label{sec:study}
-\amirian{renamed from Feasibility study to be more precise}
-%Our goal in developing this technique is to demonstrate how easy it is for
-%attackers to exploit the pervasive memory bus covert channel and obtain
-%co-residency information, thereby motivating the need to address it. This
-%information can be used by attackers in aiding a lot of attack scenarios
-%\todo{for example?} or simply learn the internal mechanisms of a cloud. 
-%In the section, we explore some ways in
-%which the tool can be used to gain some insights into lambda activity in some
-%AWS regions.  
 
 In this section, we present an evaluation on the practicality of a lambda covert
 channel that is discovered with our co-residence detector.  The amount of
@@ -19,7 +10,7 @@ capacity of the covert channels established, and then examine the co-residence
 density in various AWS regions to understand the number of rendezvous points and
 factors that affect it.
 
-\subsubsection{Covert Channel Capacity}
+\subsection{Covert Channel Capacity}
 
 \begin{figure}[!t]
   \includegraphics[width=.99\linewidth]{fig/channel_rate_3gb.pdf}
@@ -86,7 +77,7 @@ data over the covert channels at this rate and observed near-zero data
 corruption. Thus, we conclude that, by a conservative estimate, we can safely
 send data across each of these covert channels at a rate of ~200 bps.
 
-\subsubsection{Rendezvous point density}
+\subsection{Rendezvous point density}
 \todo{Changes due to above subsection}
 Next, we present measurements on serverless function density on AWS using our
 co-residence detector, and discuss the factors that may affect this density.  As
