@@ -37,7 +37,7 @@ can a practical covert channel be constructed entirely from existing
 ``serverless'' cloud services\footnote{We will use the term lambdas to 
 stand for all such services going forward.}?
 
-Covert channels, as a general matter, provide a means of transmitting
+Covert channels provide a means of transmitting
 data that bypasses traditional monitoring or auditing -- typically by
 encoding data into some resource access that is not normally deemed a
 communications medium but is externally visible.  In virtualized
@@ -50,7 +50,8 @@ the organization (i.e., to their own lambdas) without offering any
 clear evidence of such (e.g., opening network connections, etc.)
 
 However, the serverless context presents a number of unique challenges for
-implementing such a channel.  First, the scheduling and placement of lambdas is
+implementing covert channels.  First, the physical location of a lambda is 
+unknown, as the scheduling and placement of lambdas is
 managed by the cloud service provider.  Thus, there is no way to arrange that a
 sending lambda and a receiving lambda will execute on the same physical
 hardware, \emph{let alone at the same time}.  Second, given this reality, any

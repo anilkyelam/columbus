@@ -10,7 +10,7 @@ fastest-growing cloud services and are less well-studied from a security
 standpoint. Offered as lambdas on AWS~\cite{awslambda}, and as cloud functions
 on GCP~\cite{gcpfunctions} and Azure~\cite{azurefunctions}, these functions are
 of interest because they do not require the developer to provision, maintain, or
-administer servers. In addition to this low overhead, lambdas are much more
+administer servers. In addition to this low maintenance, lambdas are much more
 cost-efficient than virtual machines (VMs) as they allow more efficient packing
 of functions on servers. Moreover, lambdas execute as much smaller units  and
 are more ephemeral than virtual machines.  For example, on AWS,
@@ -79,9 +79,9 @@ reliable communication.
 
 %On previous work on colocation, past techniques and why those techniques would 
 %not work anymore
-In the cloud context, enabling covert communication comes with an additional 
-challenge of placing sender and receiver on the same machine so that both 
-can have access to the shared software or hardware-based covert channel. However,
+In the cloud context, enabling communication over traditional covert channels 
+comes with an additional challenge of placing sender and 
+receiver on the same machine. However,
 such co-residency information is hidden, even if the entities belong to the same
 tenant. Past research has used various strategies to achieve co-residency in order 
 to demonstrate various covert channel attacks in the cloud. Typically, the
@@ -100,7 +100,8 @@ become less effective or infeasible. Furthermore, some of these channels were
 only effective on container-based platforms that shared the underlying OS image
 and were thus less suitable for hypervisor-based platforms.  This prompted a
 move towards using hardware-based covert channels, such as the ones discussed in
-the earlier section, which can bypass software isolation and are usually harder
+section \ref{sec:background:covertchannels}, 
+which can bypass software isolation and are usually harder
 to fix. For example, Varadarajan et al.~\cite{varadarajan2015} use the memory
 bus covert channel to detect co-residency for EC2 instances.  However, as we
 will show, their approach does not extend well to lambdas as it is slow and 
