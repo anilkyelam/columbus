@@ -15,39 +15,39 @@
 % technique and our covert channel.
 % \subsection{Co-residence Detector}
 
-We examine our co-residence detector with respect to reliability and
-scalability, the desirable detection properties mentioned in
+We next examine our co-residence detector with respect to reliability,
+scalability, and speed, the desirable detection properties mentioned in
 section~\ref{sec:methodology}.  We run all of our experiments with AWS
 lambdas~\cite{awscloud}. Though we decide to focus on only one of the cloud
 providers as a case study, we have previously shown in
 section~\ref{sec:methodology} that this covert channel exists on the other
 clouds, and thus these experiments can be replicated on their serverless
 functions as well. We use the C++ runtime in AWS lambdas as it allows pointer
-arthmetic that is required to access the covert channel.\todo{add note about
-this fulfilling fast requirement?}
+arthmetic that is required to access the covert channel.
 
 \subsubsection{Setup}
 \label{subsec:expsetup}
-We deploy a series of lambdas from an AWS lambda account. 
-Once deployed, each lambda participates in the first phase of the
-protocol as noted in section~\ref{sec:protocol:complexity}, thereby learning the
-largest ID of their neighbors. As bit-flip errors are possible, we repeat the
-same phase for two more (independent) "rounds" and take the majority result to
-record the ID seen by this lambda.  If all three rounds result in different
-IDs, we classify this lambda as erroneous and report it in the error rate. We
-group all the lambdas that saw the same ID as successful and neighbors. We
-repeat the experiments for different lambda sizes and in various cloud regions.
+We start by deploying a series of lambdas from an AWS lambda account.  Once
+deployed, each lambda participates in the first phase of the protocol as noted
+in section~\ref{sec:protocol:complexity}, thereby learning the largest ID of
+their neighbors. As bit-flip errors are possible, we repeat the same phase for
+two more (independent) "rounds" and take the majority result to record the ID
+seen by this lambda.  If all three rounds result in different IDs, we classify
+this lambda as erroneous and report it in the error rate. We group all the
+lambdas that saw the same ID as successful and neighbors. We repeat the
+experiments for different lambda sizes and in various cloud regions.
 
 \subsubsection{Reliability}
 We consider the results of the technique reliable when most of the deployed
-lambdas successfully see the same result in majority of the independent rounds
+lambdas successfully see the same result in a majority of the independent rounds
 (indicating lesser bit-flip errors) and the resulting co-resident groups we
-see match the ground truth.  For goal \#1, we ran an experiment with 1000 AWS
+see examine the ground truth.  For goal \#1, we ran an experiment with 1000 AWS
 lambdas and compared the error rate across different lambda sizes (the error
-rate indicates the fraction of these 1000 lambdas that did not have a majority
-result). Figure~\ref{fig:errorrates} indicates that smaller lambdas exhibit many
+rate indicates the fraction of these 1000 lambdas that did not line up with the majority
+result).\amirian{the phrasing of majority here confuses me a bit but im not sure
+how to fix it} Figure~\ref{fig:errorrates} indicates that smaller lambdas exhibit many
 more errors.  This is expected because, as discussed in section
-\ref{sec:method:noise}, these lambdas experience lossy communication making it
+\ref{sec:method:noise}, these lambdas experience lossy communication, making it
 harder for our technique to sense contention. Lambdas that are 1.5 GB and
 larger, though, exhibit a 100\% success rate.
 \todo{rebuttal: clarify false postives and negatives}
@@ -57,7 +57,7 @@ larger, though, exhibit a 100\% success rate.
 To determine correctness, we require ground truth on which lambdas are
 co-resident with one another. While such information is not available, we are
 able to ascertain correctness of our approach by utilizing an AWS caching
-mechanism. On AWS, each lambdas runs in a dedicated container (sandbox).  After
+mechanism. On AWS, each lambda runs in a dedicated container (sandbox).  After
 execution, AWS caches these containers in order to reuse
 them~\cite{awscontainerreuse} for repeat lambdas and mitigate "cold start"
 latencies. For C++ lambdas, we found that the data structures declared in the
@@ -148,24 +148,25 @@ lambdas are warm-started on the second trial (i.e., they use the same set of
 containers from the previous experiment).  For each co-resident group of lambdas
 in the latter experiment, we observed that their predecessor lambdas (that used
 the same set of containers) in the former experiment formed a co-resident group
-as well.  That is, while the lambdas to the underlying container mapping is
+as well. That is, while the lambdas to the underlying container mapping is
 different across both experiments, the results of the experiments agree
 perfectly on the continer colocation. Figure~\ref{fig:correlation} shows that
 both experiments saw the same number of co-resident groups of different sizes.
 This proves the correctness of the results of our mechansim.
 
 \subsubsection{Scalability}
-One of the key properties of this technique is its execution speed. Since
-communicating each binary bit of the ID takes one second, we are able to scale
-the technique logarithmically with the number of lambdas involved.
-Figure~\ref{fig:runtimes} shows this result with experiments involving
-different number of lambdas. For example, in an experiment with 1000 lambdas,
-each lambda can find its neighbors within a minute of its invocation, leaving
-ample time for the attacker to then establish the covert channel and use it to 
-send information (for reference, lambdas on AWS can only run for 15 minutes at most). 
-The logarithmic scale of our method also indicates that the 
-cost per lambda scales logarithmically, making neighbor detection cost-effective.
-For example, one 1000 lambda run with 1.5 GB lambdas cost around just 1.5 USD. 
+One of the key properties of this technique is its execution speed and
+scalability. Since communicating each binary bit of the ID takes one second, we
+are able to scale the technique logarithmically with the number of lambdas
+involved. Figure~\ref{fig:runtimes} shows this result with experiments
+involving different number of lambdas. For example, in an experiment with 1000
+lambdas, each lambda can find its neighbors within a minute of its invocation,
+leaving ample time for the attacker to then establish the covert channel and use
+it to send information (for reference, lambdas on AWS can only run for 15
+minutes at most).  The logarithmic scale of our method also indicates that the
+cost per lambda scales logarithmically, making neighbor detection
+cost-effective.  For example, one 1000 lambda run with 1.5 GB lambdas cost
+around just 1.5 USD. 
 
 % mention cost of one run?
 
