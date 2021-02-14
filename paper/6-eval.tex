@@ -21,10 +21,9 @@ section~\ref{sec:methodology}.  We run all of our experiments with AWS
 lambdas~\cite{awscloud}. Though we decide to focus on only one of the cloud
 providers as a case study, we have previously shown in
 section~\ref{sec:methodology} that this covert channel exists on the other
-clouds, and thus these experiments can be replicated on their serverless
+clouds, and thus we believe these experiments can be replicated on their serverless
 functions as well. We use the C++ runtime in AWS lambdas as it allows pointer
-arthmetic that is required to access the covert channel.\todo{add note about
-this fulfilling fast requirement?}
+arthmetic that is required to access the covert channel.
 
 \subsubsection{Setup}
 \label{subsec:expsetup}
@@ -45,7 +44,7 @@ lambdas successfully see the same result in majority of the independent rounds
 see match the ground truth.  For goal \#1, we ran an experiment with 1000 AWS
 lambdas and compared the error rate across different lambda sizes (the error
 rate indicates the fraction of these 1000 lambdas that did not have a majority
-result). Figure~\ref{fig:errorrates} indicates that smaller lambdas exhibit many
+result). Figure~\ref{fig:errorrates} indicates that smaller lambdas exhibit
 more errors.  This is expected because, as discussed in section
 \ref{sec:method:noise}, these lambdas experience lossy communication making it
 harder for our technique to sense contention. Lambdas that are 1.5 GB and
@@ -59,8 +58,8 @@ co-resident with one another. While such information is not available, we are
 able to ascertain correctness of our approach by utilizing an AWS caching
 mechanism. On AWS, each lambdas runs in a dedicated container (sandbox).  After
 execution, AWS caches these containers in order to reuse
-them~\cite{awscontainerreuse} for repeat lambdas and mitigate "cold start"
-latencies. For C++ lambdas, we found that the data structures declared in the
+them~\cite{awscontainerreuse} and mitigate "cold start" latencies. 
+For C++ lambdas, we found that the data structures declared in the
 global namespace are tied to containers and are not cleared on each lambda
 invocation, so we can use a global array to record all the lambdas that were
 ever executed in a particular container. This indicates that, for a given
@@ -142,7 +141,7 @@ underlying containers for true correctness.
 
 To demonstrate the correctness of our technique using this insight, we run an
 experiment with 1000 1.5GB cold-started lambdas (ID'ed 1 to 1000) in one of
-densest AWS regions (AWS MiddleEast), which resulted in many co-resident groups.
+newer AWS regions (me-south-1), which resulted in many co-resident groups.
 We repeat the experiment within a few seconds, thereby ensuring that all 1000
 lambdas are warm-started on the second trial (i.e., they use the same set of
 containers from the previous experiment).  For each co-resident group of lambdas

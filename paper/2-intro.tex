@@ -9,7 +9,7 @@ contemporaneous execution of computation from disparate customers on
 the same physical hardware -- is the norm.  The risks associated with
 this arrangement, both data leakage and interference, are
 well-appreciated and have generated both a vast research literature
-(starting with Ristenpart et al.~\cite{ristenpartccs2009}) as well a
+(starting with Ristenpart et al.~\cite{ristenpartccs2009}) as well as
 wide-array of technical isolation countermeasures employed by cloud
 platform providers. Most of this work has focused squarely on the risks
 of information channels between long-lived, heavy-weight virtual
@@ -20,7 +20,7 @@ However, over the last six years, most of the largest cloud providers have
 introduced a \emph{new} ``serverless'' service modality that executes
 short-lived, lightweight computations on demand (e.g., Amazon's
 Lambda~\cite{awslambda}, Google's Cloud Functions~\cite{gcpfunctions} and
-Microsoft's Azure functions~\cite{azurefunctions}).  These services, by design,
+Microsoft's Azure Functions~\cite{azurefunctions}).  These services, by design,
 use lighter-weight tenant isolation mechanisms (so-called ``micro-VMs'' or
 containers) as well as a fixed system environment to provide low-latency startup
 and a reduced memory footprint.  In return, serverless systems can support even
@@ -30,7 +30,7 @@ event-driven computations with embedded state).  However, the security issues
 associated with serverless computing are far less well understood than their
 heavier weight brethren.  While the transient and dynamic nature of serverless
 computing pose inherent challenges for attackers, their low-cost and
-light-weight isolation potentially present offer new points of purchase as well.
+light-weight isolation potentially present new points of purchase as well.
 
 In our work, we explore these issues through the lens of a singular question:
 can a practical covert channel be constructed entirely from existing
@@ -77,7 +77,7 @@ contributions:
   and, most importantly, fast, executing in a matter of seconds for thousands of
   concurrent lambdas.
 \item{\bf{Dynamic neighbor discovery.}}  We present a novel protocol for  
-  for the co-resident lambdas to communicate their IDs using a hardware-based 
+  the co-resident lambdas to communicate their IDs using a hardware-based 
   covert channel and discover one another. A key enabler of our co-residence detector,
   the protocol also helps a sender or receiver lambda to enumerate \emph{all} 
   its co-resident neighbors, a requirement to avoid unwanted communication 
@@ -89,7 +89,7 @@ contributions:
   number of short-lifetime lambdas launched at a point in time, how
   many would be expected to become co-resident?  We conduct these
   measurements across a range of Amazon data centers to establish that
-  there is ample co-residence of lambdas and covert communication is practicable.
+  there is ample co-residence of lambdas and that covert communication is practicable.
 \end{itemize}
 
 

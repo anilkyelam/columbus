@@ -83,7 +83,7 @@ neighbors. However, such information can be easily obfuscated by platform provid
 for example, currently there is no such identifier available for AWS lambdas. 
 So we turn to hardware-based covert channels that are, by definition, also accessible to all the 
 tenants. They are also generally more difficult to remove, and more pervasive too, 
-given that hardware is more homogenous across computing platforms than software. 
+given that the hardware is more homogenous across computing platforms than software. 
 %We discuss our use of
 %hardware-based covert channels and how producing a reliable and scalable
 %mechanism also fulfills the need for a generic and fast protocol.
@@ -167,7 +167,7 @@ interval of \textit{N} bit-slots. Each phase has a set of \textit{participating}
 lambdas, which in the first phase would be all of the lambdas. In
 each bit-slot \textit{K} of \textit{N} slots in a phase, every participating
 lambda broadcasts a bit if the $K^{th}$ bit of its bit-string (ID) is 1,
-otherwise it listens for a 0 or 1. If an lambda senses a 1 while listening, it
+otherwise it listens for a 0 or 1. If a lambda senses a 1 while listening, it
 stops participating, and listens for the rest of the phase. Thus, only the
 lambdas with the highest ID among the initial set of participating lambdas
 continues broadcasting until the end of the protocol, effectively advertising
@@ -175,7 +175,7 @@ its full ID to the rest of the (now listening) lambdas. In the next phase, the
 lambda with the previously highest ID now only listens, allowing the next
 highest lambda to advertise its ID, and so on.  If the IDs are unique,
 there will always be only one lambda that broadcasts in every phase. The
-protocol ends after \textit{x} phases (where \textit{x} is number of co-resident
+protocol ends after \textit{x} phases (where \textit{x} is the number of co-resident
 lambdas), when none of the lambdas broadcast for \textit{N} consecutive
 bit-slots. The pseudo-code of the protocol is provided in Algorithm
 \ref{alg:protcol}. 
@@ -226,8 +226,8 @@ section~\ref{sec:background:covertchannels} as it exploits a fundamental
 hardware vulnerability that is present across all generations of x86 hardware.
 Historically, multiple public cloud services have been vulnerable to this
 channel~\cite{varad191016,zhang2016}, and we find that they are still
-vulnerable today. To demonstrate the presence of the vuln erability, we measure
-the latency of atomic operations on a 8B memory region as we slide the region
+vulnerable today. To demonstrate the presence of the vulnerability, we measure
+the latency of atomic operations on an 8B memory region as we slide the region
 from one cacheline into another across the cacheline boundary. We perform this
 experiment on three major cloud platforms (AWS, Google and Microsoft Azure) and
 show the latencies observed in Figure~\ref{fig:membus_clouds}. From the figure,
@@ -332,15 +332,15 @@ essentially no difference between the sender and receiver (i.e., both
 continually issue locking operations) except that the receiver is taking
 measurements. This is adequate when there is a single sender and
 receiver~\cite{varadarajan2015}, but when there are multiple receivers, the mere
-act of sensing the channel by one receiver causes contention and other receivers
+act of sensing the channel by one receiver causes contention and the other receivers
 cannot differentiate between a silent (0-bit) and a locking (1-bit) sender. To
-avoid this, we space the sampling of memory bus such that no two receivers would
+avoid this, we space the sampling of memory bus such that no two receivers can 
 sample the bus at the same time, with high probability. We achieve this by
 using large intervals between successive samples and a poisson-sampling to
 prevent time-locking of receivers. We determined that a millisecond poisson gap
 between samples is reasonable to minimize noise due to collisions in receiver
 sampling~\ref{fig:membus_clouds}, assuming ten co-resident receivers and a few
-microsecond sampling time. \todo{R1 needed clarification}
+microseconds sampling time. \todo{R1 needed clarification}
 
 \textbf{Sample Size} 
 \label{sec:method:samplingdur}
@@ -429,7 +429,7 @@ to synchronize all the co-resident lambdas when sending and receiving
 bits. As all these lambdas are running on the same physical
 server, they share the server's clock. On AWS, for example, we observe that the
 system clock on lambdas is precise up to nanoseconds. 
-Assuming that clocks between different lambdas only exhibit a drift in the order
+Assuming that the clocks between different lambdas only exhibit a drift in the order
 of microseconds, sampling at a millisecond scale should provide us a margin for
 synchronization mismatch. Since we do not observe any synchronization-related
 noise in our results, we believe that this is a reasonable assumption.

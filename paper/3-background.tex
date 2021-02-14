@@ -1,4 +1,4 @@
-\section{Background \& Related Work}
+\section{Background}
 \label{sec:background}
 We begin with a brief background on related topics.
 
@@ -39,11 +39,11 @@ particularly on the feasiblity of establishing a reliable covert channel in the
 cloud using lambdas.  Covert channels enable a means of transmitting information
 beween entities that bypasses traditional monitoring or auditing. Typically,
 this is acheived by communicating data across unintended channels such as
-signalling bits by causing contention on shared hardware media on the
+signaling bits by causing contention on shared hardware media on the
 server~\cite{L2cacheCovertChannels,
 ProcessorCovertChannels,ThermalCovertChannel,SshOverCovertChannel,wuusenix2012}.
 Past work has demonstrated covert channels in virtualized environments like the
-clouds using various harware such as
+clouds using various hardware such as
 caches~\cite{ristenpartccs2009,L2cacheCovertChannels}, memory
 bus~\cite{wuusenix2012}, and even processor
 temperature~\cite{ThermalCovertChannel}. \\
@@ -65,7 +65,7 @@ Wu et al. acheived a data rate of 700 bps on the memory bus channel in an
 ideal laboratory setup.
 
 Achieving such ideal performance, however, is generally not possible in cloud 
-environments. Cloud platforms employ virtualization to enable to statistical 
+environments. Cloud platforms employ virtualization to enable statistical 
 multiplexing, and communication on the covert channel may be affected by
 1) scheduler interruptions as sender or the receiver may only get intermittent 
 access to the channel and 2) interference from other non-participating

@@ -58,10 +58,10 @@ send data across each of these covert channels at a rate of ~200 bps.
 
 \begin{figure}[!t]
   \includegraphics[width=.99\linewidth]{fig/clusters.pdf}
-  \caption{This figure shows the average number of lambdas per server i.e., the co-residence 
-  density seen in various AWS regions for the runs shown in Figure~\ref{fig:awsregions}. 
-  The ample co-residence across regions demonstrates the practicality of establishing 
-  covert channels with lambdas in these regions.
+  \caption{This figure shows the number of co-resident groups with more than two lambdas
+  seen in various AWS regions for the runs shown in Figure~\ref{fig:awsregions}. 
+  Each such co-resident group can host a covert channel, indicating that a 1000 lambda 
+  deployment can enable hundreds of covert channels.
 \label{fig:clusters}}
 \end{figure}
 
@@ -109,7 +109,7 @@ section are performed with 1.5 GB lambdas and executed successfully with
 
 
 \subsubsection{Across AWS regions}  
-We execute our co-residence detector with 1000 1.5 GB Lambdas in various AWS
+We execute our co-residence detector with 1000 1.5 GB lambdas in various AWS
 regions. Figure~\ref{fig:awsregions} comprises multiple plots depicting
 the co-resident groups per region, with each bar indicating the fraction of
 lambdas that detected a certain number of neighbors (i.e., that belong to a
@@ -121,9 +121,9 @@ non-existent first bar in each plot). We hypothesize that the co-residence
 density is (inversely) dependent on the total number of servers and the lambda
 activity in the region, both of which can be assumed to be lower in newer AWS
 regions resulting in higher co-residence density in those regions. 
-Figure~\ref{fig:density} shows the total number of co-resident groups with 
+Figure~\ref{fig:clusters} shows the total number of co-resident groups with 
 two or more lambdas, each of which can be an independent covert channel. 
-The ample co-residence in general ac  ross all the
+The ample co-residence in general across all the
 regions shows that lambdas provide a fertile ground for covert channels.
 %We note that the largest co-resident group on a single machine was comprised of 25 lambdas. 
 
@@ -131,17 +131,17 @@ regions shows that lambdas provide a fertile ground for covert channels.
 \subsubsection{Other factors}
 We also examine how co-residence is affected by various launch strategies that
 the user may use, like deploying lambdas from multiple AWS accounts and
-different lambda sizes. In particular, we wish to determine if we our mechanism
+different lambda sizes. In particular, we wish to determine if our mechanism
 exhibits different results when: 1) the user deploys sender lambdas and receiver
 lambdas on two separate accounts (normally the case with covert channels) and 2)
 the senders and receivers are created with different lambdas sizes.  To answer
 these questions, we run an experiment with 1000 lambdas of which we launch 500
-lambdas from one account (senders) and 500 from other deployed in a random
+lambdas from one account (senders) and 500 from the other deployed in a random
 order. The co-residence observed was comparable to the case where all the
 lambdas were launched from one account. In the left subfigure of
 Figure~\ref{fig:factors}, we show the breakdown of co-resident group of lambdas
 of each size among the two accounts.  We can see that among the co-resident
-groups of all sizes, roughly half of lambdas came from either account. This suggests 
+groups of all sizes, roughly half of the lambdas came from either account. This suggests 
 that lambda scheduler could be agnostic to the accounts the lambdas were launched
 from. We see similar results for different lambda sizes, as shown in the right
 subfigure of Figure~\ref{fig:factors}.
