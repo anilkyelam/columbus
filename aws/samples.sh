@@ -133,16 +133,8 @@ function combine() {
 # Find 
 expname=$1
 if [ -z "$expname" ];  then  expname=$(ls -t out/ | head -n1);    fi
-plot_each "out/$expname" "samples_$expname"
+# plot_each "out/$expname" "samples_$expname"
 # plot_each_ks "out/$expname" "ks_samples_$expname" "$expname"
-<<<<<<< Updated upstream
-
-
-# # Final plot for context switching
-# plot=plots/lambda_sched_effect.pdf
-# prefix="latrun-07-06-*-"
-# bit128=$(ls out/latrun-07-06-*-128/all_bit_samples)
-=======
 # plot_each_stats "out/$expname" "samples_stats_$expname" "$expname"
 
 # # Main()
@@ -172,13 +164,12 @@ done
 plot=plots/lambda_sched_effect.pdf
 prefix="latrun-07-06-*-"
 bit128=$(ls out/latrun-07-06-*-128/all_bit_samples)
->>>>>>> Stashed changes
 # bit512=$(ls out/latrun-07-06-*-512/all_bit_samples)
 bit1024=$(ls out/latrun-07-06-*-1024/all_bit_samples)
 # bit1536=$(ls out/latrun-07-06-*-1536/all_bit_samples)
 bit3008=$(ls out/latrun-07-06-*-3008/all_bit_samples)
 base3008=$(ls out/latrun-07-06-*-3008/all_base_samples)
-python plot.py -z cdf -xl "Latency (Cycles)" -yc "Latencies" -o $plot -nm --xmin 1000 --xmax 30000 \
+python plot.py -z cdf -xl "Latency (Cycles)" -yc "Latencies" -o $plot -nm -fs 18 --xmin 1000 --xmax 30000 \
     -d ${bit128}    -l "128 MB"     -ls densedot    \
     -d ${bit1024}   -l "1 GB"       -ls dashdot     \
     -d ${bit3008}   -l "3 GB"       -ls solid       \

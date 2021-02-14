@@ -54,7 +54,7 @@
 # # 09-22-01-19, membus3008
 # # Assuming ksvalues.csv file is already generated for these runs. See ks-samples.sh
 # plot=plots/ksvalues.pdf
-# python plot.py -z cdf -xl "KS measure" -yc "KSvalue" -nm -o $plot --vline 3  \
+# python plot.py -z cdf -xl "KS measure" -yc "KSvalue" -nm -o $plot -fs 18 --vline 3  \
 #     -d out/09-22-01-02/ksvalues.csv -l "128 MB" -ls densedot       \
 #     -d out/09-22-01-06/ksvalues.csv -l "256 MB" -ls dashdot      \
 #     -d out/09-22-01-09/ksvalues.csv -l "512 MB" -ls dash     \
@@ -78,7 +78,7 @@
 # sizes=`jq '.Sizes[]' out/$latter/stats.json`
 # echo "Size" > out/$latter/clusters
 # echo "$sizes" >> out/$latter/clusters
-# python plot.py -z hist \
+# python plot.py -z hist -fs 18 \
 #     -d out/${former}/clusters -l "Run 1" \
 #     -d out/${latter}/clusters -l "Run 2" \
 #     -yc "Size" \
@@ -93,7 +93,7 @@
 # # data from experiments: 10-16-16-[46 to 58]
 # datafile=plots/runtimes.dat
 # plot=plots/runtimes.pdf
-# python plot.py -xc "Count" -xl "Run Size (Lambda Count)" -yl "Time (secs)"  --xstr -z bar \
+# python plot.py -xc "Count" -xl "Run Size (Lambda Count)" -yl "Time (secs)" -fs 18 --xstr -z bar \
 #     -yc "Protocol Time" -ll none \
 #     -o $plot -d $datafile -of pdf
 # echo "Plot at: $plot"
@@ -115,7 +115,7 @@
 # # data from experiments: 09-22-15-08, 09-22-15-15, 09-22-15-18, 09-22-15-21, 09-22-15-24, 09-22-01-34, 09-17-14-13
 # datafile=plots/cluster.dat
 # plot=plots/clusters.pdf
-# python plot.py -xc "Region" -xl " " -yl "Count" -z bar --ymax 400  --xstr \
+# python plot.py -xc "Region" -xl " " -yl "Count" -z bar -fs 18 --ymax 400  --xstr \
 #     -yc "Clusters" -l "Non-singleton co-resident groups"\
 #     -o $plot -d $datafile -of pdf
 # echo "Plot at: $plot"
@@ -154,7 +154,7 @@
 # two_acc_run=10-08-01-19
 # python analyze.py -i $two_acc_run --dataaz
 # plot=plots/different-accounts.pdf
-# python plot.py -xc "Cluster" -xl "Group Size" -yl "Percentage" -d out/$two_acc_run/tags.csv -fs 15 --ymax 125     \
+# python plot.py -xc "Cluster" -xl "Group Size" -yl "Percentage" -d out/$two_acc_run/tags.csv -fs 18 --ymax 125     \
 #     -yc "Tag 0 %" -l "Account 0"    \
 #     -yc "Tag 1 %" -l "Account 1"    \
 #     -z barstacked -o $plot -of pdf
@@ -162,14 +162,24 @@
 # display $plot &
 
 
-# # Plot percentage of lambdas in each colocated cluster when different lambda sizes are used
+# # # Plot percentage of lambdas in each colocated cluster when different lambda sizes are used
 # two_size_run=10-19-02-06
 # python analyze.py -i $two_size_run --dataaz
 # plot=plots/different-sizes.pdf
-# python plot.py -xc "Cluster" -xl "Group Size" -yl "Percentage" -d out/$two_size_run/tags.csv -fs 15  --ymax=125     \
+# python plot.py -xc "Cluster" -xl "Group Size" -yl "Percentage" -d out/$two_size_run/tags.csv -fs 18  --ymax=125     \
 #     -yc "Tag 0 %" -l "1.5 GB Lambdas"    \
 #     -yc "Tag 1 %" -l "2 GB Lambdas"     \
 #     -z barstacked -o $plot -of pdf
 # echo "Plot at: $plot"
 # display $plot &
+
+# # Plot channel errors and capacity
+plot=plots/channel_rate_3gb.pdf
+python plot.py -o $plot -yl "Errors %" -tyl "Rate (bits per sec)" --xlog  --twin 2  -fs 18    \
+    -dyc out/chstats_membus3008 "Byte Errors Mean" -l "Byte Errors, Mean"         -ls solid       \
+    -dyc out/chstats_membus3008 "Byte Errors 95per" -l "Byte Errors, 95%"         -ls dashed        \
+    -dyc out/chstats_membus3008 "Effective Rate 95per" -l "Effective Bit Rate (Goodput)"     -ls dashdot              \
+    -xc "Channel Rate" -xl "Raw Bit Rate (bps)" 
+echo "Plot at: $plot"
+display $plot &
 
