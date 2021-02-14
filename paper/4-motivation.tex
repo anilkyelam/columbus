@@ -2,50 +2,51 @@
 \section{Motivation}
 \label{sec:motivation}
 
-We discuss the covert channel attack scenario that we are targetting, the challenges 
-lambdas would pose in enabling such an attack and motivate the need for a 
-co-residence detector for lambdas which is going to be our main focus in the rest of 
-the paper. 
+In this section, we discuss our covert channel attack scenario, the challenges
+lambdas would pose in enabling such an attack and, the need for a co-residence
+detector for lambdas.
 
 \textbf{Threat Model}
-Covert channel attacks require an "insider" to send the data over a covert 
-medium for exfiltration. We assume that the attacker uses social engineering 
-techniques or some other means (beyond the scope of this work) to introduce  
-such insiders in the victim system. In case of lambdas, this insider code could be 
-in the lambda itself or in a system that controls lambda deployments for an 
-organization; and already possesses the sensitive data that needs to be exfiltrated. 
-We further assume that the attacker has the knowledge of the cloud region 
-where the victim is operating and can deploy lambdas under its own account.
+Covert channel attacks generally require an ``insider'' who sends data over a
+covert medium for exfiltration. We assume that the attacker uses social
+engineering techniques or some other means (beyond the scope of this work) to
+introduce  such insiders in the victim system. In the case of lambdas, this
+insider code could be in the lambda itself or in a system that controls lambda
+deployments for an organization and already possesses the sensitive data that
+needs to be exfiltrated.  We further assume that the attacker has the knowledge
+of the cloud region where the victim is operating and can deploy lambdas under
+its own account.
 
-In a typical attack, the attacker launches a set of  lambdas (receivers) in the 
-cloud region where the victim lambdas 
-(senders) are expected to operate. The attacker and 
-(comprimised) victim lambda(s) can then work together\footnote{We do not explicitly
-differentiate attack and victim lambdas hereafter as they are all assumed 
-to be in attacker's control} to exchange the data over 
-a covert channel like the memory bus hardware discussed in earlier section.
-However, as mentioned earlier, there are few unique challenges before we can use
-a traditional covert channel in the cloud. We need: 1) to colocate the sender 
-and receiver on the same server which requires co-residence detection and 2) to handle
-the interruptions on such channel introduced by noisy neighbors and inconsistent 
-access to the channel due to scheduling.
+In a typical attack, the attacker launches a set of lambdas (receivers) in the
+cloud region where the victim lambdas (senders) are expected to operate. The
+attacker and (compromised) victim lambdas can then work together\footnote{We
+do not explicitly differentiate attack and victim lambdas hereafter as they are
+all assumed to be in the control of the attacker} to exchange the data over a covert
+channel, like the memory bus hardware discussed earlier.  However, as
+mentioned earlier, there are few unique challenges before we can use a
+traditional covert channel in the cloud. We need to: 1) co-locate the sender and
+receiver on the same server (via co-residence detection) and 2)
+handle interruptions on such a channel, such as noisy neighbors
+neighbors or scheduling.
 
-While these challenges have been handled for other cloud platforms like VMs 
-(see related work), lambdas are inherently different in that 
-they have very short lifetimes. A covert
-channel between two co-resident lambdas will not last very long. However, while
-lambdas are not persistent, it is trivial and cheap to launch lambdas in large numbers at
-once and establish multiple rendezvous points to allow for more covert communication.
-Additionally, lambdas are also densly packed than VMs
-exacerbating the noisy neighbor problem.
+While these challenges have been handled for other cloud platforms like VMs in
+related work, lambdas are inherently different in that they have very short
+lifetimes. A covert channel between two co-resident lambdas will not last very
+long. However, while lambdas are not persistent, it is trivial and cheap to
+launch lambdas in large numbers at once and establish multiple co-residence
+points to allow for more covert communication.  Additionally, lambdas are also
+more densely packed than VMs, exacerbating the noisy neighbor problem.
 
-The ephemeral, numerous and dense nature of lambdas require a fast,
-scalable, and reliable co-residence detector. Such a  
-detector will allow the attacker to identify all the servers with two or more 
-co-resident lambdas and establish a rendezvous on each such server. 
-Moreover, the detector should precisely identify which lambdas are co-resident 
-allowing the attacker to pick any two lambdas on a given machine, 
-and use the covert channel without interference from neighbors. 
+The ephemeral, numerous, and dense nature of lambdas require a fast, scalable,
+and reliable co-residence detector. This detector should also allow the attacker
+identify all the servers with two or more co-resident lambdas and establish a
+rendezvous on each such server\amirian{how is the rendezvous different that the
+following sentence? If we want to use this term we need to explain what it
+means. I dont think we need it but I wanted to make a note in case I'm missing
+something}. Moreover, the detector should precisely identify which lambdas are
+co-resident, allowing the attacker to pick any two lambdas on a given machine,
+and use the covert channel between these two lambdas without interference from
+neighbors. 
 %This means that they can  quickly identify which lambdas are singletons and save
 %time and money by killing these functions early.
 
