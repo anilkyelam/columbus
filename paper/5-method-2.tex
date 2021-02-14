@@ -35,10 +35,10 @@
 \end{figure*}
 
 
-In this section, we present a novel co-residence detector for lambdas,
-including: previous solutions to this problem, the unique challenges we faced
-with lambdas, how we addressed each of them, and an evalution of the detector
-mechanism.
+In this section, we describe the necessary requirements for a lambda-based 
+co-residence detector, how these requirements have driven our design choices, 
+the detailed implementation that we have used to overcome the unique challenges 
+in this setting and an evaluation of its effectiveness.
 
 \subsection{Specification}
 Given a set of cloud instances (VMs, containers, functions, etc) deployed to a
@@ -73,18 +73,15 @@ should have the following properties:
 \subsection{Design}
 \amirian{Alternate title: Design Considerations}
 \amirian{each of these sections is basically setting up the problems so that we
-can address them later}
+can address them later\anil{well, the final subsubsection is the design itself..}}
 
-\subsubsection{Using Covert Channels for Generality}
-\amirian{Alternate title: Generality}
-\amirian{I dont think you need to keep say "covert channel"..sounds clunky in
-all of these subsubsection titles}
+\subsubsection{Generality}
 As mentioned in section~\ref{sec:background:coresidence}, co-residence detection
 was previously accomplished using unique software idenitifers that revealed
 underlying the server structure to the tenants. Such software identifiers
-present the fastest and perhaps most reliable (in terms of ground
-truth\anil{reliable as in trustworthy information}) way for co-residence
-detection. In our scenario, each lambda could quickly ``read'' the identifier
+present the fastest and perhaps most reliable way (in terms of ground
+truth) for co-residence detection. 
+In our scenario, each lambda could quickly ``read'' the identifier
 and communicate this information with all other lambdas (through the network or
 shared remote storage) to identify the co-resident lambdas. However, such
 information can be easily obfuscated by platform providers; for example,
@@ -99,8 +96,7 @@ than software.
 %mechanism also fulfills the need for a generic and fast protocol.
 
 
-\subsubsection{Covert Channels Cannot Support Multiple Parties}
-\todo{think about this paragraph}
+\subsubsection{Challenge with Covert Channels}
 \amirian{alternate subtitle: Multiple Party Support}
 \amirian{this paragraph differs from the other two in that it doesnt have a
 solution for this design consideration}
@@ -116,7 +112,9 @@ parties can either only send or receive a bit, not both) with no capability for
 collision detection. Covert channels also typically have very limited bandwidth
 (often only tens of bits per second) that channel arbitration can be complex
 enough and present significant overhead to be considered infeasible.
-\amirian{needs the high level solution to match the flow of the others}
+\amirian{needs the high level solution to match the flow of the others
+\anil{updated name may render this moot}}
+
 
 %such as MAC protocols in Ethernet networks, 
 
@@ -136,7 +134,7 @@ enough and present significant overhead to be considered infeasible.
 %significant overhead on channel bandwidth. 
 %
 
-\subsubsection{A fast ID broadcast designed for covert channels}
+\subsubsection{Efficient ID Broadcasting}
 \amirian{alternate subtitle: Broadcasting IDs Quickly or Fast ID Broadcasting}
 \label{sec:method:protocol}
 

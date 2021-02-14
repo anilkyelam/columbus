@@ -41,11 +41,13 @@ experiments for different lambda sizes and in various cloud regions.
 We consider the results of the technique reliable when most of the deployed
 lambdas successfully see the same result in a majority of the independent rounds
 (indicating lesser bit-flip errors) and the resulting co-resident groups we
-see examine the ground truth.  For goal \#1, we ran an experiment with 1000 AWS
+see examine the ground truth.  For the former requirement, 
+we ran an experiment with 1000 AWS
 lambdas and compared the error rate across different lambda sizes (the error
-rate indicates the fraction of these 1000 lambdas that did not line up with the majority
-result).\amirian{the phrasing of majority here confuses me a bit but im not sure
-how to fix it} Figure~\ref{fig:errorrates} indicates that smaller lambdas exhibit
+rate indicates the fraction of these 1000 lambdas that returned erroneous result).
+\amirian{the phrasing of majority here confuses me a bit but im not sure
+how to fix it \anil{defined in above paragraph}} Figure~\ref{fig:errorrates} 
+indicates that smaller lambdas exhibit
 more errors.  This is expected because, as discussed in section
 \ref{sec:method:noise}, these lambdas experience lossy communication, making it
 harder for our technique to sense contention. Lambdas that are 1.5 GB and
