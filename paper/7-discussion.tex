@@ -21,7 +21,7 @@ scenarios where such tool can be (ab)used, of which we provide some examples.
 \end{itemize}
 
 \textbf{Mitigation}
-In previous section, we showed that our co-residence detector makes the covert
+In the previous section, we showed that our co-residence detector makes the covert
 channels practical with lambdas, so it is important that clouds address this
 issue. One way to disable our co-residence detector is to fix the underlying
 memory bus channel that it employs. However, this only works for newer
@@ -32,6 +32,4 @@ languages) by the cloud providers. This will prevent pointer arithmetic that is
 required to activate this channel. If that is not an option, cloud providers may look at
 more expensive solutions like BusMonitor~\cite{MemoryBusMitigation} that isolate
 memory bus usage for different tenants by trapping the atomic operations to the 
-hypervisor. We leave such exploration to future
-work.
-\todo{small note on limitations and future work?}
+hypervisor. We leave such exploration to future work.
