@@ -8,7 +8,6 @@
   containers. The perfect correlation shows that both runs depict the co-residence 
   status of those containers regardless of the lambdas that ran on them, providing
   evidence for the correctness of our approach.
-  \todo{make it print friendly}
 \label{fig:correlation}}
 \end{figure}
 
@@ -29,21 +28,20 @@ this fulfilling fast requirement?}
 
 \subsubsection{Setup}
 \label{subsec:expsetup}
-For each experiment, we deploy a series of instances from an AWS lambda
-account. Once deployed, each instance participates in the first phase of the
+We deploy a series of lambdas from an AWS lambda account. 
+Once deployed, each lambda participates in the first phase of the
 protocol as noted in section~\ref{sec:protocol:complexity}, thereby learning the
 largest ID of their neighbors. As bit-flip errors are possible, we repeat the
 same phase for two more (independent) "rounds" and take the majority result to
-record the ID seen by this instance.  If all three rounds result in different
-IDs, we classify this instance as erroneous and report it in the error rate. We
-group all the instances that saw the same ID as successful and neighbors. We
+record the ID seen by this lambda.  If all three rounds result in different
+IDs, we classify this lambda as erroneous and report it in the error rate. We
+group all the lambdas that saw the same ID as successful and neighbors. We
 repeat the experiments for different lambda sizes and in various cloud regions.
-\todo{add cost here}
 
 \subsubsection{Reliability}
-We consider the results of the technique reliable when 1) most of the deployed
-instances successfully see the same result in majority of the independent rounds
-(indicating lesser bit-flip errors) and 2) the resulting co-resident groups we
+We consider the results of the technique reliable when most of the deployed
+lambdas successfully see the same result in majority of the independent rounds
+(indicating lesser bit-flip errors) and the resulting co-resident groups we
 see match the ground truth.  For goal \#1, we ran an experiment with 1000 AWS
 lambdas and compared the error rate across different lambda sizes (the error
 rate indicates the fraction of these 1000 lambdas that did not have a majority
@@ -56,7 +54,7 @@ larger, though, exhibit a 100\% success rate.
 
 \textbf{Correctness} 
 \todo{promised clarity here in rebuttal}
-To determine correctness, we require ground truth on which instances are
+To determine correctness, we require ground truth on which lambdas are
 co-resident with one another. While such information is not available, we are
 able to ascertain correctness of our approach by utilizing an AWS caching
 mechanism. On AWS, each lambdas runs in a dedicated container (sandbox).  After
@@ -85,6 +83,15 @@ underlying containers for true correctness.
 \label{fig:runtimes}}
 \end{figure}
 
+
+\begin{figure}[!t]
+  \includegraphics[width=.99\linewidth]{fig/channel_rate_3gb.pdf}
+ \caption{The dashed lines in the figure presents the mean error ratio at 50\% and 95\%
+ confidence when sending bits at various rates over the covert channel. The solid 
+ line shows the effective channel rate after accounting for the overhead of 
+ error correction at the 95\% error.
+\label{fig:channel}}
+\end{figure}
 
 % Figures from the next section
 % Moved here for formatting
@@ -144,7 +151,7 @@ the same set of containers) in the former experiment formed a co-resident group
 as well.  That is, while the lambdas to the underlying container mapping is
 different across both experiments, the results of the experiments agree
 perfectly on the continer colocation. Figure~\ref{fig:correlation} shows that
-both experiments saw the same number of co-residing groups of different sizes.
+both experiments saw the same number of co-resident groups of different sizes.
 This proves the correctness of the results of our mechansim.
 
 \subsubsection{Scalability}
@@ -155,25 +162,13 @@ Figure~\ref{fig:runtimes} shows this result with experiments involving
 different number of lambdas. For example, in an experiment with 1000 lambdas,
 each lambda can find its neighbors within a minute of its invocation, leaving
 ample time for the attacker to then establish the covert channel and use it to 
-send information. The logarithmic scale of our method also indicates that the 
+send information (for reference, lambdas on AWS can only run for 15 minutes at most). 
+The logarithmic scale of our method also indicates that the 
 cost per lambda scales logarithmically, making neighbor detection cost-effective.
-\todo{note here about sublinear time?}
+For example, one 1000 lambda run with 1.5 GB lambdas cost around just 1.5 USD. 
+
 % mention cost of one run?
 
-
-
-
-% Figures from the next section
-% Moved here for formatting
-
-\begin{figure}[!t]
-  \includegraphics[width=.99\linewidth]{fig/density.pdf}
-  \caption{This figure shows the average number of lambdas per server i.e., the co-residence 
-  density seen in various AWS regions for the runs shown in Figure~\ref{fig:awsregions}. 
-  The ample co-residence across regions demonstrates the practicality of establishing 
-  covert channels with lambdas in these regions.
-\label{fig:density}}
-\end{figure}
 
 %\paragraph{Generality}
 %\todo{We only implemented it on AWS. This requires us to implement it on 

@@ -186,8 +186,7 @@ bit-slots. The pseudo-code of the protocol is provided in Algorithm
 \begin{figure}[!t]
   \includegraphics[width=.99\linewidth]{fig/errorrates.pdf}
   \caption{This figure presents the error rate (as a fraction of 1000 lambdas
-  deployed) for different lambda sizes in the AWS Middle-East region. 
-  \todo{make it print friendly}
+  deployed) for different lambda sizes in the AWS Middle-East region.
 \label{fig:errorrates}}
 \end{figure}
 
@@ -227,7 +226,7 @@ section~\ref{sec:background:covertchannels} as it exploits a fundamental
 hardware vulnerability that is present across all generations of x86 hardware.
 Historically, multiple public cloud services have been vulnerable to this
 channel~\cite{varad191016,zhang2016}, and we find that they are still
-vulnerable today. To demonstrate the presence of the vulnerability, we measure
+vulnerable today. To demonstrate the presence of the vuln erability, we measure
 the latency of atomic operations on a 8B memory region as we slide the region
 from one cacheline into another across the cacheline boundary. We perform this
 experiment on three major cloud platforms (AWS, Google and Microsoft Azure) and
@@ -376,8 +375,7 @@ samples to make up for lost communication due to scheduling.
   Lambdas during contention. The 128 MB lambda pair sees less contention due to
   more context switching, whereas the 1 GB and 3 GB lambdas see progressively
   more contention compared to the baseline, which we attribute to their relative
-  stability on the underlying physical cores. 
-  \todo{make it print friendly}
+  stability on the underlying physical cores.
 \label{fig:context_switching}}
 \end{figure}
 

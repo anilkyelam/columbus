@@ -21,7 +21,7 @@ Our work focuses on using the memory bus as a covert channel for determining
 cooperative co-residency.  Covert channels using memory bus were first
 introduced by Wu et. al~\cite{wuusenix2012}, and subsequently has been used for
 co-residency detection on VMs and
-containers~\cite{compstudycoresidency,varad191016}  Wu et. al~\cite{wuusenix2012}
+containers~\cite{zhang2011,varad191016}  Wu et. al~\cite{wuusenix2012}
 introduced a new technique to lock the memory bus by using atomic memory
 operations on addresses that fall on multiple cache lines, a technique we rely
 on in our own work. \\
@@ -41,11 +41,11 @@ side-channel analyses~\cite{zhang2011}. Our work expands on these previous works
 by investigating co-residency for lambdas.\\
 
 \noindent \textbf{Lambdas} 
-While lambdas are a much newer technology than VMs, there still exists lterature
+While lambdas are a much newer technology than VMs, there still exists literature
 on the subject. Recent studies examined cost comparisons of running web
 applications in the cloud on lambdas versus other
 architectures~\cite{villamizar2016}, and also examined the lambdas have been
-studied in the context of cost-effectivness of batching and data processing with
+studied in the context of cost-effectiveness of batching and data processing with
 lambdas~\cite{kiran2015}.  Further research has shown how lambdas perform with
 scalability and hardware isolation, indicating some flaws in the lambda
 architecture~\cite{wangusenix2018}. From a security perspective, Izhikevich et.
