@@ -3,28 +3,26 @@
 
 \noindent \textbf{Cloud Attacks} 
 Co-residency is possible because of covert channels, so we begin our related
-work with an investigation into cloud attacks. Initial
-papers in co-residency detection utilized host information and network
-addresses arising due to imperfect virtualization~\cite{ristenpartccs2009}.
-However, these channels are now obsolete, as cloud provides have
-strengthened virtualization and introduced Virtual Private
-Clouds~\cite{awsvpc}. Later work used cache-based channels in various levels of
-the cache~\cite{xuccsw2011, zhangccs2014, liu2015, kaylaap2016} and hardware
-based channels like thermal covert channels~\cite{mastiusenix2015}, RNG
-module~\cite{evtyushkinccs2016} and memory bus~\cite{wuusenix2012} have also
-been explored in the recent past. Moreover, studies have found that VM
-performance can be significantly degraded using memory DDoS
-attacks~\cite{zhang2016memory}, while containers are susceptible to power
-attacks from adjacent containers~\cite{gao2017}.  
+work with an investigation into cloud attacks. Initial papers in co-residency
+detection utilized host information and network addresses arising due to
+imperfect virtualization~\cite{ristenpartccs2009}.  However, these channels are
+now obsolete, as cloud provides have strengthened virtualization and introduced
+Virtual Private Clouds~\cite{awsvpc}. Later work used cache-based channels in
+various levels of the cache~\cite{xuccsw2011, zhangccs2014, liu2015,
+kaylaap2016} and hardware based channels like thermal covert
+channels~\cite{mastiusenix2015}, RNG module~\cite{evtyushkinccs2016} and memory
+bus~\cite{wuusenix2012} have also been explored in the recent past. Moreover,
+studies have found that VM performance can be significantly degraded using
+memory DDoS attacks~\cite{zhang2016memory}, while containers are susceptible to
+power attacks from adjacent containers~\cite{gao2017}.  
 
 Our work focuses on using the memory bus as a covert channel for determining
 cooperative co-residency.  Covert channels using memory bus were first
 introduced by Wu et. al~\cite{wuusenix2012}, and subsequently has been used for
-co-residency detection on VMs and
-containers~\cite{zhang2011,varad191016}  Wu et. al~\cite{wuusenix2012}
-introduced a new technique to lock the memory bus by using atomic memory
-operations on addresses that fall on multiple cache lines, a technique we rely
-on in our own work. \\
+co-residency detection on VMs and containers~\cite{zhang2011,varad191016} Wu
+et. al~\cite{wuusenix2012} introduced a new technique to lock the memory bus by
+using atomic memory operations on addresses that fall on multiple cache lines, a
+technique we rely on in our own work. \\
 
 \noindent \textbf{Co-residency} 
 One of the first pieces of literature in detecting VM co-residency was

@@ -20,18 +20,18 @@ scenarios where such tool can be (ab)used, of which we provide a couple of examp
     server locality.
 \end{itemize}
 
-\noindent \textbf{Mitigation}
-In previous section, we showed that our co-residence detector makes the covert
+\textbf{Mitigation}
+In the previous section, we showed that our co-residence detector makes the covert
 channels practical with lambdas, so it is important that clouds address this
 issue. One way to disable our co-residence detector is to fix the underlying
 memory bus channel that it employs. However, this only works for newer
 generation of servers and is not practical for existing infrastructure. An
 easier solution, one that is only practical with lambdas, is to disable the
 lambda support for low-level languages (or unsafe versions of high-level
-languages) by the cloud providers. This will prevent pointer arithmetic that is
+languages) by the cloud providers. This will prevent pointer arithmetic operations that are
 required to activate this channel. However, in all three cloud platforms we examined, 
 these unsafe or low level languages were introduced as options at a later point, 
 indicating that there is a business use case. In that case, cloud providers may look at
-more expensive solutions like BusMonitor~\cite{MemoryBusMitigation} that isolate
+more expensive solutions like BusMonitor~\cite{MemoryBusMitigation} that isolates
 memory bus usage for different tenants by trapping the atomic operations to the 
 hypervisor. We leave such exploration to future work.
