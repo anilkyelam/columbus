@@ -16,9 +16,10 @@ from enum import Enum
 import scipy.stats as scstats
 
 
-colors = ['b', 'g', 'r', 'brown', 'c','k', 'orange', 'm','orangered','y']
+colors = ['r','b','g', 'brown', 'c','m', 'orange', 'k','orangered','y']
 linetypes = ['g-','g--','g-+']
 markers = ['x','+','o','s','+', '|', '^']
+barpatterns = ['\\', '/', '-', '+', 'x', '\\', '*', 'o', 'O']
 
 class PlotType(Enum):
     line = 'line'
@@ -63,13 +64,41 @@ def set_axes_legend_loc(ax, lns, labels, loc):
         ax.legend(lns, labels, loc=loc.matplotlib_loc(), bbox_to_anchor=(1, 1), ncol=1, fancybox=True, shadow=True)
 
 
+TUPLES = {
+    'solid'             : (0, ()),
+    'dot'               : (0, (1, 5)),
+    'loosedot'          : (0, (1, 10)),
+    'densedot'          : (0, (1, 1)),
+    'dash'              : (0, (5, 5)),
+    'loosedash'         : (0, (5, 10)),
+    'densedash'         : (0, (5, 1)),
+    'dashdot'           : (0, (3, 5, 1, 5)),
+    'loosedashdot'      : (0, (3, 10, 1, 10)),
+    'densedashdot'      : (0, (3, 1, 1, 1)),
+    'loosedashdotdot'   : (0, (3, 10, 1, 10, 1, 10)),
+    'dashdotdot'        : (0, (3, 5, 1, 5, 1, 5)),
+    'densedashdotdot'   : (0, (3, 1, 1, 1, 1, 1))
+}
 class LineStyle(Enum):
     solid = 'solid'
-    dashed = "dashed"
-    dotdash = "dashdot"
+    dot = "dot"
+    loosedot = "loosedot"
+    densedot = "densedot"
+    dash = "dash"
+    loosedash = "loosedash"
+    densedash = "densedash"
+    dashdot = "dashdot"
+    loosedashdot = "loosedashdot"
+    densedashdot = "densedashdot"
+    dashdotdot = "dashdotdot"
+    loosedashdotdot = "loosedashdotdot"
+    densedashdotdot = "densedashdotdot"
 
     def __str__(self):
         return self.value
+
+    def tuple(self):
+        return TUPLES[self.value]
 
 class OutputFormat(Enum):
     pdf = 'pdf'
@@ -375,6 +404,7 @@ def main():
     lidx = 0
     aidx = 0
     labelidx = 0
+    bpidx = 0
 
     font = {'family' : 'sans-serif',
             'size'   : args.fontsize}
@@ -464,9 +494,9 @@ def main():
             xc = [x * args.xmul for x in xc]
             yc = [y * ymul for y in yc]
             if args.xstr:   xc = [str(x) for x in xc]
-            ax.bar(xc, yc, label=label, color=colors[cidx])
+            ax.bar(xc, yc, label=label, color=colors[cidx], hatch=barpatterns[bpidx])
             if args.xstr:   ax.set_xticks(xc)
-            if args.xstr:   ax.set_xticklabels(xc, rotation='45')
+            if args.xstr:   ax.set_xticklabels(xc, rotation='15')
             
 
         elif args.ptype == PlotType.barstacked:
@@ -475,9 +505,9 @@ def main():
             xc = [x * args.xmul for x in xc]
             yc = np.array([y * ymul for y in yc])
             if args.xstr:   xc = [str(x) for x in xc]
-            ax.bar(xc, yc, bottom=base_dataset, label=label, color=colors[cidx])
+            ax.bar(xc, yc, bottom=base_dataset, label=label, color=colors[cidx], hatch=barpatterns[bpidx])
             if args.xstr:   ax.set_xticks(xc)
-            if args.xstr:   ax.set_xticklabels(xc, rotation='45')
+            if args.xstr:   ax.set_xticklabels(xc, rotation='15')
             base_dataset = yc if base_dataset is None else base_dataset + yc
 
         elif args.ptype == PlotType.hist:
@@ -497,7 +527,8 @@ def main():
             bar_width = 0.35
             xc = np.arange(MAX_N)
             neighbors = [n * 100.0/total for n in neighbors]
-            ax.bar(xc + (plot_num * bar_width), neighbors, bar_width, label=label, color=colors[cidx])
+            ax.bar(xc + (plot_num * bar_width), neighbors, bar_width, label=label, 
+                color=colors[cidx], hatch=barpatterns[bpidx])
             # ax.set_xticks(xc + (plot_num * bar_width) / 2) 
             # ax.set_xticklabels(xc)
 
@@ -538,14 +569,15 @@ def main():
             if args.colormarkerincr[plot_num] == 1:
                 cidx = (cidx + 1) % len(colors)
                 midx = (midx + 1) % len(markers)
+                bpidx = (bpidx + 1) % len(barpatterns)
         else:
             cidx = (cidx + 1) % len(colors)
             midx = (midx + 1) % len(markers)
+            bpidx = (bpidx + 1) % len(barpatterns)
      
         if args.labelincr:
             if args.labelincr[plot_num] == 1:
-                labelidx = (labelidx + 1) 
-        
+                labelidx = (labelidx + 1)    
 
         plot_num += 1
         if args.ymin:    ax.set_ylim(ymin=args.ymin)
@@ -564,7 +596,7 @@ def main():
 
     if args.linestyle:
         for idx, ls in enumerate(args.linestyle):
-            lns[idx].set_linestyle(ls)
+            lns[idx].set_linestyle(LineStyle(ls).tuple())
     
     if args.lloc != LegendLoc.none and args.ptype in [PlotType.bar, PlotType.barstacked, PlotType.hist]:
         plt.legend(loc=args.lloc.matplotlib_loc())

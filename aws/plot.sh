@@ -4,33 +4,33 @@
 
 # Plot colocation clusters for each experiment
 # Current candidates for the paper: 09-22-15-08, 09-22-15-15, 09-22-15-18, 09-22-15-21, 09-22-15-24, 09-22-01-34, 09-17-14-13
-prefix=$1
-if [ -z "$prefix" ];  then    prefix=$(date +"%m-%d");    fi    # today
-for f in `ls -d out/${prefix}*/stats.json`
-do
-    echo $f
-    dir=`dirname $f`
-    region=`jq '.Region' $f | tr -d '"'`
-    count=`jq '.Count' $f`
-    clusters=`jq '.Clusters' $f`
-    errorrate=`jq '."Error Rate"' $f`
-    sizes=`jq '.Sizes[]' $f`
-    errors=`echo $count $errorrate | awk '{print $1*$2/100.0}'`
-    echo "Size" > $dir/clusters
-    echo "$sizes" >> $dir/clusters
-    echo $region, $count, $clusters, $errorrate
+# prefix=$1
+# if [ -z "$prefix" ];  then    prefix=$(date +"%m-%d");    fi    # today
+# for f in `ls -d out/${prefix}*/stats.json`
+# do
+#     echo $f
+#     dir=`dirname $f`
+#     region=`jq '.Region' $f | tr -d '"'`
+#     count=`jq '.Count' $f`
+#     clusters=`jq '.Clusters' $f`
+#     errorrate=`jq '."Error Rate"' $f`
+#     sizes=`jq '.Sizes[]' $f`
+#     errors=`echo $count $errorrate | awk '{print $1*$2/100.0}'`
+#     echo "Size" > $dir/clusters
+#     echo "$sizes" >> $dir/clusters
+#     echo $region, $count, $clusters, $errorrate
     
-    # Plot
-    plot=${dir}/colocation-$region.pdf
-    python plot.py -z hist -l $region -fs 25 --xmax=15 \
-        -yc "Size" \
-        -yl " % of lambdas " \
-        -xl "Number of neighbors" \
-        -o $plot -d ${dir}/clusters -of pdf
-    echo "Plot at: $plot"
-    cp $plot plots/
-    display $plot &
-done
+#     # Plot
+#     plot=${dir}/colocation-$region.pdf
+#     python plot.py -z hist -l $region -fs 25 --xmax=15 \
+#         -yc "Size" \
+#         -yl " % of lambdas " \
+#         -xl "Number of neighbors" \
+#         -o $plot -d ${dir}/clusters -of pdf
+#     echo "Plot at: $plot"
+#     cp $plot plots/
+#     display $plot &
+# done
 
 
 # # Plot error rates for different lambda sizes
@@ -54,13 +54,13 @@ done
 # # 09-22-01-19, membus3008
 # # Assuming ksvalues.csv file is already generated for these runs. See ks-samples.sh
 # plot=plots/ksvalues.pdf
-# python plot.py -z cdf -xl "KS measure" -yc "KSvalue" -o $plot -fs 15 --vline 3 -nm \
-#     -d out/09-22-01-02/ksvalues.csv -l "128 MB"     \
-#     -d out/09-22-01-06/ksvalues.csv -l "256 MB"     \
-#     -d out/09-22-01-09/ksvalues.csv -l "512 MB"     \
-#     -d out/09-22-01-12/ksvalues.csv -l "1 GB"       \
-#     -d out/09-22-01-16/ksvalues.csv -l "1.5 GB"     \
-#     -d out/09-22-01-19/ksvalues.csv -l "3 GB"
+# python plot.py -z cdf -xl "KS measure" -yc "KSvalue" -nm -o $plot --vline 3  \
+#     -d out/09-22-01-02/ksvalues.csv -l "128 MB" -ls densedot       \
+#     -d out/09-22-01-06/ksvalues.csv -l "256 MB" -ls dashdot      \
+#     -d out/09-22-01-09/ksvalues.csv -l "512 MB" -ls dash     \
+#     -d out/09-22-01-12/ksvalues.csv -l "1 GB"   -ls densedash      \
+#     -d out/09-22-01-16/ksvalues.csv -l "1.5 GB" -ls dashdotdot    \
+#     -d out/09-22-01-19/ksvalues.csv -l "3 GB"   -ls solid
 # echo "Plot at: $plot"
 # display $plot &
 
@@ -78,7 +78,7 @@ done
 # sizes=`jq '.Sizes[]' out/$latter/stats.json`
 # echo "Size" > out/$latter/clusters
 # echo "$sizes" >> out/$latter/clusters
-# python plot.py -z hist -fs 20 \
+# python plot.py -z hist \
 #     -d out/${former}/clusters -l "Run 1" \
 #     -d out/${latter}/clusters -l "Run 2" \
 #     -yc "Size" \
@@ -93,7 +93,7 @@ done
 # # data from experiments: 10-16-16-[46 to 58]
 # datafile=plots/runtimes.dat
 # plot=plots/runtimes.pdf
-# python plot.py -xc "Count" -xl "Run Size (Lambda Count)" -yl "Time (secs)" -fs 20  --xstr -z bar \
+# python plot.py -xc "Count" -xl "Run Size (Lambda Count)" -yl "Time (secs)"  --xstr -z bar \
 #     -yc "Protocol Time" -ll none \
 #     -o $plot -d $datafile -of pdf
 # echo "Plot at: $plot"
@@ -106,6 +106,17 @@ done
 # plot=plots/density.pdf
 # python plot.py -xc "Region" -xl " " -yl "Count" -fs 20 -z bar  --xstr \
 #     -yc "Density" -l "Avg. Lambdas Per Server"\
+#     -o $plot -d $datafile -of pdf
+# echo "Plot at: $plot"
+# display $plot &
+
+
+# # Plot non-singleton clusters in various regions
+# # data from experiments: 09-22-15-08, 09-22-15-15, 09-22-15-18, 09-22-15-21, 09-22-15-24, 09-22-01-34, 09-17-14-13
+# datafile=plots/cluster.dat
+# plot=plots/clusters.pdf
+# python plot.py -xc "Region" -xl " " -yl "Count" -z bar --ymax 400  --xstr \
+#     -yc "Clusters" -l "Non-singleton co-resident groups"\
 #     -o $plot -d $datafile -of pdf
 # echo "Plot at: $plot"
 # display $plot &

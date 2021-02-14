@@ -6,7 +6,7 @@
 prefix=$1
 if [ -z "$prefix" ];  then    prefix=$(date +"%m-%d");    fi    # today
 
-OUT=`echo Exp,Lambda,Region,Phases,Bit-Time,Count,Responded,Clusters,Density,Max Size,Errors,Size 1,Size 2,Size 3-5,Size 6-10,Unaccounted,Samples,Comments`
+OUT=`echo Exp,Lambda,Region,Phases,Bit-Time,Count,Responded,ClustersAll,ClustersMul,Density,Max Size,Errors,Size 1,Size 2,Size 3-5,Size 6-10,Unaccounted,Samples,Comments`
 # for f in `ls out/08-20-1*/stats.json`; do
 for f in `ls out/${prefix}*/stats.json`; do
     # Data from stats.json
@@ -31,22 +31,23 @@ for f in `ls out/${prefix}*/stats.json`; do
 
     # Inferred stats
     errors=`echo $count $errorrate | awk '{print $1*$2/100.0}'`
-    size1=`grep -o "1" <<< "${sizes[*]}" | wc -l`
-    size2=`grep -o "2" <<< "${sizes[*]}" | wc -l`
-    size3=`egrep -o "3" <<< "${sizes[*]}" | wc -l`
-    size4=`egrep -o "4" <<< "${sizes[*]}" | wc -l`
-    size5=`egrep -o "5" <<< "${sizes[*]}" | wc -l`
-    size6=`egrep -o "6" <<< "${sizes[*]}" | wc -l`
-    size7=`egrep -o "7" <<< "${sizes[*]}" | wc -l`
-    size8=`egrep -o "8" <<< "${sizes[*]}" | wc -l`
-    size9=`egrep -o "9" <<< "${sizes[*]}" | wc -l`
-    size10=`egrep -o "10" <<< "${sizes[*]}" | wc -l`
+    size1=`grep -o "^1$" <<< "${sizes[*]}" | wc -l`
+    size2=`grep -o "^2$" <<< "${sizes[*]}" | wc -l`
+    size3=`egrep -o "^3$" <<< "${sizes[*]}" | wc -l`
+    size4=`egrep -o "^4$" <<< "${sizes[*]}" | wc -l`
+    size5=`egrep -o "^5$" <<< "${sizes[*]}" | wc -l`
+    size6=`egrep -o "^6$" <<< "${sizes[*]}" | wc -l`
+    size7=`egrep -o "^7$" <<< "${sizes[*]}" | wc -l`
+    size8=`egrep -o "^8$" <<< "${sizes[*]}" | wc -l`
+    size9=`egrep -o "^9$" <<< "${sizes[*]}" | wc -l`
+    size10=`egrep -o "^10$" <<< "${sizes[*]}" | wc -l`
     size3_5=`echo $size3 $size4 $size5 | awk '{print $1+$2+$3}'`
     size6_10=`echo $size6 $size7 $size8 $size9 $size10 | awk '{print $1+$2+$3+$4+$5}'`
     unaccounted=`echo $responded $errors $size1 $size2 $size3 $size4 $size5 $size6 $size7 $size8 $size9 $size10 | awk '{print $1-$2-$3-($4*2)-($5*3)-($6*4)-($7*5)-($8*6)-($9*7)-($10*8)-($11*9)-($12*10)}'`
+    clusters2=`echo $clusters $size1 | awk '{ print $1-$2; }'`
 
     # Print all
-    LINE=`echo $name, $lambda, $region, $phases, $bitdur, $count, $responded, $clusters, $density, $maxsize, $errorrate, $size1, $size2, $size3_5, $size6_10, $unaccounted, $samples,$comments`
+    LINE=`echo $name, $lambda, $region, $phases, $bitdur, $count, $responded, $clusters, $clusters2, $density, $maxsize, $errorrate, $size1, $size2, $size3_5, $size6_10, $unaccounted, $samples,$comments`
     OUT=`echo -e "${OUT}\n${LINE}"`
 done
 
