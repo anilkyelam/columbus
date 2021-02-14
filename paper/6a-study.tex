@@ -1,28 +1,98 @@
-\section{Measurement Study}
+\section{Practicality of Covert Communication}
 \label{sec:study}
 
-%Our goal in developing this technique is to demonstrate how easy it is for
-%attackers to exploit the pervasive memory bus covert channel and obtain
-%co-residency information, thereby motivating the need to address it. This
-%information can be used by attackers in aiding a lot of attack scenarios
-%\todo{for example?} or simply learn the internal mechanisms of a cloud. 
-%In the section, we explore some ways in
-%which the tool can be used to gain some insights into lambda activity in some
-%AWS regions.  
+In this section, we perform a study to demonstrate the practicality of data 
+transfer using the lambda covert channels discovered with our co-residence detector.  
+The amount of information that can be transferred depends on two factors: 1) the 
+capacity of each channel and 2) the number of co-resident clusters of lambdas, 
+or rendezvous points, that materialize during the attack.  We first produce an estimate on the
+capacity of the covert channels established, and then examine the co-residence
+density in various AWS regions to understand the number of rendezvous points and
+factors that affect it.
 
-In this section, we present a variety of measurements on serverless function
-density on AWS using our co-residence detector, and the factors that may affect
-this density. As we discussed earlier, the key challenge in enabling traditional
-covert channels on the cloud is placingthe sender and receiver on the same
-machine. So we attempt to answer the following question: Assuming that the user
-launches a number of (sender and receiver) lambdas at a specific point in time,
-what is the expected number of such co-resident pairs that they might see? We
-deploy a large number of lambdas on various AWS regions and report the
-co-residence density -- that is, the average number of lambdas that end up
-co-resident on each server.  The higher the co-residence density, the easier it
-is for the user to ultimately establish covert channels with lambdas. Unless
-specified otherwise, all the experiments are performed with 1.5 GB lambdas and
-executed successfully with \textbf{zero error} in co-residence detection.
+\subsection{Covert Channel Capacity}
+
+\begin{figure}[!t]
+  \includegraphics[width=.99\linewidth]{fig/channel_rate_3gb.pdf}
+  \caption{\todo{increase font}
+\label{fig:channel}}
+\end{figure}
+
+Once co-residence between any two lambas is established, the attacker can then
+use the same memory bus hardware to perform covert communication. Wu et
+al.~\cite{wuusenix2012}, who first introduced covert channel based on this
+hardware channel, also presented an efficient and error-free communication
+protocol targeting cloud-based platforms like VMs.  While such a protocol should
+theoretically work for lambdas, extending it is beyond the scope of this work.
+We do, however, use a much simpler (albeit more inefficient) protocol to report
+a conservative estimate of the capacity of each covert channel.
+
+Our protocol for data transfer uses the same mechanisms used for co-residence
+detection in section \ref{sec:method:impl} to send and receive bits and perform clock
+synchronization. However, since we can use our co-residence detector to identify
+lambdas on a machine and target the two that we wish to label as the sender and
+receiver, we are not concerened about noise from multiple receivers, and as such
+can allow the receiver to sample continuously (section \ref{sec:method:listen:freq}) 
+and sample for extremely small duration (milliseconds instead of seconds). While we want the
+sampling duration to be as small as possible (in order to increase the rate of
+bits transferred), the chances of erasures or errors also increases as the
+sender and receiver may get descheduled during this time. 
+
+To demonstrate this, we launched hundreds of 3 GB lambdas on AWS and use our
+co-residence detector to establish tens of covert channels. We then send data
+over these channels at various bitrates and record the error ratio (for
+byte-sized data segments). Figure~\ref{fig:channel} shows the mean error ratio
+at 50\% and 95\% one-sided confidence intervals, both of which increase with the bitrate.
+
+%The only difference is that since we now only expect just the
+%sender and receiver lambdas to be active (i.e., although there may be tens of
+%other co-resident lambdas, we can use our co-residence detector to identify
+%every lambda and set others inactive), we don't need to worry about noise from
+%multiple receivers, the result being receiver can sample continously (\todo{ref
+%5.2.2}) and time spent for each bit can be extremely small (in the order of
+%milliseconds instead of seconds). 
+%Naturally, we want this time to be as small as possible to increase bitrate,
+%however, the chances of erasures (errors) increase too as both sender and
+%receiver may get descheduled during this time.  
+%To demonstrate this, we launch
+%hundreds of (3 GB) lambdas on AWS and use our co-residence detector to establish
+%tens of covert channels. We then send data over these channels at various
+%bitrates and record the error ratio (for byte-sized data segments).
+%Figure~\ref{fig:channel} shows the mean error ratio at 50\% and 95\% confidence,
+%both of which increase with the bitrate.
+
+To correct these errors, we use Reed-Solomon coding, block-based error correction 
+codes that is suitable for burst-errors caused by descheduling, with byte-sized 
+symbols~\cite{wuusenix2012}. However, error correction comes with an overhead; 
+Reed-Solomon requires twice as
+many extra symbols\amirian{why dont we just use the term bytes here instead of
+symbols? - that would be } as there are errors to correct. So, for each bitrate, we must compute
+effective bitrate by subtracting the overhead of error correction symbols.
+%required to correct its corresponding 95\% error. 
+From Figure~\ref{fig:channel}, we can see that effective bitrate rises to a
+maximum of over 200 bits per second (bps) (at 500bps raw rate) before falling
+again due to high error rate. We confirmed this by sending Reed-Solomon encoded
+data over the covert channels at this rate and observed near-zero data
+corruption. Thus, we conclude that, by a conservative estimate, we can safely
+send data across each of these covert channels at a rate of ~200 bps.
+
+\subsection{Rendezvous point density}
+\todo{Changes due to above subsection}
+Next, we present measurements on covert channel density on AWS using our
+co-residence detector, and discuss the factors that may affect this density.  As
+we discussed in section \ref{sec:motivation}, each co-resident group of lambdas 
+represent an individual server in the cloud and hence can enable an independent 
+covert channel whereever the group has more than two lambdas. So we attempt to answer 
+the following question: assuming that the user launches a number of
+(sender and receiver) lambdas at a specific point in time, what is the expected
+number of such co-resident groups (with two or more lambdas) that they might see? 
+We deploy a large number of lambdas on various AWS regions and report the co-residence 
+density, that is, the average number of such co-residence groups. The higher the 
+co-residence density, the easier it is for the user
+to ultimately establish covert channels with lambdas, and the more information
+they can send. Unless specified otherwise, all the experiments discussed in this
+section are performed with 1.5 GB lambdas and executed successfully with
+\textbf{zero error} in co-residence detection.
 
 
 \begin{figure*}[!t]
@@ -49,7 +119,8 @@ executed successfully with \textbf{zero error} in co-residence detection.
 \end{figure*}
 
 
-\subsection{Across AWS regions}
+\subsubsection{Across AWS regions}
+\todo{clarify the attacker model here, per R1 comments}
 We execute our co-residence detector with 1000 1.5 GB Lambdas in various AWS
 regions. Figure~\ref{fig:awsregions} comprises multiple plots depicting
 the co-resident groups per region, with each bar indicating the fraction of
@@ -63,11 +134,11 @@ density is (inversely) dependent on the total number of servers and the lambda
 activity in the region, both of which can be assumed to be lower in newer AWS
 regions, hence the higher co-residence density in those regions as we can see in
 Figure~\ref{fig:density}. The ample co-residence in general across all the
-regions shows that lambdas provide a fertile ground for covert channel attacks.
+regions shows that lambdas provide a fertile ground for covert channels.
 %We note that the largest co-resident group on a single machine was comprised of 25 lambdas. 
 
 
-\subsection{Other factors}
+\subsubsection{Other factors}
 We also examine how co-residence is affected by various launch strategies that
 the user may use, like deploying lambdas from multiple AWS accounts and
 different lambda sizes. In particular, we wish to determine if we our mechanism

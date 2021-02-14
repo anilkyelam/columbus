@@ -37,7 +37,7 @@ can a practical covert channel be constructed entirely from existing
 ``serverless'' cloud services\footnote{We will use the term lambdas to 
 stand for all such services going forward.}?
 
-Covert channels, as a general matter, provide a means of transmitting
+Covert channels provide a means of transmitting
 data that bypasses traditional monitoring or auditing -- typically by
 encoding data into some resource access that is not normally deemed a
 communications medium but is externally visible.  In virtualized
@@ -50,7 +50,8 @@ the organization (i.e., to their own lambdas) without offering any
 clear evidence of such (e.g., opening network connections, etc.)
 
 However, the serverless context presents a number of unique challenges for
-implementing such a channel.  First, the scheduling and placement of lambdas is
+implementing covert channels.  First, the physical location of a lambda is 
+unknown, as the scheduling and placement of lambdas is
 managed by the cloud service provider.  Thus, there is no way to arrange that a
 sending lambda and a receiving lambda will execute on the same physical
 hardware, \emph{let alone at the same time}.  Second, given this reality, any
@@ -76,13 +77,15 @@ contributions:
   and, most importantly, fast, executing in a matter of seconds for thousands of
   concurrent lambdas.
 \item{\bf{Dynamic neighbor discovery.}}  We present a novel protocol for  
-  for the co-resident lambdas to communicate their IDs using memory 
-  bus contention and discover one another. A key enabler of our co-residence detection,
+  for the co-resident lambdas to communicate their IDs using a hardware-based 
+  covert channel and discover one another. A key enabler of our co-residence detector,
   the protocol also helps a sender or receiver lambda to enumerate \emph{all} 
   its co-resident neighbors, a requirement to avoid unwanted communication 
   interference while performing covert communication.
-\item{\bf{Serverless density measurement.}}  We empirically establish
-  measures of serverless function density -- that is, for a given
+\item{\bf{Covert channel demonstration}}  We use our co-residence detector to 
+  establish lambda covert channels on AWS. We then perform a study on the 
+  feasibility of covert communication by 1) estimating the capacity of each 
+  channel and 2) measuring coresidence density -- that is, for a given
   number of short-lifetime lambdas launched at a point in time, how
   many would be expected to become co-resident?  We conduct these
   measurements across a range of Amazon data centers to establish that
@@ -90,15 +93,6 @@ contributions:
 \end{itemize}
 
 
-
-% Organization
-The remainder of this paper is organized as follows. In section~\ref{sec:background}, 
-we present some background and motivate the need for 
-co-residence detection for lambdas. Sections~\ref{sec:methodology} and~\ref{sec:technique} 
-present our co-residence detection mechanism in detail. 
-We evaluate the mechanism in section~\ref{sec:eval} and 
-perform a study of AWS lambda placement density using our technique 
-to demonstrate the practicality of lambda covert channels in section~\ref{sec:study}.
-We conclude with a discussion on other use cases for the co-residence detector and potential 
-mitigation strategies in section~\ref{sec:discussion}.
+Our implementation is publicly available at 
+\textit{\url{https://github.com/anilkyelam/columbus}}.
 

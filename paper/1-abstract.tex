@@ -3,20 +3,22 @@
 
 ``Serverless'' cloud services, such as AWS lambdas, are one of the fastest 
 growing segment of the cloud services market. These services are
-lighter-weight and provide more flexibility in scheduling and cost, which
+light-weight and provide more flexibility in scheduling and cost, which
 contributes to their popularity, however the security issues associated with
 serverless computing are not well understood. In this work, we explore 
 the feasibility of constructing a practical covert channel from lambdas. 
-We establish that a fast and scalable co-residence detection for lambdas 
+We establish that a fast co-residence detection for lambdas 
 is key to enabling such a covert channel, and proceed to develop a 
-generic, reliable, and scalable co-residence detector based on the memory
+reliable, and scalable co-residence detector based on the memory
 bus hardware. Our technique enables dynamic neighbor discovery for co-resident 
 lambdas and is incredibly fast, executing in a matter of seconds. 
 We evaluate our approach for correctness and scalability, and 
-perform a measurement study on lambda density in AWS cloud to demonstrate
-the practicality of establishing cloud covert channels using our co-residence 
-detector for lambdas. Through this work, we show that efforts to secure 
-co-residency detection on cloud platforms are not yet complete.
+use it to establish covert channels and perform data transfer on AWS lambdas. 
+We show that we can establish tens of individual covert channels for every 
+1000 lambdas, and each of those channels can send data at a rate of ~200bps, 
+demonstrating the feasibility of covert communication.  
+%\ugh{Through this work, we show that efforts to secure 
+%co-residency detection on cloud platforms are not yet complete.}
 
 %Cloud computing has seen explosive growth in the past decade. While
 %efficient sharing of the underlying server infrastructure among tenants 
