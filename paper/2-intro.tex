@@ -28,26 +28,25 @@ higher levels of statistical multiplexing and thus can offer significant cost
 savings to customers whose needs are able to match this model (e.g.,
 event-driven computations with embedded state).  However, the security issues
 associated with serverless computing are far less well understood than their
-heavier weight brethren.  While the transient and dynamic nature of serverless
+heavier weight brethren. While the transient and dynamic nature of serverless
 computing pose inherent challenges for attackers, their low-cost and
 light-weight isolation potentially present offer new points of purchase as well.
 
 In our work, we explore these issues through the lens of a singular question:
 can a practical covert channel be constructed entirely from existing
-``serverless'' cloud services\footnote{We will use the term lambdas to 
-stand for all such services going forward.}?
+``serverless'' cloud services\footnote{We will use the term lambdas to stand for
+all such services going forward.}?
 
-Covert channels provide a means of transmitting
-data that bypasses traditional monitoring or auditing -- typically by
-encoding data into some resource access that is not normally deemed a
-communications medium but is externally visible.  In virtualized
-environments, covert channels typically involve some shared resource
-(e.g. a cache) for which contention provides a means of signaling.
-In the serverless context, the threat model is that an adversary is
-able to launch, or inject code into, lambdas from inside a target
-organization and wishes to communicate information to parties outside
-the organization (i.e., to their own lambdas) without offering any
-clear evidence of such (e.g., opening network connections, etc.)
+Covert channels provide a means of transmitting data that bypasses traditional
+monitoring or auditing -- typically by encoding data into some resource access
+that is not normally deemed a communications medium but is externally visible.
+In virtualized environments, covert channels typically involve some shared
+resource (e.g. a cache) for which contention provides a means of signaling.  In
+the serverless context, the threat model is that an adversary is able to launch,
+or inject code into, lambdas from inside a target organization and wishes to
+communicate information to parties outside the organization (i.e., to their own
+lambdas) without offering any clear evidence of such (e.g., opening network
+connections, etc.)
 
 However, the serverless context presents a number of unique challenges for
 implementing covert channels.  First, the physical location of a lambda is 
@@ -58,7 +57,7 @@ hardware, \emph{let alone at the same time}.  Second, given this reality, any
 serverless covert communications protocol must repeatedly launch lambdas in the
 hope that at least two sending and receiving lambdas are co-resident on the same
 hardware at the same time.  The extent to which this is practicable, on existing
-cloud platforms and reasonable cost, is unknown.  Third, it is not enough to
+cloud platforms with reasonable cost, is unknown.  Third, it is not enough to
 simply \emph{achieve} co-residency, but any lambdas lucky enough to be
 co-resident must be able to quickly determine this fact, and then use the
 balance of their limited lifetimes to effect communications.  Finally, since
@@ -76,20 +75,20 @@ contributions:
   lambda co-residence detector that is generic, reliable, scalable
   and, most importantly, fast, executing in a matter of seconds for thousands of
   concurrent lambdas.
-\item{\bf{Dynamic neighbor discovery.}}  We present a novel protocol for  
-  for the co-resident lambdas to communicate their IDs using a hardware-based 
-  covert channel and discover one another. A key enabler of our co-residence detector,
-  the protocol also helps a sender or receiver lambda to enumerate \emph{all} 
+\item{\bf{Dynamic neighbor discovery.}}  We present a novel protocol
+  in which co-resident lambdas communicate their IDs using a hardware-based 
+  covert channel in order to identify one another. The protocol
+  also allows a sender or receiver lambda to enumerate \emph{all} 
   its co-resident neighbors, a requirement to avoid unwanted communication 
   interference while performing covert communication.
-\item{\bf{Covert channel demonstration}}  We use our co-residence detector to 
-  establish lambda covert channels on AWS. We then perform a study on the 
-  feasibility of covert communication by 1) estimating the capacity of each 
-  channel and 2) measuring coresidence density -- that is, for a given
-  number of short-lifetime lambdas launched at a point in time, how
-  many would be expected to become co-resident?  We conduct these
-  measurements across a range of Amazon data centers to establish that
-  there is ample co-residence of lambdas and covert communication is practicable.
+\item{\bf{Covert channel demonstration}}  We use our co-residence detector to
+    establish lambda covert channels on AWS. We then perform a study on the
+    feasibility of covert communication by 1) estimating the capacity of each
+    channel and 2) measuring co-residence density -- that is, for a given number of
+    lambdas launched at the same point in time, how many would become co-resident?
+    We conduct these measurements across a range of Amazon data centers to establish
+    that there is ample lambda co-residence and that covert communication is
+    practicable.
 \end{itemize}
 
 
