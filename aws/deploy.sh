@@ -47,6 +47,7 @@ if [[ $SETUP ]]; then
     pushd cpp/build/
     cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=~/lambda-install
     popd
+    exit 1
 fi
 
 # Get account id from aws cli if not set

@@ -475,6 +475,9 @@ def main():
             else:
                 lns += ax.plot(xc, yc, label=label, color=colors[cidx], 
                     marker=markers[midx],markerfacecolor=colors[cidx])
+                # yerr=[0.72, 1.13, 9.72, 5.04, 2.90, 4.60, 9.30, 9.53, 7.07]           # custom code for error bars
+                # lns += ax.errorbar(xc, yc, yerr=yerr, label=label, color=colors[cidx], 
+                #     marker=markers[midx],markerfacecolor=colors[cidx])
 
         elif args.ptype == PlotType.scatter:
             xc = xcol

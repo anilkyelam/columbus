@@ -1,0 +1,12 @@
+{
+    "Name": "02-02-22-49",
+    "Comments": "runing with just the receivers to get baseline latency threshold; bps = 2000",
+    "Lambda Name": "membus1536",
+    "Lambda URL": "https://m6e0lqe9sd.execute-api.me-south-1.amazonaws.com/latest/membus",
+    "Lambda Count": 20,
+    "Phases": 3,
+    "Bit Duration (secs)": 1,
+    "Num bits": 10,
+    "Outdir": "out/02-02-22-49",
+    "Region": "me-south-1"
+}

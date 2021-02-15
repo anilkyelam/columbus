@@ -16,6 +16,7 @@
 #include <sys/resource.h>
 #include <sched.h> 
 #include <math.h>
+#include <string.h>
 
 
 // Rdtsc blocks
@@ -37,60 +38,65 @@ static __inline__ unsigned long long rdtsc1(void)
             "%rax", "rbx", "rcx", "rdx");
 }
 
+/* A fast but good enough pseudo-random number generator. Good enough for what? */
+/* Courtesy of https://stackoverflow.com/questions/1640258/need-a-fast-random-generator-for-c */
+unsigned long rand_xorshf96(void) {          //period 2^96-1
+    static unsigned long x=123456789, y=362436069, z=521288629;
+    unsigned long t;
+    x ^= x << 16;
+    x ^= x >> 5;
+    x ^= x << 1;
+
+    t = x;
+    x = y;
+    y = z;
+    z = t ^ x ^ y;
+    return z;
+}
+
 
 int main()
 {
-	uint64_t max_size = pow(2,31) + 1;
-	int* arr;	
-    uint64_t start, end, cycles_spent, total_cycles_spent;
-	double avg_cycles_spent;
-    int pipefd[2];
+    uint64_t start, end;
+    const size_t DUMMY_BUF_SIZE = pow(2,30);		// 1GB
+    void* dummy_buffer = malloc(DUMMY_BUF_SIZE + sizeof(uint64_t));   
+    memset(dummy_buffer, 1, DUMMY_BUF_SIZE);     // this is necessary to actually allocate memory
 
-	// Set process priority (nice value) to the highest to avoid context switches.
-	if(setpriority(PRIO_PROCESS, getpid(), -20) != 0)
-	{
-		perror("Setting process priority failed!");
-		exit(-1);
-	}
+    FILE* fptr;
+    unsigned long rand;
+    uint64_t src = 100;
 
-	for(int trials = 0; trials<1000; trials++)
-	{
-		int cpid = fork();
-		if(cpid == 0)
-		{
-			for(uint64_t size=2; size < max_size; size *= (size > 100 ? 1.01 : 2))
-			{
-				arr = (int*)malloc(size*sizeof(int));
+    fptr = fopen("time_dram", "w");
+    fprintf(fptr,"Time\n");
+    for(int trials = 0; trials<1000; trials++)
+    {
+        rdtsc();
+        for(int i = 0; i < 10; i++) {
+            rand = rand_xorshf96() % DUMMY_BUF_SIZE;
+            memcpy(dummy_buffer + rand, &src, sizeof(uint64_t));
+        }
+        rdtsc1();
 
-				uint64_t next_access = 0, stride = 1, max = 0;
-				int temp = arr[next_access];
-				while(next_access < size)
-				{
-					rdtsc();
-					temp = arr[next_access];
-					rdtsc1();
+        start = ( ((int64_t)cycles_high << 32) | cycles_low );
+        end = ( ((int64_t)cycles_high1 << 32) | cycles_low1 );
+        fprintf(fptr, "%lu\n", end-start);
+    }
+    fclose(fptr);
 
-					start = ( ((uint64_t)cycles_high << 32) | cycles_low );
-					end = ( ((uint64_t)cycles_high1 << 32) | cycles_low1 );
-					total_cycles_spent = (end - start);
-					if(total_cycles_spent > max)
-					{
-						max = total_cycles_spent;						
-					}
+    fptr = fopen("time_caches", "w");
+    fprintf(fptr,"Time\n");
+    for(int trials = 0; trials<10000; trials++)
+    {
+        rdtsc();
+        for(int i = 0; i < 10; i++) {
+            rand = rand_xorshf96() % 8;
+            memcpy(dummy_buffer + rand, &src, sizeof(uint64_t));
+        }
+        rdtsc1();
 
-					next_access += stride;
-					stride *= 2;
-				}
-
-				free(arr);
-				printf("%lu %lu\n", size, max);
-			}
-
-			exit(0);
-		}
-		else
-		{
-			wait(NULL);
-		}
-	}
+        start = ( ((int64_t)cycles_high << 32) | cycles_low );
+        end = ( ((int64_t)cycles_high1 << 32) | cycles_low1 );
+        fprintf(fptr, "%lu\n", end-start);
+    }
+    fclose(fptr);
 }

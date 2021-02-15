@@ -1,3 +1,10 @@
+/* Main handler for the lambda implementing neighbor discovery and 
+ * covert channel communication on AWS
+ * 
+ * Author: Anil Yelam
+ */
+
+
 #include <aws/core/Aws.h>
 #include <aws/core/utils/logging/LogLevel.h>
 #include <aws/core/utils/logging/ConsoleLogSystem.h>
@@ -53,9 +60,6 @@ char const TAG[] = "MEMBUS";
 #define MAX_BIT_DURATION_SECS    5
 #define MUS_PER_SEC              1000000
 #define MAX_PHASES               15
-#define PVALUE_THRESHOLD         0.0
-// #define PVALUE_THRESHOLD      0.0005
-// #define PVALUE_THRESHOLD      0.0000001
 #define DEFAULT_KS_MEAN_CUTOFF   3.0            /* KS Statistic more than this would indicate enough contention to infer 1-bit   */
 
 using Clock = std::chrono::high_resolution_clock;
@@ -82,21 +86,30 @@ char lbuffer[1000];
       logs.push_back(lbuffer);            \
    }                                      \
 }
-// AWS_LOGSTREAM_INFO(TAG, lbuffer);   \        /* Directs every print statement to AWS Cloudwatch, include it in log_ loop only when debugging */
-
-
-typedef struct {
-   int size;
-   int64_t mean;
-   int64_t variance;
-   int64_t min;
-   int64_t max;
-} sample_t;
+// AWS_LOGSTREAM_INFO(TAG, lbuffer);   \        /* Directs every print statement to AWS Cloudwatch, TODO: include it in log_ conditional only when debugging */
 
 typedef struct {
    int num_phases;
    int ids[MAX_PHASES];
 } result_t;
+
+
+/* A fast but good enough pseudo-random number generator. Good enough for what? */
+/* Courtesy of https://stackoverflow.com/questions/1640258/need-a-fast-random-generator-for-c */
+uint64_t rand_xorshf96(void) {          //period 2^96-1
+    static uint64_t x=123456789, y=362436069, z=521288629;
+    uint64_t t;
+    x ^= x << 16;
+    x ^= x >> 5;
+    x ^= x << 1;
+
+    t = x;
+    x = y;
+    y = z;
+    z = t ^ x ^ y;
+    return z;
+}
+
 
 /* Rdtsc blocks for time measurements */
 unsigned cycles_low, cycles_high, cycles_low1, cycles_high1;
@@ -148,7 +161,41 @@ unsigned int good_seed(int id)
    random_seed = random_seed xor (getpid() << 16);
    random_seed = random_seed xor (id  << 16);
    return random_seed;
-} 
+}
+
+/*hex string to bool array */
+const char* hex_char_to_bin(char c)
+{
+    // TODO handle default / error
+    switch(toupper(c))
+    {
+        case '0': return "0000";
+        case '1': return "0001";
+        case '2': return "0010";
+        case '3': return "0011";
+        case '4': return "0100";
+        case '5': return "0101";
+        case '6': return "0110";
+        case '7': return "0111";
+        case '8': return "1000";
+        case '9': return "1001";
+        case 'A': return "1010";
+        case 'B': return "1011";
+        case 'C': return "1100";
+        case 'D': return "1101";
+        case 'E': return "1110";
+        case 'F': return "1111";
+    }
+}
+
+std::string hex_str_to_bin_str(const std::string& hex)
+{
+    // TODO use a loop from <algorithm> or smth
+    std::string bin;
+    for(unsigned i = 0; i != hex.length(); ++i)
+       bin += hex_char_to_bin(hex[i]);
+    return bin;
+}
 
 
 /* Check if program is not past specified time yet */
@@ -174,173 +221,6 @@ inline int poll_wait(microseconds release_time)
       microseconds now = duration_cast<microseconds>(Clock::now().time_since_epoch());
       if (now.count() >= release_time.count())
             return 0;
-   }
-}
-
-
-/* Removes outliers beyond 3 standard deviations, returns sample params */
-inline sample_t prepare_sample(int64_t* data, int len, bool remove_outliers = true)
-{
-   if (len <= 0) {
-      return {
-            .size = 0,
-            .mean = 0,
-            .variance = 0,
-            .min = 0,
-            .max = 0
-      };
-   }
-
-   if (len == 1) {
-      return {
-            .size = len,
-            .mean = data[0],
-            .variance = 0,
-            .min = data[0],
-            .max = data[0]
-      };
-   }
-
-   /* Not using floating point arithmetic at the expense of precision
-   * Should be fine as values are in thousands */
-   int64_t sum = 0, varsum = 0, mean, var, max = 0, min = 10000000;
-   for (int i = 0; i < len; i++) {
-         sum += data[i];
-         if (data[i] > max)   max = data[i];
-         if (data[i] < min)   min = data[i];
-   }
-   mean = sum / len;
-   for (int i = 0; i < len; i++)   varsum += (data[i] - mean) * (data[i] - mean);
-   var = varsum / (len - 1);
-   int count = len;
-
-   if (remove_outliers) {
-      /* X is an outlier if (X - mean) >= 3 * std, or (X - mean)^2 >= 9 * var - to avoid sqrt */
-      int i, j;
-      sum = 0;
-      varsum = 0;
-      for (i = 0, j = len - 1, count = 0; i <= j; count++) {
-         int64_t sq_diff = (data[i] - mean) * (data[i] - mean);
-         if (sq_diff  <= 9 * var) {
-               // Keep it 
-               sum += data[i];
-               varsum += sq_diff;
-               i++;
-         }
-         else {
-               // Replace it with last element and continue
-               data[i] = data[j];
-               j--;
-         }
-      }
-   }
-
-   return {
-      .size = count,
-      .mean = sum / count,
-      .variance = varsum / (count - 1),
-      .min = min,
-      .max = max
-   };
-}
-
-
-/* Buffers to save samples of latencies for post-experiment analysis */
-bool save_samples;
-int64_t samples[MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND];
-int64_t base_readings[MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND];
-int base_readings_len = 0;
-int64_t bit1_readings[MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND];
-int bit1_readings_len = 0;
-double bit1_pvalue;
-int64_t bit0_readings[MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND];
-int bit0_readings_len = 0;
-double bit0_pvalue;
-
-sample_t base_sample;
-sample_t last_sample;
-
-/* Samples membus lock latencies periodically to infer contention. If calibrate is set, uses these readings as baseline. */
-int read_bit(uint64_t* addr, microseconds release_time_mus, int bit_duration_secs, 
-   bool calibrate, int id, int phase, int round, double* ksvalue)
-{
-   int i;
-   microseconds one_ms = microseconds(1000);
-   microseconds ten_ms = microseconds(10000);
-   microseconds next = duration_cast<microseconds>(Clock::now().time_since_epoch());
-   // int num_samples = calibrate ? BASELINE_SAMPLES : SAMPLES_PER_BIT;
-   // int interval_mus = calibrate ? BASELINE_INTERVAL : BIT_INTERVAL_MUS;
-   int num_samples = bit_duration_secs * SAMPLES_PER_SECOND;
-   int interval_mus = bit_duration_secs * MUS_PER_SEC;
-   double sampling_rate_mus = SAMPLES_PER_SECOND * 1.0 / MUS_PER_SEC;
-
-   /* Release a bit early to avoid overruns (and allow for post-processing) */
-   release_time_mus -= ten_ms;
-
-   int64_t start, end, mean, count = 0;
-   // lprintf("%ld, %ld,\n", next.count(), release_time_mus.count());      /** COMMENT OUT IN REAL RUNS **/
-   for (i = 0; i < num_samples && within_time(release_time_mus); i++)
-   {   
-      // Get a sample
-      rdtsc();
-      __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
-      rdtsc1();
-
-      start = ( ((int64_t)cycles_high << 32) | cycles_low );
-      end = ( ((int64_t)cycles_high1 << 32) | cycles_low1 );
-      samples[i] = (end - start);
-      count++;
-         
-      next += microseconds((int)next_poisson_time(sampling_rate_mus));
-      poll_wait(next);
-   }
-
-   if (calibrate) {
-      base_sample = prepare_sample(samples, count, false);
-      memcpy(base_readings, samples, count * sizeof(samples[0]));
-      base_readings_len = count;
-
-      /* Sort the base sample so we don't have to do it every time */
-      timSort(base_readings, base_readings_len);
-      return 0;   //not used
-   }
-
-   *ksvalue = kstest_mean(base_readings, base_readings_len, true, samples, count, false);
-
-   last_sample = prepare_sample(samples, count, false);
-   if(*ksvalue >= DEFAULT_KS_MEAN_CUTOFF) {
-      if (save_samples && bit1_readings_len == 0){
-         memcpy(bit1_readings, samples, count * sizeof(samples[0]));
-         bit1_readings_len = count;
-         bit1_pvalue = *ksvalue;
-      } 
-   }
-   else {
-      if (save_samples && bit0_readings_len == 0){
-         memcpy(bit0_readings, samples, count * sizeof(samples[0]));
-         bit0_readings_len = count;
-         bit0_pvalue = *ksvalue;
-      } 
-   }
-
-   return *ksvalue >= DEFAULT_KS_MEAN_CUTOFF;        /* Need to figure out the threshold that works for current platform */
-}
-
-/* Causes membus locking contention until a certain time */
-void write_bit(uint64_t* addr, microseconds release_time_mus)
-{
-   int i;
-   microseconds ten_ms = microseconds(10000);
-
-   /* Checking time takes order of micro-seconds, so do it sparesely to not affect contention-causing.
-   * assuming each locking op costs few microseconds, check time every few hundred microseconds
-   * Release a bit early to avoid overruns */
-   release_time_mus -= ten_ms;
-   while (within_time(release_time_mus))
-   {   
-      /* atomic sum of cacheline boundary */
-      for (i = 0; i < 1000; i++)
-            __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
    }
 }
 
@@ -400,6 +280,102 @@ uint64_t* get_cache_line_straddled_address()
    // }
 
    return (uint64_t*)addr;
+}
+
+/************************** NEIGHBOR DISCOVERY PROTOCOL IMPLEMENTATION ******************************************************/
+
+/* Buffers to save andsamples of latencies for post-experiment analysis */
+#define MAX_SAMPLES (MAX_BIT_DURATION_SECS*SAMPLES_PER_SECOND)
+bool save_samples;
+int64_t samples[MAX_SAMPLES];
+int64_t base_readings[MAX_SAMPLES];
+int base_readings_len = 0;
+int64_t bit1_readings[MAX_SAMPLES];
+int bit1_readings_len = 0;
+double bit1_pvalue;
+int64_t bit0_readings[MAX_SAMPLES];
+int bit0_readings_len = 0;
+double bit0_pvalue;
+
+/* Samples membus lock latencies periodically to infer contention. If calibrate is set, uses these readings as baseline. */
+int read_bit(uint64_t* addr, microseconds release_time_mus, int bit_duration_secs, 
+   bool calibrate, int id, int phase, int round, double* ksvalue)
+{
+   int i;
+   microseconds one_ms = microseconds(1000);
+   microseconds ten_ms = microseconds(10000);
+   microseconds next = duration_cast<microseconds>(Clock::now().time_since_epoch());
+   // int num_samples = calibrate ? BASELINE_SAMPLES : SAMPLES_PER_BIT;
+   // int interval_mus = calibrate ? BASELINE_INTERVAL : BIT_INTERVAL_MUS;
+   int num_samples = bit_duration_secs * SAMPLES_PER_SECOND;
+   int interval_mus = bit_duration_secs * MUS_PER_SEC;
+   double sampling_rate_mus = SAMPLES_PER_SECOND * 1.0 / MUS_PER_SEC;
+
+   /* Release a bit early to avoid overruns (and allow for post-processing) */
+   release_time_mus -= ten_ms;
+
+   int64_t start, end, mean, count = 0;
+   // lprintf("%ld, %ld,\n", next.count(), release_time_mus.count());      /** COMMENT OUT IN REAL RUNS **/
+   for (i = 0; i < num_samples && within_time(release_time_mus); i++)
+   {   
+      // Get a sample
+      rdtsc();
+      __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
+      rdtsc1();
+
+      start = ( ((int64_t)cycles_high << 32) | cycles_low );
+      end = ( ((int64_t)cycles_high1 << 32) | cycles_low1 );
+      samples[i] = (end - start);
+      count++;
+         
+      next += microseconds((int)next_poisson_time(sampling_rate_mus));
+      poll_wait(next);
+   }
+
+   if (calibrate) {
+      memcpy(base_readings, samples, count * sizeof(samples[0]));
+      base_readings_len = count;
+
+      /* Sort the base sample so we don't have to do it every time */
+      timSort(base_readings, base_readings_len);
+      return 0;   //not used
+   }
+
+   *ksvalue = kstest_mean(base_readings, base_readings_len, true, samples, count, false);
+   if(*ksvalue >= DEFAULT_KS_MEAN_CUTOFF) {
+      if (save_samples && bit1_readings_len == 0){
+         memcpy(bit1_readings, samples, count * sizeof(samples[0]));
+         bit1_readings_len = count;
+         bit1_pvalue = *ksvalue;
+      } 
+   }
+   else {
+      if (save_samples && bit0_readings_len == 0){
+         memcpy(bit0_readings, samples, count * sizeof(samples[0]));
+         bit0_readings_len = count;
+         bit0_pvalue = *ksvalue;
+      } 
+   }
+
+   return *ksvalue >= DEFAULT_KS_MEAN_CUTOFF;        /* Need to figure out the threshold that works for current platform */
+}
+
+/* Causes membus locking contention until a certain time */
+void write_bit(uint64_t* addr, microseconds release_time_mus)
+{
+   int i;
+   microseconds ten_ms = microseconds(10000);
+
+   /* Checking time takes order of micro-seconds, so do it sparesely to not affect contention-causing.
+   * assuming each locking op costs few microseconds, check time every few hundred microseconds
+   * Release a bit early to avoid overruns */
+   release_time_mus -= ten_ms;
+   while (within_time(release_time_mus))
+   {   
+      /* atomic sum of cacheline boundary */
+      for (i = 0; i < 1000; i++)
+            __atomic_fetch_add(addr, 1, __ATOMIC_SEQ_CST);
+   }
 }
 
 /* Execute the info exchange protocol where all participating lambdas on a same machine
@@ -463,14 +439,14 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
             id_read = (2 * id_read) + bit_read;     // We get bits in most to least significant order
 
             /* CAUTION: Below print statement is used in log analysis, changing format may break post-experiment analysis scripts */
-            lprintf("[Lambda-%3d] %3d %9d %4d %5d %5d %9d %9lu %8lu %8lu %8lu %10d %10lu %9lu %2.15f\n", 
-               my_id, phase, bit_pos, my_bit, advertising && my_bit, bit_read, 
-               last_sample.size,
-               advertising && my_bit ? 0 : last_sample.mean, 
-               advertising && my_bit ? 0 : (long) sqrt(last_sample.variance), 
-               advertising && my_bit ? 0 : last_sample.max, 
-               advertising && my_bit ? 0 : last_sample.min, 
-               base_sample.size, base_sample.mean, (long) sqrt(base_sample.variance), pvalue);              /** COMMENT OUT IN REAL RUNS **/
+            // lprintf("[Lambda-%3d] %3d %9d %4d %5d %5d %9d %9lu %8lu %8lu %8lu %10d %10lu %9lu %2.15f\n", 
+            //    my_id, phase, bit_pos, my_bit, advertising && my_bit, bit_read, 
+            //    last_sample.size,
+            //    advertising && my_bit ? 0 : last_sample.mean, 
+            //    advertising && my_bit ? 0 : (long) sqrt(last_sample.variance), 
+            //    advertising && my_bit ? 0 : last_sample.max, 
+            //    advertising && my_bit ? 0 : last_sample.min, 
+            //    base_sample.size, base_sample.mean, (long) sqrt(base_sample.variance), pvalue);              /** COMMENT OUT IN REAL RUNS **/
       }
 
       lprintf("[Lambda-%d] Phase %d, Id read: %d\n", my_id, phase, id_read);      /** COMMENT OUT IN REAL RUNS **/
@@ -492,6 +468,186 @@ result_t* run_membus_protocol(int my_id, microseconds start_time_mus, int max_ph
 
    return result;
 }
+
+
+/************************** COVERT CHANNEL IMPLEMENTATION ******************************************************/
+/* Define everything related to data transmission over the covert channel here */
+
+#define DEFAULT_CHANNEL_UPTIME_SECS                   5           // Transfer data for 5 secs                
+#define CHANNEL_BIT_INTERVAL_MUS                      1000        // Spend 5ms per bit
+#define ATOMIC_OPS_BATCH_SIZE                         10          // do 10 ops before checking timeout
+#define MEM_ACCESS_LATENCY_WITH_LOCKING_THRESHOLD     200         // affect on regular memory accesses by membus locking
+#define MEM_ACCESS_LATENCY_WITH_LOCKING_MAX           2000        // anything above this number is a silly outlier caused due to context switching, etc
+
+/* This threshold separates the 0 and 1 bit on the receiver. The mean of base latencies without sender contention have been seen to range from 9250 to 10000
+ * Ref: plots/samples_stats_02-02-22-43.pdf, plots/samples_stats_02-02-22-53.pdf  */
+#define ATOMIC_OPS_LATENCY_WITH_LOCKING_THRESHOLD     10500
+#define ATOMIC_OPS_LATENCY_WITH_LOCKING_MAX           20000       // anything above this number is a silly outlier caused due to context switching, etc
+
+
+/* Takes a large sized buffer, performs a number of random accesses 
+   and reports the time (randomized to increase the possiblity of a cache miss).
+   NOTE: It seems like the GCC optimization options are important to properly measure time
+ */
+#pragma GCC push_options
+#pragma GCC optimize ("O0")
+uint64_t perform_random_access(void* buffer, size_t buf_size, int num_accesses) {         // TODO: Inline it?
+   uint64_t src = 100, rand, start, end;
+   rdtsc();
+   for(int i = 0; i < num_accesses; i++) {
+      rand = rand_xorshf96() % buf_size;
+      memcpy(buffer + rand, &src, sizeof(uint64_t));
+   }
+   rdtsc1();
+
+   start = ( ((int64_t)cycles_high << 32) | cycles_low );
+   end = ( ((int64_t)cycles_high1 << 32) | cycles_low1 );
+   return (end - start);
+}
+#pragma GCC pop_options
+
+/* Takes a large sized buffer, performs a number of random accesses 
+   and reports the time (randomized to increase the possiblity of a cache miss).
+   NOTE: It seems like the GCC optimization options are important to properly measure time
+ */
+inline uint64_t perform_exotic_ops(uint64_t* cacheline_addr, int num_accesses) {
+   uint64_t start, end;
+   rdtsc();
+   for (int i = 0; i < ATOMIC_OPS_BATCH_SIZE; i++)
+      __atomic_fetch_add(cacheline_addr, 1, __ATOMIC_SEQ_CST);
+   rdtsc1();
+
+   start = ( ((int64_t)cycles_high << 32) | cycles_low );
+   end = ( ((int64_t)cycles_high1 << 32) | cycles_low1 );
+   return (end - start);
+}
+
+/* Send a data segment; returns number of erasures detected  */
+int send_data(std::vector<bool> data, int nbits, int bit_interval_mus, microseconds start_time_mus, uint64_t* cacheline_addr, void* big_buffer, size_t big_buf_size, int threshold) {
+   microseconds bit_start_mus, bit_end_mus;
+   int num_erasures, erasures[nbits];
+   uint64_t start, end, access_cycles, access_count, access_avg, access_thresh, cycles;
+
+   /* Wait till the startpoint */
+   microseconds one_ms = microseconds(1000);
+   if (poll_wait(start_time_mus - one_ms)){
+      lprintf("ERROR! Already past the start point for covert channel data.\n");
+      return 1;
+   }
+
+   num_erasures = 0;
+   lprintf("Sending bits.. bit interval=%d mus, threshold=%d\n", bit_interval_mus, threshold);
+   for(int bit_idx = 0; bit_idx < nbits; bit_idx++) { 
+      bit_start_mus = start_time_mus + microseconds(bit_idx * bit_interval_mus);
+      bit_end_mus = bit_start_mus + microseconds(bit_interval_mus);
+
+      /* Checking time takes order of micro-seconds, so do it sparesely to not affect contention-causing.
+      * assuming each locking op costs few microseconds, check time every few hundred microseconds
+      * Release a bit early to avoid overruns */
+      microseconds ten_mus = microseconds(10);
+      bit_end_mus -= ten_mus;
+      access_cycles = 0;
+      access_count = 0;
+      bit0_readings_len = 0;     /* FIXME: I'm reusing NDP sample buffers to save channel samples as well, fix it! */
+      base_readings_len = 0;
+      while (within_time(bit_end_mus))
+      {  
+         /* if 1 bit, lock the mem bus using atomic ops; else, perform regular memory accesses */
+         if (data[bit_idx]){
+            cycles = perform_exotic_ops(cacheline_addr, ATOMIC_OPS_BATCH_SIZE);
+            if (cycles / ATOMIC_OPS_BATCH_SIZE > ATOMIC_OPS_LATENCY_WITH_LOCKING_MAX)  continue;
+            access_cycles += cycles;
+            if(bit0_readings_len < MAX_SAMPLES)    bit0_readings[bit0_readings_len++] = cycles / ATOMIC_OPS_BATCH_SIZE;
+         }
+         else{
+            /* TODO: Don't do this for now; suspecting that this may affect atomic op latencies and doesn't really help with the protocol */
+            // cycles = perform_random_access(big_buffer, big_buf_size, ATOMIC_OPS_BATCH_SIZE);
+            // if (cycles / ATOMIC_OPS_BATCH_SIZE > MEM_ACCESS_LATENCY_WITH_LOCKING_MAX)  continue;
+            // access_cycles += cycles;
+            // if(base_readings_len < MAX_SAMPLES)    base_readings[base_readings_len++] = cycles / ATOMIC_OPS_BATCH_SIZE;
+         } 
+         access_count += ATOMIC_OPS_BATCH_SIZE;
+      }
+
+      if (!data[bit_idx])
+         continue;
+
+      if (access_count == 0) {
+         /* We are past the time for this bit, perhaps the sender was descheduled */
+         erasures[num_erasures++] = bit_idx;
+         continue;
+      }
+      access_avg = access_cycles / access_count;
+      // printf("Send bit %d, %d - latency: %lu, count: %d\n", bit_idx, data[bit_idx] ? 1 : 0, access_avg, access_count);
+
+      // if access less then threshold, its an erasure
+      if (access_avg < threshold) {
+         /* Receiver was not listening during this time */
+         erasures[num_erasures++] = bit_idx;
+      }
+   }
+
+   // lprintf("Sender sent: ");
+   // for (int i = 0; i < nbits; i++)  lprintf("%d ", data[i] ? 1 : 0);
+   // lprintf("\nSender - erasures:%d\n", num_erasures);
+   return num_erasures;
+}
+
+
+/* Receive a data segment; returns number of erasures detected */
+int receive_data(std::vector<bool>* data, int nbits, int bit_interval_mus, microseconds start_time_mus, uint64_t* cacheline_addr, int threshold) {
+   microseconds bit_start_mus, bit_end_mus;
+   int num_erasures, erasures[nbits];
+   uint64_t start, end, access_cycles, access_count, access_avg, cycles;
+
+   /* Wait till the startpoint */
+   microseconds one_ms = microseconds(1000);
+   if (poll_wait(start_time_mus - one_ms)){
+      printf("ERROR! Already past the start point for covert channel data.\n");
+      return 1;
+   }
+
+   num_erasures = 0;
+   lprintf("Receiving bits.. bit interval=%d mus, threshold=%d\n", bit_interval_mus, threshold);
+   for(int bit_idx = 0; bit_idx < nbits; bit_idx++) { 
+      bit_start_mus = start_time_mus + microseconds(bit_idx * bit_interval_mus);
+      bit_end_mus = bit_start_mus + microseconds(bit_interval_mus);
+
+      /* Checking time takes order of micro-seconds, so do it sparesely to not affect contention-causing.
+      * assuming each locking op costs few microseconds, check time every few hundred microseconds
+      * Release a bit early to avoid overruns */
+      microseconds ten_mus = microseconds(10);
+      bit_end_mus -= ten_mus;
+      access_cycles = 0;
+      access_count = 0;
+      bit1_readings_len = 0;     /* FIXME: I'm reusing NDP sample buffers to save channel samples as well, fix it! */
+      while (within_time(bit_end_mus))
+      {  
+         /* receiver just performs exotic ops */
+         cycles = perform_exotic_ops(cacheline_addr, ATOMIC_OPS_BATCH_SIZE);
+         access_cycles += cycles;
+         if(bit1_readings_len < MAX_SAMPLES)    bit1_readings[bit1_readings_len++] = cycles / ATOMIC_OPS_BATCH_SIZE;
+         access_count += ATOMIC_OPS_BATCH_SIZE;
+      }
+
+      if (access_count == 0) {
+         /* We are past the time for this bit, perhaps the receiver was descheduled */
+         erasures[num_erasures++] = bit_idx;
+         data->push_back(false);
+         continue;
+      }
+      access_avg = access_cycles / access_count;
+      // printf("Recv bit %d - latency: %lu, count: %d\n", bit_idx, access_avg, access_count);
+      data->push_back(access_avg >= threshold);
+   }
+
+   // lprintf("Recver rcvd: ");
+   // for (int i = 0; i < nbits; i++)  lprintf("%d ", result[i] ? 1 : 0);
+   // lprintf("\nRecver - erasures:%d\n", num_erasures);
+   return num_erasures;
+}
+
+/************************** SYSTEM INFORMATION  ******************************************************/
 
 /* Get comma-seperated MAC addresses of all interfaces */
 std::string get_mac_addrs()
@@ -575,7 +731,7 @@ std::string get_ipaddr(void) {
  */
 #pragma GCC push_options
 #pragma GCC optimize ("O0")
-double get_cpu_cycles_per_operation(){
+double get_cpu_cycles_per_operation() {
    int TIMES = 1e8;
    uint64_t x = 0, start, end;
    microseconds begin_time = duration_cast<microseconds>(Clock::now().time_since_epoch());
@@ -635,17 +791,21 @@ bool write_to_s3(Aws::S3::S3Client const& client, std::string const& bucket, std
    return true;
 }
 
-/* Main entry point */
+/************************** MAIN ENTRY ******************************************************/
+
 invocation_response my_handler(invocation_request const& request, const std::shared_ptr<Aws::Auth::AWSCredentialsProvider>& credentialsProvider, 
    const Aws::Client::ClientConfiguration& config)
 {
    std::string start_time = current_datetime();
    int id, max_phases, max_bits, bit_duration_secs;
    long start_time_secs;
-   bool success = true, sysinfo, return_data;
-   std::string error, s3bucket, s3key, guid;
-   result_t* res = NULL;
+   bool success = true, sysinfo, return_data, setup_channel, repeat_phases;
+   std::string error, s3bucket, s3key, guid, chdata;
+   result_t* result = NULL;
    double protocol_time = 0;
+   int erasures, num_bits, sender_id, receiver_id, rate_bps, access_threshold, chdatalen;
+   bool channel_created = false;
+   std::vector<bool> data;
 
    AWS_LOGSTREAM_INFO(TAG, "Start");
 
@@ -667,12 +827,18 @@ invocation_response my_handler(invocation_request const& request, const std::sha
       log_ = body["log"].as<bool>(false);                   // include logs in response  
       save_samples = body["samples"].as<bool>(false);       // include a sample of latencies in response
       max_phases = body["phases"].as<int>(1);               // run 1 phase by default
+      repeat_phases = body["repeat_phases"].as<int>(true);  // repeat phases by default (i.e., always run the "first iteration" of the protocol advertising the max id)
       max_bits = body["maxbits"].as<int>(8);                // Assume maximum of 8 bits in ID by default
       bit_duration_secs = body["bitduration"].as<int>(1);   // takes 1 second for communicating each bit by default. phases*maxbits*bitduration gives total time
       return_data = body["return_data"].as<bool>(false);    // return data in API response. Stored to S3 by default.
-      s3bucket = body["s3bucket"].as<std::string>("");      // return data in API response. Stored to S3 by default.
-      s3key = body["s3key"].as<std::string>("");            // return data in API response. Stored to S3 by default.
+      s3bucket = body["s3bucket"].as<std::string>("");      // s3 bucket
+      s3key = body["s3key"].as<std::string>("");            // s3 key
       guid = body["guid"].as<std::string>("");              // globally unique id for this lambda (across experiments)
+      setup_channel = body["channel"].as<bool>(false);      // setup covert channel and measure its bandwidth after identifying neighbors 
+      rate_bps = body["rate"].as<int>(1000000/CHANNEL_BIT_INTERVAL_MUS);      // covert channel rate. default is 1000 bps
+      access_threshold = body["threshold"].as<int>(ATOMIC_OPS_LATENCY_WITH_LOCKING_THRESHOLD);      // threshold at which we call a received bit a 1 or 0
+      chdata = body["data"].as<std::string>("");            // custom data to send on the covert channel
+      chdatalen = body["datalen"].as<int>(0);               // length of custom data (IN BITS) to send on the covert channel
    }
    catch(std::exception& e){
       success = false;
@@ -682,8 +848,7 @@ invocation_response my_handler(invocation_request const& request, const std::sha
 
    lprintf("Starting lambda %d (GUID: %s) at %s", id, guid.c_str(), start_time.c_str());
    lambdas.push_back(guid);
-
-   
+ 
    #if __cplusplus==201402L
    lprintf("C++14\n");
    #elif __cplusplus==201103L
@@ -709,7 +874,27 @@ invocation_response my_handler(invocation_request const& request, const std::sha
       error = "INVALID_BIT_DURATION";
       lprintf("Bit duration is invalid (should be in [1, %d]\n", MAX_BIT_DURATION_SECS);
    }
-   
+     
+   if (setup_channel && (repeat_phases || max_phases < 2)) {
+      success = false;
+      error = "INVALID_CHANNEL_PARAMS";
+      lprintf("To set up a covert channel, need to run for atleast two `distinct` phases "
+               "(i.e., max_phases >= 2 and repeat_phases=false)\n");
+   }
+    
+   // if (setup_channel && (rate_bps <= 0 || 1000000 % rate_bps != 0)) {
+   if (setup_channel && (rate_bps <= 0)) {
+      success = false;
+      error = "INVALID_CHANNEL_RATE";
+      lprintf("Channel rate must be a positive number and a factor of 10^6. Rate provided: %d bps\n", rate_bps);
+   }
+
+   if (setup_channel && chdata.size() != chdatalen) {
+      lprintf("Provided channel data length %d does not match the actual length of the data %lu", chdatalen, chdata.size());
+      error = "INVALID_CHANNEL_DATA";
+      success = false;
+   }
+
    seconds now = duration_cast<seconds>(Clock::now().time_since_epoch());
    if (success && start_time_secs <= now.count()) {    // Unix time in secs
       success = false;
@@ -725,7 +910,6 @@ invocation_response my_handler(invocation_request const& request, const std::sha
       * even if none of the lambdas are actually thrashing 
       * NOTE: Purely time-based seed will backfire for applications that start together */
       unsigned int seed = std::time(nullptr) ^ (getpid()<<16 ^ (id << 16));
-      // unsigned int seed = good_seed(id);
       std::srand(seed);
 
       /* Check clock precision on the system is at least micro-seconds (TODO: Does this give real precision?) */
@@ -756,12 +940,61 @@ invocation_response my_handler(invocation_request const& request, const std::sha
          try {
             AWS_LOGSTREAM_INFO(TAG, "Running");
             microseconds start_time_mus = duration_cast<microseconds>(seconds(start_time_secs));
-            res = run_membus_protocol(id, start_time_mus, max_phases, max_bits, bit_duration_secs, addr, true, &protocol_time);
+            result = run_membus_protocol(id, start_time_mus, max_phases, max_bits, bit_duration_secs, addr, repeat_phases, &protocol_time);
          }
          catch (std::exception e){
             lprintf("Exception in membus protocol execution: %s", e.what());
             error = "MEMBUS_CRASH";
             success = false;
+         }
+
+         /*Set up a really simple covert channel and measure bandwidth */
+         if (success && setup_channel && result != NULL) {
+            bool sender = false, receiver = false;
+            if (result->ids[0] == id)  sender = true;
+            if (result->num_phases > 1 && result->ids[1] == id)  receiver = true;
+            if (result->num_phases < 2)   sender = receiver = false;    // no neighbors to talk to, ignore
+            if (sender && receiver)       sender = receiver = false;    // this shouldn't occur, but just in case
+
+            if (sender || receiver) {
+               channel_created = true;
+               sender_id = result->ids[0];
+               receiver_id = result->ids[1];
+               lprintf("Setting up channel between lambdas %d and %d!\n", sender_id, receiver_id);   
+
+               num_bits = chdatalen == 0 ? DEFAULT_CHANNEL_UPTIME_SECS * rate_bps : chdatalen;
+               base_readings_len = bit0_readings_len = bit1_readings_len = 0;       // FIXME: HACK to get some latency samples
+               int channel_start_time = start_time_secs + (max_phases * max_bits * bit_duration_secs) + 5;
+               microseconds start_time_mus = duration_cast<microseconds>(seconds(channel_start_time));
+
+               if (sender){
+                  /* Allocate a big buffer for regular memory accesses */
+                  const size_t DUMMY_BUF_SIZE = pow(2,29);		// 1GB
+                  void* dummy_buffer = NULL; //malloc(DUMMY_BUF_SIZE + sizeof(uint64_t));   
+                  // memset(dummy_buffer, 1, DUMMY_BUF_SIZE);     // this is necessary to actually allocate memory
+                  lprintf("Lambda %d: I'm a sender!\n", id);
+
+                  /* Use custom data if provided; else generate random data to send */
+                  if (chdata.empty()) {
+                     int percent_ones = std::rand() % 10;
+                     for(int i = 0; i < num_bits; i++)   data.push_back((std::rand() % 10) <= percent_ones);    // generate random data to send (with random number of ones)
+                  }
+                  else {
+                     // Custom data is provided ias bit string, covert to vector bool
+                     lprintf("Received custom data to send of length %lu\n", chdata.size())
+                     for (char const &c: chdata)   data.push_back(c == '1');
+                  }
+
+                  erasures = send_data(data, num_bits, 1000000 / rate_bps, start_time_mus, addr, dummy_buffer, DUMMY_BUF_SIZE, access_threshold);
+               }
+               if (receiver){     
+                  lprintf("Lambda %d: I'm a receiver!\n", id); 
+                  erasures = receive_data(&data, num_bits, 1000000 / rate_bps, start_time_mus, addr, access_threshold);
+               }
+            }
+            else {
+               lprintf("No neighbors to talk to or not selected as channel participant\n");
+            }
          }
       }
    }
@@ -778,36 +1011,65 @@ invocation_response my_handler(invocation_request const& request, const std::sha
    body["Success"] = success;
    body["Error"] = error;
    body["Protocol Time"] = (int)protocol_time;
-   body["Phases"] =  res != NULL ? res->num_phases : 0;
+   body["Phases"] =  result != NULL ? result->num_phases : 0;
    for (int i = 0; i < max_phases; i++) {
-      body["Phase " + std::to_string(i+1)] = (res != NULL && i < res->num_phases) ? res->ids[i] : -1;
+      body["Phase " + std::to_string(i+1)] = (result != NULL && i < result->num_phases) ? result->ids[i] : -1;
    }
 
    /* Save samples if specified */
-   if (success && save_samples) {
+   if (success && (save_samples || channel_created)) {
       std::string arr;
       std::stringstream ss1, ss2;
 
-      for (int i = 0; i < base_readings_len; i++) {
-         arr += std::to_string(base_readings[i]) + ',';
+      if (base_readings_len > 0) {
+         arr = "";
+         for (int i = 0; i < base_readings_len; i++) {
+            arr += std::to_string(base_readings[i]) + ',';
+         }
+         body["Base Sample"] = RSJresource(arr, true);
       }
-      body["Base Sample"] = RSJresource(arr, true);
       
-      arr = "";
-      for (int i = 0; i < bit1_readings_len; i++) {
-         arr += std::to_string(bit1_readings[i]) + ',';
+      if (bit1_readings_len > 0) {
+         arr = "";
+         for (int i = 0; i < bit1_readings_len; i++) {
+            arr += std::to_string(bit1_readings[i]) + ',';
+         }
+         body["Bit-1 Sample"] = RSJresource(arr, true);
       }
-      body["Bit-1 Sample"] = RSJresource(arr, true);
-      ss1 << std::setprecision(15) << bit1_pvalue;
-      body["Bit-1 Pvalue"] = ss1.str();
+      if (save_samples) {
+         ss1 << std::setprecision(15) << bit1_pvalue;
+         body["Bit-1 Pvalue"] = ss1.str();
+      }
       
-      arr = "";
-      for (int i = 0; i < bit0_readings_len; i++) {
-         arr += std::to_string(bit0_readings[i]) + ',';
+      if (bit0_readings_len > 0) {
+         arr = "";
+         for (int i = 0; i < bit0_readings_len; i++) {
+            arr += std::to_string(bit0_readings[i]) + ',';
+         }
+         body["Bit-0 Sample"] = RSJresource(arr, true);
       }
-      body["Bit-0 Sample"] = RSJresource(arr, true);
-      ss2 << std::setprecision(15) << bit0_pvalue;
-      body["Bit-0 Pvalue"] = ss2.str();   //ss.str to preserve precision
+      if (save_samples) {
+         ss2 << std::setprecision(15) << bit0_pvalue;
+         body["Bit-0 Pvalue"] = ss2.str();   //ss.str to preserve precision
+      }
+   }
+
+   /* Save covert channel info */
+   if (setup_channel && channel_created) {
+      body["Channel"] = RSJresource("{}");
+      body["Channel"]["Role"] = sender_id == id ? "Sender" : "Receiver";
+      body["Channel"]["Sender Id"] = sender_id;
+      body["Channel"]["Receiver Id"] = receiver_id;
+      body["Channel"]["Bits"] = num_bits;
+      body["Channel"]["Rate"] = rate_bps;
+      body["Channel"]["Erasures"] = erasures;
+      
+      /* Encode sent/received data */
+      std::string arr = "";
+      for (int i = 0; i < num_bits; i++) {
+         arr += data[i] ? "1" : "0";
+      }
+      body["Channel"]["Data"] = RSJresource(arr, true);
    }
 
    /* Save some system info */
