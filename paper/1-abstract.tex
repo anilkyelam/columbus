@@ -6,20 +6,16 @@ growing segments of the cloud services market. These services are popular in
 part due to their light-weight nature and flexibility in scheduling and cost,
 however the security issues associated with serverless computing are not well
 understood. In this work, we explore the feasibility of constructing a practical
-covert channel from lambdas.  \amirian{Suggested change: We explore the
-challenges of a co-residence detector for lambdas and proceed to develop a
-reliable and scalable co-residence detector using the memory bus hardware.}
-\anil{prefer not, because that adds a jump to co-residece detector from covert channels, 
-reader may not quickly connect the two} We
-establish that a fast co-residence detection for lambdas is key to enabling such
-a covert channel, and proceed to develop a reliable and scalable co-residence
-detector based on the memory bus hardware. Our technique enables dynamic
-discovery for co-resident lambdas and is incredibly fast, executing in a matter
-of seconds.  We evaluate our approach for correctness and scalability, and use
-it to establish covert channels and perform data transfer on AWS lambdas.  We
-show that we can establish tens of individual covert channels for every 1000
-lambdas, and each of those channels can send data at a rate of ~200 bits per
-second, thus demonstrating the feasibility of covert communication via lambdas.
+covert channel from lambdas. We establish that a fast co-residence detection for
+lambdas is key to enabling such a covert channel, and proceed to develop a
+reliable and scalable co-residence detector based on the memory bus hardware.
+Our technique enables dynamic discovery for co-resident lambdas and is
+incredibly fast, executing in a matter of seconds.  We evaluate our approach for
+correctness and scalability, and use it to establish covert channels and perform
+data transfer on AWS lambdas.  We show that we can establish tens of individual
+covert channels for every 1000 lambdas, and each of those channels can send data
+at a rate of ~200 bits per second, thus demonstrating the feasibility of covert
+communication via lambdas.
 %\ugh{Through this work, we show that efforts to secure 
 %co-residency detection on cloud platforms are not yet complete.}
 

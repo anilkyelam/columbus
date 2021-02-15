@@ -71,9 +71,6 @@ should have the following properties:
 
 
 \subsection{Design}
-\amirian{Alternate title: Design Considerations}
-\amirian{each of these sections is basically setting up the problems so that we
-can address them later\anil{well, the final subsubsection is the design itself..}}
 
 \subsubsection{Generality}
 As mentioned in section~\ref{sec:background:coresidence}, co-residence detection
@@ -97,10 +94,6 @@ than software.
 
 
 \subsubsection{Challenge with Covert Channels}
-\amirian{alternate subtitle: Multiple Party Support}
-\amirian{this paragraph differs from the other two in that it doesnt have a
-solution for this design consideration}
-
 Since covert channels can send information, we would naturally expect that we
 can use the same channel to communicate identity information (such as unique
 IDs) between co-resident lambdas. However, covert channels generally presume
@@ -112,8 +105,6 @@ parties can either only send or receive a bit, not both) with no capability for
 collision detection. Covert channels also typically have very limited bandwidth
 (often only tens of bits per second) that channel arbitration can be complex
 enough and present significant overhead to be considered infeasible.
-\amirian{needs the high level solution to match the flow of the others
-\anil{updated name may render this moot}}
 
 
 %such as MAC protocols in Ethernet networks, 
@@ -135,7 +126,6 @@ enough and present significant overhead to be considered infeasible.
 %
 
 \subsubsection{Efficient ID Broadcasting}
-\amirian{alternate subtitle: Broadcasting IDs Quickly or Fast ID Broadcasting}
 \label{sec:method:protocol}
 
 
@@ -176,7 +166,6 @@ enough and present significant overhead to be considered infeasible.
 \end{algorithmic}
 \end{algorithm}
 
-\amirian{I think the problem statement should be a bit clearer}
 For co-residence detection, lambdas only need to communicate their IDs with one
 another. As such, we do not require the communicate channel be general or
 expressive, but that the communication be fast (to account for the ephemeral
@@ -249,7 +238,6 @@ used the hardware to send and listen for bits in order to meet the requirements
 for the protocol. 
 
 \subsubsection{Memory Bus Covert Channel}
-\amirian{alternate subtitle: Memory Bus as a Cover Channel\anil{removed "introducing"}}
 We utilize the memory bus covert channel described in
 section~\ref{sec:background:covertchannels} as it exploits a fundamental
 hardware vulnerability that is present across all generations of x86 hardware.
