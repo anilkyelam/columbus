@@ -175,7 +175,7 @@
 
 # # Plot channel errors and capacity
 plot=plots/channel_rate_3gb.pdf
-python plot.py -o $plot -yl "Errors %" -tyl "Rate (bits per sec)" --xlog  --twin 2  -fs 18    \
+python plot.py -o $plot -yl "Errors %" -tyl "Rate (bits per sec)" --xlog  --twin 3  -fs 18    \
     -dyc out/chstats_membus3008 "Byte Errors Mean" -l "Byte Errors, Mean"         -ls dash       \
     -dyc out/chstats_membus3008 "Byte Errors 95per" -l "Byte Errors, 95%"         -ls dashdot        \
     -dyc out/chstats_membus3008 "Effective Rate 95per" -l "Effective Bit Rate (Goodput)"     -ls solid              \
