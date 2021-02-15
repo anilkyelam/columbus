@@ -3,37 +3,6 @@
 \section{Co-residence Detector for Lambdas}
 \label{sec:methodology}
 
-% TODO: This figure shows only mem access latencies of exotic 
-% operation. how does these operations affect latencies of other exotic 
-% operations or regular memory accesses?
-\begin{figure*}[h!]
-\begin{subfigure}{.33\textwidth}
-  \centering
-  \includegraphics[width=.99\linewidth]{fig/membus_aws.pdf}
-%   \caption{1a}
-%   \label{fig:sfig1}
-\end{subfigure}%
-\begin{subfigure}{.33\textwidth}
-  \centering
-  \includegraphics[width=.99\linewidth]{fig/membus_azure.pdf}
-%   \caption{1b}
-%   \label{fig:sfig2}
-\end{subfigure}
-\begin{subfigure}{.33\textwidth}
-  \centering
-  \includegraphics[width=.99\linewidth]{fig/membus_gcp.pdf}
-%   \caption{1b}
-%   \label{fig:sfig2}
-\end{subfigure}
-\caption{The plots show the latencies of atomic memory operations performed on
-        an 8B memory region as we slide from one cache line across the boundary into
-        another on AWS, Azure, and Google (GCP) respectively.  The latencies are orders
-        of magnitude higher when the 8B region falls across the two cache lines (offsets
-        0-7B), demonstrating the presence of the memory bus covert channel on all these
-        cloud providers. \label{fig:membus_clouds}}
-\label{fig:fig}
-\end{figure*}
-
 
 In this section, we describe the necessary requirements for a lambda-based 
 co-residence detector, how these requirements have driven our design choices, 
@@ -75,7 +44,7 @@ should have the following properties:
 \subsubsection{Generality}
 As mentioned in section~\ref{sec:background:coresidence}, co-residence detection
 was previously accomplished using unique software identifiers that revealed
-underlying the server structure to the tenants. Such software identifiers
+the underlying server to the tenants. Such software identifiers
 present the fastest and perhaps most reliable way (in terms of ground
 truth) for co-residence detection. 
 In our scenario, each lambda could quickly ``read'' the identifier
@@ -94,14 +63,16 @@ than software.
 
 
 \subsubsection{Challenge with Covert Channels}
-Since covert channels can send information, we would naturally expect that we
-can use the same channel to communicate identity information (such as unique
-IDs) between co-resident lambdas. However, covert channels generally presume
+Since covert channels can send information, one could potentially use them 
+to communicate identity information (such as unique
+IDs) between co-resident lambdas to detect co-residence. 
+However, covert channels generally presume
 that the sender and the receiver are already known and that there will be only
 two parties performing communication. When multiple parties share a channel, we
 need stricter control over the channel, to arbitrate access to the channel and
 handle collisions.  However, covert channels are often binary channels (i.e.,
-parties can either only send or receive a bit, not both) with no capability for
+parties can either only send or receive a bit at a time, 
+not both) with no capability for
 collision detection. Covert channels also typically have very limited bandwidth
 (often only tens of bits per second) that channel arbitration can be complex
 enough and present significant overhead to be considered infeasible.
@@ -166,25 +137,56 @@ enough and present significant overhead to be considered infeasible.
 \end{algorithmic}
 \end{algorithm}
 
+
+% TODO: This figure shows only mem access latencies of exotic 
+% operation. how does these operations affect latencies of other exotic 
+% operations or regular memory accesses?
+\begin{figure*}[h!]
+  \begin{subfigure}{.33\textwidth}
+    \centering
+    \includegraphics[width=.99\linewidth]{fig/membus_aws.pdf}
+  %   \caption{1a}
+  %   \label{fig:sfig1}
+  \end{subfigure}%
+  \begin{subfigure}{.33\textwidth}
+    \centering
+    \includegraphics[width=.99\linewidth]{fig/membus_azure.pdf}
+  %   \caption{1b}
+  %   \label{fig:sfig2}
+  \end{subfigure}
+  \begin{subfigure}{.33\textwidth}
+    \centering
+    \includegraphics[width=.99\linewidth]{fig/membus_gcp.pdf}
+  %   \caption{1b}
+  %   \label{fig:sfig2}
+  \end{subfigure}
+  \caption{The plots show the latencies of atomic memory operations performed on
+          an 8B memory region as we slide from one cache line across the boundary into
+          another on AWS, Azure, and Google (GCP) respectively.  The latencies are orders
+          of magnitude higher when the 8B region falls across the two cache lines (offsets
+          0-7B), demonstrating the presence of the memory bus covert channel on all these
+          cloud providers. \label{fig:membus_clouds}}
+  \label{fig:fig}
+  \end{figure*}
+
 For co-residence detection, lambdas only need to communicate their IDs with one
-another. As such, we do not require the communicate channel be general or
-expressive, but that the communication be fast (to account for the ephemeral
-nature of lambdas). We assume that each lambda involved has a unique fixed-length (say
-\emph{N}) bit-string corresponding to its ID that must be communicated.  We also
-assume that any lambda with access to the channel can choose to either send or
-listen for a bit, and if at least one lambda chooses to send a bit, all the
-listeners would record a bit. Finally, we assume that lambdas can synchronize
+another. As such, we do not require the channel be general or
+expressive, only that it can communicate just these IDs as efficiently as 
+possible. In keeping with the restrictions on a covert channel,
+we assume that any lambda with access to the channel can choose to either send or
+listen for a 1-bit, and if at least one lambda chooses to send a bit, all the
+listeners would record the 1-bit. Additionally, we assume that lambdas can synchronize
 themselves between sending or listening a bit in each time slot. We show both
 these assumptions to be reasonable in section~\ref{sec:method:impl}. As such, we
 propose a communication protocol that efficiently broadcasts just these
-bit-strings on channels with such restricted properties.
+IDs (i.e., bit-strings of fixed-length, say\emph{N}) within the above constraints.
 
 We divide the total running time of the protocol into phases, with each phase
 executing for an interval of \textit{N} bit-slots. Each phase has a set of
 \textit{participating} lambdas, which in the first phase would be all of the
 lambdas. In each bit-slot \textit{K} of \textit{N} slots in a phase, every
 participating lambda broadcasts a bit if the $K^{th}$ bit of its bit-string (ID)
-is 1, otherwise it listens for a 0 or 1. If a lambda senses a 1 while
+is 1, otherwise it listens. If the listening lambda senses a 1-bit while
 listening, it stops participating, and listens for the rest of the phase. Thus,
 only the lambdas with the highest ID among the initial set of participating
 lambdas continues broadcasting until the end of the protocol, effectively
@@ -194,24 +196,15 @@ next highest lambda to advertise its ID, and so on.  If the IDs are unique,
 there will always be only one lambda that broadcasts in every phase. The
 protocol ends after \textit{x} phases (where \textit{x} is the number of co-resident
 lambdas), when none of the lambdas broadcast for \textit{N} consecutive
-bit-slots. The pseudo-code of the protocol is provided in Algorithm
-\ref{alg:protcol}. 
+bit-slots. The pseudo-code of the protocol is provided in Algorithm~\ref{alg:protcol}. 
 %Note that the protocol itself is channel-agnostic and can be
 %extended for other (future) covert channels with similar channel properties.
-
-% Figure moved here for formatting
-\begin{figure}[!t]
-  \includegraphics[width=.99\linewidth]{fig/errorrates.pdf}
-  \caption{This figure presents the error rate (as a fraction of 1000 lambdas
-  deployed) for different lambda sizes in the AWS Middle-East region.
-\label{fig:errorrates}}
-\end{figure}
 
 \textbf{Time complexity}
 \label{sec:protocol:complexity}
 Assuming \textit{N} total deployed lambdas to the cloud, the bit-string needs
 to be $\log_2N$ bits to uniquely identify each lambda. If a maximum \textit{K}
-of those lambdas are launched on the same server, the protocol executes for
+of those lambdas are launched on any single server, the protocol executes for
 \textit{K} phases of $\log_2N$ bit-slots each, taking $(K+1)*\log_2N$ bit-slots
 for the whole operation.  In fact, it is not necessary to run the protocol for all \textit{K}
 phases. After the first phase, all the co-resident lambdas would know one of
@@ -236,6 +229,7 @@ Using the design considerations just discussed, we implemented the above
 protocol using a covert channel based on memory bus hardware.  We discuss how we
 used the hardware to send and listen for bits in order to meet the requirements
 for the protocol. 
+
 
 \subsubsection{Memory Bus Covert Channel}
 We utilize the memory bus covert channel described in
@@ -317,27 +311,13 @@ co-residence detection mechanism.
 %% we already said it at the beginning of the paragraph
 
 
-\begin{algorithm}[!t]
-\caption{Reading a bit in the receiver}
-\label{alg:receiver}
-\begin{algorithmic}[1]
-\STATE $now \leftarrow  time.now()$
-\STATE $end \leftarrow now + sampling\_duration$
-\STATE $sampling\_rate \leftarrow num\_samples / sampling\_duration$
-\STATE $address \leftarrow cache\_line\_boundary-2$
-\STATE $samples \leftarrow \{\} $
-\WHILE{$now < end$}
-    \STATE $before \leftarrow RDTSC()$
-    \STATE $\_\_ATOMIC\_FETCH\_ADD(address)$
-    \STATE $after \leftarrow RDTSC()$
-    \STATE $samples \leftarrow samples \cup \{(after-before)\}$
-    \STATE \textbf{wait until} $NEXT\_POISSON(sampling\_rate)$
-    \STATE $now \leftarrow  time.now()$
-\ENDWHILE
-\STATE $ks\_val \leftarrow KOLMOGOROV\_SMIRINOV(samples, baseline)$
-\STATE \textbf{return} $ks\_val < ksvalue\_threshold$
-\end{algorithmic}
-\end{algorithm}
+% Figure moved here for formatting
+\begin{figure}[!t]
+  \includegraphics[width=.99\linewidth]{fig/errorrates.pdf}
+  \caption{This figure presents the error rate (as a fraction of 1000 lambdas
+  deployed) for different lambda sizes in the AWS Middle-East region.
+\label{fig:errorrates}}
+\end{figure}
 
 
 \textbf{Sampling frequency}
@@ -436,6 +416,28 @@ in~\ref{sec:method:samplingdur}).  This trend also reflects in the reliability
 of our technique across various lambda sizes, as we will show in our evaluation.
 Based on the plot, we picked a KS-threshold at 3.0 which seems to be consistent
 across AWS regions, suggesting that this threshold is a platform constant.
+
+\begin{algorithm}[!t]
+  \caption{Reading a bit in the receiver}
+  \label{alg:receiver}
+  \begin{algorithmic}[1]
+  \STATE $now \leftarrow  time.now()$
+  \STATE $end \leftarrow now + sampling\_duration$
+  \STATE $sampling\_rate \leftarrow num\_samples / sampling\_duration$
+  \STATE $address \leftarrow cache\_line\_boundary-2$
+  \STATE $samples \leftarrow \{\} $
+  \WHILE{$now < end$}
+      \STATE $before \leftarrow RDTSC()$
+      \STATE $\_\_ATOMIC\_FETCH\_ADD(address)$
+      \STATE $after \leftarrow RDTSC()$
+      \STATE $samples \leftarrow samples \cup \{(after-before)\}$
+      \STATE \textbf{wait until} $NEXT\_POISSON(sampling\_rate)$
+      \STATE $now \leftarrow  time.now()$
+  \ENDWHILE
+  \STATE $ks\_val \leftarrow KOLMOGOROV\_SMIRINOV(samples, baseline)$
+  \STATE \textbf{return} $ks\_val < ksvalue\_threshold$
+  \end{algorithmic}
+  \end{algorithm}
 
 We present the pseudo-code of a receiver lambda in Algorithm~\ref{alg:receiver},
 which includes all the challenges and subsequent solutions discussed thus

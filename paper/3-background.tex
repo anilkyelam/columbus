@@ -1,6 +1,6 @@
 \section{Background}
 \label{sec:background}
-We begin with a brief background on related topics.
+We begin with a brief background on related topics. 
 
 \subsection{Lambdas/Serverless Functions} 
 \label{sec:background:lambdas}
@@ -16,7 +16,7 @@ of functions on servers. Moreover, lambdas execute as much smaller units  and
 are more ephemeral than virtual machines.  For example, on AWS,
 the memory of lambdas is capped at 3 GB, with a maximum execution limit of 15
 minutes.  As with other cloud services, the user has no control over the
-physical location of the server(s) on which their lambdas are spawned.
+physical location of the server(s) on which their lambdas are spawned. \\
 
 While lambdas are limited in the computations they can execute (typically
 written in high-level languages like Python, C\#, etc), they are conversely
@@ -29,8 +29,7 @@ and their limited flexibility increases the difficulty in detecting
 co-residency, as we will discuss later. While previous studies that profiled
 lambdas~\cite{wangusenix2018} focused on the performance aspects like cold start
 latencies, function instance lifetime, and CPU usage across various clouds,
-the security aspects remain relatively understudied.
-
+the security aspects remain relatively understudied. \\
 
 \subsection{Covert Channels in the Cloud}
 \label{sec:background:covertchannels}
@@ -62,7 +61,7 @@ locking operations compared to traditional memory accesses. As a result, a few
 consecutive locking operations could cause contention on the memory bus that
 could be exploited for covert communication.  Wu et al. achieved a data rate of
 700 bits per second (bps) on the memory bus channel in an ideal laboratory
-setup.
+setup. \\
 
 Achieving such ideal performance, however, is generally not possible in cloud 
 environments. Cloud platforms employ virtualization to enable statistical 
@@ -103,6 +102,6 @@ a move towards using hardware-based covert channels, such as the ones discussed
 in section \ref{sec:background:covertchannels}, which can bypass software
 isolation and are thus usually harder to fix. For example, Varadarajan et
 al.~\cite{varadarajan2015} use the memory bus covert channel to detect
-co-residency for EC2 instances.  However, as we will show, their approach does
+co-residency for EC2 instances.  However, their approach does
 not extend well to lambdas as it is neither fast nor scalable.
 

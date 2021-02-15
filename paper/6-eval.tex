@@ -51,8 +51,8 @@ more errors.  This is expected because, as discussed in section
 \ref{sec:method:noise}, these lambdas experience lossy communication, making it
 harder for our technique to sense contention. Lambdas that are 1.5 GB and
 larger, though, exhibit a 100\% success rate. Of these errors, false positives are 
-rare as we run multiple independent rounds, and the chance of two rounds erring at 
-the same bit(s) (to give the same wrong result across the majority of rounds) is low. 
+rare as we run multiple independent rounds, and the chances of two rounds erring at 
+the same bit(s) (to give the same wrong result across the majority of rounds) are low. 
 False negatives, however, are common and contribute to most of the errors.
 
 \textbf{Correctness} 
@@ -62,7 +62,7 @@ able to ascertain correctness of our approach by utilizing an AWS caching
 mechanism. On AWS, each lambda runs in a dedicated container (sandbox).  After
 execution, AWS caches these containers in order to reuse
 them~\cite{awscontainerreuse} and mitigate "cold start" latencies. 
-We found that global objects like files persist across warm-starts,
+We found that global objects like files are persisted across warm-starts,
 and can be used to track all the lambdas that were
 ever executed in a particular container. Using this insight, we are able to 
 validate that
@@ -139,6 +139,16 @@ nor can it be used to verify correctness in all scenarios.)
   vary widely across regions, perhaps based on the size of those regions and the lambda activity within them. }
   \label{fig:awsregions}
   \end{figure*}
+
+  
+\begin{figure}[!t]
+  \includegraphics[width=.99\linewidth]{fig/clusters.pdf}
+  \caption{This figure shows the number of co-resident groups with more than two lambdas
+  seen in various AWS regions for the runs shown in Figure~\ref{fig:awsregions}. 
+  Each such co-resident group can host a covert channel, indicating that a 1000 lambda 
+  deployment can enable hundreds of covert channels.
+\label{fig:clusters}}
+\end{figure}
 
 To demonstrate this correlation, we run an
 experiment with 1000 1.5GB cold-started lambdas (ID'ed 1 to 1000) in one of

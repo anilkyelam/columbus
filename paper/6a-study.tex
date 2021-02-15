@@ -10,6 +10,31 @@ We first produce an estimate on the capacity of the covert channels established,
 and then examine the co-residence density in various AWS regions to understand
 the number of rendezvous points and factors that affect it.
 
+
+\begin{figure*}[!t]
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[width=.99\linewidth]{fig/different-accounts.pdf}
+  %   \caption{1a}
+  %   \label{fig:sfig1}
+  \end{subfigure}%
+  \begin{subfigure}{.5\textwidth}
+    \centering
+    \includegraphics[width=.99\linewidth]{fig/different-sizes.pdf}
+  %   \caption{1b}
+  %   \label{fig:sfig2}
+  \end{subfigure}
+
+  \caption{The left plot shows the breakdown of co-resident groups (of varying
+  sizes) of lambdas by two different accounts in an experiment of 1000
+  lambdas, where 500 lambdas are launched from each account. The uniformity of
+  the split suggests that the lambda scheduler might be invariant to the
+  account the lambdas are launched from. Similar results are shown for
+  different lambda sizes in the right plot. }
+  \label{fig:factors}
+\end{figure*}
+
+
 \subsection{Covert Channel Capacity}
 
 Once co-residence between any two lambdas is established, the attacker can then
@@ -50,18 +75,9 @@ From Figure~\ref{fig:channel}, we can see that effective bitrate rises to a
 maximum of over 200 bits per second (bps) (at 500 bps raw rate) before falling
 again due to high error rate. We confirmed this by sending Reed-Solomon encoded
 data over the covert channels at this rate and observed near-zero data
-corruption. Thus, we conclude that, by a conservative estimate, we can safely
-send data across each of these covert channels at a rate of ~200 bps.
+corruption after decoding. Thus, we conclude that, by a conservative estimate, 
+we can safely send data across each of these covert channels at a rate of around 200 bps.
 
-
-\begin{figure}[!t]
-  \includegraphics[width=.99\linewidth]{fig/clusters.pdf}
-  \caption{This figure shows the number of co-resident groups with more than two lambdas
-  seen in various AWS regions for the runs shown in Figure~\ref{fig:awsregions}. 
-  Each such co-resident group can host a covert channel, indicating that a 1000 lambda 
-  deployment can enable hundreds of covert channels.
-\label{fig:clusters}}
-\end{figure}
 
 
 \subsection{Covert Channel Density}
@@ -82,29 +98,6 @@ section are performed with 1.5 GB lambdas and executed successfully with
 \textbf{zero error} in co-residence detection.
 
 
-\begin{figure*}[!t]
-    \begin{subfigure}{.5\textwidth}
-      \centering
-      \includegraphics[width=.99\linewidth]{fig/different-accounts.pdf}
-    %   \caption{1a}
-    %   \label{fig:sfig1}
-    \end{subfigure}%
-    \begin{subfigure}{.5\textwidth}
-      \centering
-      \includegraphics[width=.99\linewidth]{fig/different-sizes.pdf}
-    %   \caption{1b}
-    %   \label{fig:sfig2}
-    \end{subfigure}
-
-    \caption{The left plot shows the breakdown of co-resident groups (of varying
-    sizes) of lambdas by two different accounts in an experiment of 1000
-    lambdas, where 500 lambdas are launched from each account. The uniformity of
-    the split suggests that the lambda scheduler might be invariant to the
-    account the lambdas are launched from. Similar results are shown for
-    different lambda sizes in the right plot. }
-    \label{fig:factors}
-\end{figure*}
-
 
 \subsubsection{Across AWS regions}  
 We execute our co-residence detector with 1000 1.5 GB lambdas in various AWS
@@ -119,9 +112,10 @@ that the co-residence density is (inversely) dependent on the total number of
 servers and the lambda activity in the region, both of which can be assumed to
 be lower in newer AWS regions resulting in higher co-residence density in those
 regions. Figure~\ref{fig:clusters} shows the total number of co-resident groups
-with two or more lambdas, each of which can be an independent covert channel.
+with two or more lambdas for a 1000 lambda run, each of which enables an 
+independent covert channel.
 The ample co-residence in general across all the regions shows that lambdas
-provide a fertile ground for covert channels.
+provide a fertile ground for covert communication.
 %We note that the largest co-resident group on a single machine was comprised of 25 lambdas. 
 
 
