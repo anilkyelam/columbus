@@ -140,7 +140,7 @@ enough and present significant overhead to be considered infeasible.
 
 
 \begin{algorithm}[!t]
-\caption{Neighbor discovery protocol}
+\caption{ID Broadcast Protocol}
 \label{alg:protcol}
 \begin{algorithmic}[1]
 \STATE $sync\_point \leftarrow$ {Start time for all instances}
@@ -218,9 +218,8 @@ bit-slots. The pseudo-code of the protocol is provided in Algorithm
 \label{fig:errorrates}}
 \end{figure}
 
-\subsubsection{Time Complexity}
+\textbf{Time complexity}
 \label{sec:protocol:complexity}
-\amirian{couldnt this go under the previous subsubsection}
 Assuming \textit{N} total deployed lambdas to the cloud, the bit-string needs
 to be $\log_2N$ bits to uniquely identify each lambda. If a maximum \textit{K}
 of those lambdas are launched on the same server, the protocol executes for
@@ -249,8 +248,8 @@ protocol using a covert channel based on memory bus hardware.  We discuss how we
 used the hardware to send and listen for bits in order to meet the requirements
 for the protocol. 
 
-\subsubsection{Introducing Memory Bus Covert Channel}
-\amirian{alternate subtitle: Memory Bus as a Cover Channel}
+\subsubsection{Memory Bus Covert Channel}
+\amirian{alternate subtitle: Memory Bus as a Cover Channel\anil{removed "introducing"}}
 We utilize the memory bus covert channel described in
 section~\ref{sec:background:covertchannels} as it exploits a fundamental
 hardware vulnerability that is present across all generations of x86 hardware.
@@ -370,8 +369,8 @@ sample the bus at the same time, with high probability. We achieve this by
 using large intervals between successive samples and a poisson-sampling to
 prevent time-locking of receivers. We determined that a millisecond poisson gap
 between samples is reasonable to minimize noise due to collisions in the receiver
-sampling~\ref{fig:membus_clouds}, assuming ten co-resident receivers and a few
-microseconds sampling time. \todo{R1 needed clarification}
+sampling, assuming tens of co-resident receivers and a few
+microseconds sampling time.
 
 \textbf{Sample Size} 
 \label{sec:method:samplingdur}
